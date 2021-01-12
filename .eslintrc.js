@@ -17,6 +17,10 @@ module.exports = {
         'eslint:recommended',
         '@vue/typescript/recommended'
     ],
+    globals: {
+        window: true,
+        document: true
+    },
     rules: {
         'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',

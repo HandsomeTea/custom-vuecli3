@@ -1,30 +1,61 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </div>
-  <router-view />
+    <router-view />
 </template>
 
-<style lang="less">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script lang="ts">
+import { Vue } from 'vue-class-component';
+import { Action } from 'vuex-class';
+import { Store, useStore } from 'vuex';
+import { ref, watch } from 'vue';
+import { SetScreenTypeAction, RootState } from './store/stateModel';
 
-#nav {
-  padding: 30px;
+export default class App extends Vue {
+    setup() {
+        const store: Store<RootState> = useStore();
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
+        console.log(store);
+        const language = ref(store.state.language);
 
-    &.router-link-exact-active {
-      color: #42b983;
+        watch(language, () => {
+            console.log(language);
+        });
+
+        return {
+            language
+        };
     }
-  }
+
+    created() {
+        this.setWindowSize();
+    }
+
+    mounted() {
+        let waitForResizeEndTimer: null | number = null;
+
+        window.onresize = () => {
+            const waitTime = 500;
+
+            if (waitForResizeEndTimer === null) {
+                waitForResizeEndTimer = window.setTimeout(() => {
+                    this.setWindowSize();
+                }, waitTime);
+            } else {
+                clearTimeout(waitForResizeEndTimer);
+                waitForResizeEndTimer = window.setTimeout(() => {
+                    this.setWindowSize();
+                }, waitTime);
+            }
+        };
+    }
+
+    @Action('setScreenType')
+    private setWindowSize!: SetScreenTypeAction;
+
+    // @State('language')
+    // private language!: string;
+
+    // private get currentLang(): string {
+    //     return this.language;
+    // }
 }
-</style>
+</script>
