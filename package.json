@@ -65,12 +65,12 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "pre-push": "npm run eslint"
+      "pre-push": "npm run lint"
     }
   },
   "lint-staged": {
     "./**/*.{js,ts,vue}": [
-      "npm run eslint"
+      "npm run lint"
     ]
   }
 }
