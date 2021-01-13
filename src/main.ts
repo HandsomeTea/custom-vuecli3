@@ -5,7 +5,7 @@ import store from './store';
 import i18n from './lang';
 import ElementPlus from './ui-frame/element-ui';
 import Vant from './ui-frame/vant';
-import './assets/style';
+import './assets';
 
 const app = createApp(App)
     .use(store)
