@@ -8,7 +8,9 @@
     "start": "npm run serve",
     "build": "vue-cli-service build",
     "build-test": "vue-cli-service build -build-test",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "webpack-rules": "vue inspect --rules > webpack.default.rules.txt",
+    "webpack-plugins": "vue inspect --plugins > webpack.default.plugins.txt"
   },
   "repository": {
     "type": "git",
