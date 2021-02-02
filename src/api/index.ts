@@ -16,7 +16,7 @@ class Accounts extends Base {
     }
 
     public async test(body?: Record<string, unknown>): Promise<ApiResult> {
-        return HTTP.get('/tests/test/api', { data: body }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+        return HTTP.get('/api/v1/users/search', { data: body }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
     }
 }
 

@@ -20,12 +20,8 @@ module.exports = merge(common, {
         headers: {},
         open: true,
         proxy: {
-            '/module/modulea': {
+            '/api/': {
                 target: 'http://localhost:8091',
-                changeOrigin: false
-            },
-            '/': {
-                target: 'https://surpass-estage.bizconf.cn/',
                 changeOrigin: true
             }
         }

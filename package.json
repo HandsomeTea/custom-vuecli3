@@ -6,7 +6,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "start": "npm run serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --modern",
     "build-test": "vue-cli-service build -build-test",
     "lint": "vue-cli-service lint",
     "webpack-rules": "vue inspect --rules > webpack.default.rules.txt",

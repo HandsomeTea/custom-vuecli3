@@ -20,3 +20,5 @@ declare interface ApiResult {
     data?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
     error?: httpException;
 }
+
+type SupportLanguageType = 'zh-cn' | 'zh-tw' | 'en';
