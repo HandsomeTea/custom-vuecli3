@@ -14,7 +14,7 @@ import { Vue } from 'vue-class-component';
 // import { watch } from 'vue';
 import { State, Action } from 'vuex-class';
 import { RootState, UserState, SetLanguageAction } from '../store/stateModel';
-// import Api from '@/api';
+import Api from '@/api';
 // import Tips from '@/ui-frame/ui-tips';
 
 export default class Hoom extends Vue {
@@ -136,7 +136,7 @@ export default class Hoom extends Vue {
         this.setLanguage('en');
         // console.log(this.$t('SUCCESS'));
         // console.log(123);
-        // const { error, data } = await Api.Account.test({ 'test-body': '中文测试' });
+        await Api.Account.test({ 'test-body': '中文测试' });
 
         // if (error) {
         //     // throw error.type || 'USER_SAVE_FAILED';

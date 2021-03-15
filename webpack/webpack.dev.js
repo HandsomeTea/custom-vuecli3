@@ -16,7 +16,7 @@ module.exports = merge(common, {
         new ForkTsCheckerWebpackPlugin()
     ],
     devServer: {
-        port: 9002,
+        port: 9013,
         headers: {},
         open: true,
         proxy: {

@@ -14,7 +14,8 @@ export interface ToogleSideAction {
 }
 
 export interface SetLanguageAction {
-    (language: SupportLanguageType): never;
+    // eslint-disable-next-line no-unused-vars
+    (language: SupportLanguageType): void;
 }
 
 export interface SetScreenTypeAction {

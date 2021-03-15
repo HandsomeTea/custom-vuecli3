@@ -4,7 +4,6 @@ import { Toast, Dialog } from 'vant';
 import { INotificationOptions } from 'element-plus/lib/el-notification/src/notification.type';
 import { ILoadingInstance, ILoadingOptions } from 'element-plus/lib/el-loading/src/loading.type';
 import { ElMessageBoxOptions, MessageBoxData } from 'element-plus/lib/el-message-box/src/message-box.type';
-import { VanToast } from 'vant/types/toast';
 
 import 'element-plus/lib/theme-chalk/el-message.css';
 import 'element-plus/lib/theme-chalk/el-message-box.css';
@@ -17,6 +16,7 @@ import 'vant/lib/dialog/style';
 
 import i18n from '../lang';
 import store from '../store';
+import { ComponentInstance } from 'vant/lib/utils';
 
 interface CloseNotificationFn {
     (): void;
@@ -143,7 +143,7 @@ class UITool {
         }).catch(() => false);
     }
 
-    public loading(option?: ILoadingOptions, text?: string): ILoadingInstance | VanToast {
+    public loading(option?: ILoadingOptions, text?: string): ILoadingInstance | ComponentInstance {
         if (this.isMobile) {
             return Toast.loading({
                 message: this.t(text || ''),

@@ -4,7 +4,7 @@ import user from './user';
 
 const state: RootState = {
     loginStatus: false,
-    language: window.navigator.language.toLowerCase() as SupportLanguageType || 'zh-cn',
+    language: window.navigator.language.toLowerCase() as SupportLanguageType,
     menuHidden: false,
     screenType: 'pc'
 };

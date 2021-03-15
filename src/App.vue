@@ -6,11 +6,11 @@
 import { Vue } from 'vue-class-component';
 import { Action } from 'vuex-class';
 import { Store, useStore } from 'vuex';
-import { ref, watch } from 'vue';
+import { Ref, ref, watch } from 'vue';
 import { SetScreenTypeAction, RootState } from './store/stateModel';
 
 export default class App extends Vue {
-    setup() {
+    setup(): { language: Ref<SupportLanguageType> } {
         const store: Store<RootState> = useStore();
 
         console.log(store);
@@ -25,11 +25,11 @@ export default class App extends Vue {
         };
     }
 
-    created() {
+    created(): void {
         this.setWindowSize();
     }
 
-    mounted() {
+    mounted(): void {
         let waitForResizeEndTimer: null | number = null;
 
         window.onresize = () => {
