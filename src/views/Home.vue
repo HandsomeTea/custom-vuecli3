@@ -40,12 +40,6 @@ export default class Hoom extends Vue {
     private test = 'string-data';
     // // private video: DPlayer;
 
-    // setup() {
-    //     watch(this.username, () => {
-    //         console.log(this.username);
-    //     });
-    // }
-
     created(): void {
         // setInterval(() => {
         //     const newName = new Date().getTime();
