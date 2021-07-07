@@ -12,8 +12,7 @@
     "lint": "vue-cli-service lint",
     "webpack-rules": "vue inspect --rules > webpack.default.rules.txt",
     "webpack-plugins": "vue inspect --plugins > webpack.default.plugins.txt",
-    "husky-init": "husky install",
-    "husky-hook": "husky add .husky/pro-commit \"npm run lint\" && husky add .husky/pro-push \"npm run lint\""
+    "husky-init": "husky install"
   },
   "repository": {
     "type": "git",
