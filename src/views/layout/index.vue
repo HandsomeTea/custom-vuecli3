@@ -16,25 +16,21 @@
 </template>
 
 <script lang="ts">
-import { Vue, Options } from 'vue-class-component';
-import { defineAsyncComponent } from 'vue';
-import { State } from 'vuex-class';
+import { defineComponent, defineAsyncComponent } from 'vue';
+import { getMenuStatus } from '@/views/lib';
 
-@Options({
+export default defineComponent({
     components: {
         Menu: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './menu.vue')),
         Logo: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './logo.vue')),
         Header: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './header/index.vue'))
+    },
+    setup() {
+        return {
+            isHideMenu: getMenuStatus()
+        };
     }
-})
-export default class Layout extends Vue {
-    @State('menuHidden')
-    private menuHiddenStatus!: boolean;
-
-    private get isHideMenu() {
-        return this.menuHiddenStatus;
-    }
-}
+});
 </script>
 
 <style lang="less">

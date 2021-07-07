@@ -16,28 +16,23 @@
 </template>
 
 <script lang="ts">
-import { Vue } from 'vue-class-component';
-import { State, Action } from 'vuex-class';
-import { ToogleSideAction } from '../../../store/stateModel';
+import { Store, useStore } from 'vuex';
+import { defineComponent } from 'vue';
+import { RootState } from '@/store/stateModel';
+import { getMenuStatus, getScreenSize } from '@/views/lib';
 
-export default class Breadcrumb extends Vue {
-    @State('menuHidden')
-    private menuHiddenStatus !: boolean;
+export default defineComponent({
+    setup() {
+        const store: Store<RootState> = useStore();
+        const toogleMenu = () => store.dispatch('toogleSideShrink');
 
-    private get isHideMenu() {
-        return this.menuHiddenStatus;
+        return {
+            isHideMenu: getMenuStatus(),
+            platform: getScreenSize(),
+            toogleMenu
+        };
     }
-
-    @State('screenType')
-    private platformType!: 'phone' | 'ipad' | 'spc' | 'pc';
-
-    private get platform() {
-        return this.platformType;
-    }
-
-    @Action('toogleSideShrink')
-    private toogleMenu!: ToogleSideAction;
-}
+});
 </script>
 
 <style lang="less" scoped>

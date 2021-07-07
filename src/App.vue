@@ -3,59 +3,49 @@
 </template>
 
 <script lang="ts">
-import { Vue } from 'vue-class-component';
-import { Action } from 'vuex-class';
 import { Store, useStore } from 'vuex';
-import { Ref, ref, watch } from 'vue';
-import { SetScreenTypeAction, RootState } from './store/stateModel';
+import { defineComponent, onMounted, watch } from 'vue';
+import { RootState } from '@/store/stateModel';
+import { getLang } from '@/views/lib';
+import i18n from './lang';
 
-export default class App extends Vue {
-    setup(): { language: Ref<SupportLanguageType> } {
+export default defineComponent({
+    setup() {
         const store: Store<RootState> = useStore();
 
-        console.log(store);
-        const language = ref(store.state.language);
+        const language = getLang();
 
         watch(language, () => {
-            console.log(language);
+            i18n.global.locale = language.value;
+        });
+
+        const setWindowSize = () => store.dispatch('setScreenType');
+
+        onMounted(() => {
+            let waitForResizeEndTimer: null | number = null;
+
+            window.onresize = () => {
+                const waitTime = 500;
+
+                if (waitForResizeEndTimer === null) {
+                    waitForResizeEndTimer = window.setTimeout(() => {
+                        setWindowSize();
+                    }, waitTime);
+                } else {
+                    clearTimeout(waitForResizeEndTimer);
+                    waitForResizeEndTimer = window.setTimeout(() => {
+                        setWindowSize();
+                    }, waitTime);
+                }
+            };
         });
 
         return {
-            language
+            setWindowSize
         };
-    }
-
+    },
     created(): void {
-        this.setWindowSize();
+        // this.setWindowSize();
     }
-
-    mounted(): void {
-        let waitForResizeEndTimer: null | number = null;
-
-        window.onresize = () => {
-            const waitTime = 500;
-
-            if (waitForResizeEndTimer === null) {
-                waitForResizeEndTimer = window.setTimeout(() => {
-                    this.setWindowSize();
-                }, waitTime);
-            } else {
-                clearTimeout(waitForResizeEndTimer);
-                waitForResizeEndTimer = window.setTimeout(() => {
-                    this.setWindowSize();
-                }, waitTime);
-            }
-        };
-    }
-
-    @Action('setScreenType')
-    private setWindowSize!: SetScreenTypeAction;
-
-    // @State('language')
-    // private language!: string;
-
-    // private get currentLang(): string {
-    //     return this.language;
-    // }
-}
+});
 </script>
