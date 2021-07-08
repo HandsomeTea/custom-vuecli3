@@ -1,6 +1,6 @@
 <template>
     <ul :class="['head_title', { side_shift_title: isHideMenu === true }]">
-        <li class="item side_move" @click="toogleMenu">
+        <li class="item side_move" @click="toogleMenu()">
             <i class="el-icon-s-fold toogle_menu_icon" v-show="!isHideMenu"></i>
             <i class="el-icon-s-unfold toogle_menu_icon" v-show="isHideMenu"></i>
         </li>
@@ -16,15 +16,15 @@
 </template>
 
 <script lang="ts">
-import { Store, useStore } from 'vuex';
 import { defineComponent } from 'vue';
-import { RootState } from '@/store/stateModel';
 import { getMenuStatus, getScreenSize } from '@/views/lib';
+import { Store, useStore } from 'vuex';
+import { RootState } from '@/store/stateModel';
 
 export default defineComponent({
     setup() {
         const store: Store<RootState> = useStore();
-        const toogleMenu = () => store.dispatch('toogleSideShrink');
+        const toogleMenu = (status?: boolean) => store.dispatch('toogleSideShrink', status);
 
         return {
             isHideMenu: getMenuStatus(),

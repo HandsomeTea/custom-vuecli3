@@ -1,11 +1,11 @@
 export interface UserState {
+    userId: string
     username: string;
 }
 
 export interface RootState {
-    loginStatus: boolean;
     language: SupportLanguageType;
     menuHidden: boolean;
     screenType: 'phone' | 'ipad' | 'spc' | 'pc';
-    user?: UserState
+    user: UserState
 }

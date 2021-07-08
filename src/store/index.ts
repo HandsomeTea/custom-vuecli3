@@ -1,28 +1,36 @@
 import { createStore } from 'vuex';
-import { RootState } from './stateModel';
+import { RootState, UserState } from './stateModel';
 import user from './user';
+import getters from './getters';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 const state: RootState = {
-    loginStatus: false,
     language: window.navigator.language.toLowerCase() as SupportLanguageType,
     menuHidden: false,
     screenType: 'pc'
 };
 
 const store = createStore({
+    state,
+    getters,
     modules: {
         user
     },
-    state,
     mutations: {
-        _toogleSideShrink(state: RootState) {
-            state.menuHidden = !state.menuHidden;
+        _toogleSideShrink(state: RootState, status?: boolean) {
+            if (typeof status !== 'undefined') {
+                state.menuHidden = status;
+            } else {
+                state.menuHidden = !state.menuHidden;
+            }
         },
-        _login(state: RootState) {
-            state.loginStatus = true;
+        _login(state: RootState, user: UserState) {
+            state.user = user;
         },
         _logout(state: RootState) {
-            state.loginStatus = false;
+            // 是否登陆的判断就是看userId是否为空
+            state.user.userId = '';
         },
         _setLanguage(state: RootState, language: SupportLanguageType) {
             if (state.language !== language) {
@@ -40,8 +48,8 @@ const store = createStore({
         }
     },
     actions: {
-        toogleSideShrink({ commit }) {
-            commit('_toogleSideShrink');
+        toogleSideShrink({ commit }, status?: boolean) {
+            commit('_toogleSideShrink', status);
         },
         login({ commit }) {
             commit('_login');

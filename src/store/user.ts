@@ -2,6 +2,7 @@ import { MutationTree, ActionTree, Module } from 'vuex';
 import { RootState, UserState } from './stateModel';
 
 const state: UserState = {
+    userId: '',
     username: 'coco'
 };
 const mutations: MutationTree<UserState> = {
