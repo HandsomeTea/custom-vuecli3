@@ -17,19 +17,14 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { getMenuStatus, getScreenSize } from '@/views/lib';
-import { Store, useStore } from 'vuex';
-import { RootState } from '@/store/stateModel';
+import { getMenuStatus, getScreenSize, toogleMenu } from '@/views/lib';
 
 export default defineComponent({
+    mixins: [toogleMenu],
     setup() {
-        const store: Store<RootState> = useStore();
-        const toogleMenu = (status?: boolean) => store.dispatch('toogleSideShrink', status);
-
         return {
             isHideMenu: getMenuStatus(),
-            platform: getScreenSize(),
-            toogleMenu
+            platform: getScreenSize()
         };
     }
 });
