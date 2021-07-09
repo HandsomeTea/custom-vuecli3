@@ -18,7 +18,7 @@
 - `typescript`
 - `webpack`
 - `vue3`，`vue-router`，`vuex`，`vue-i18n`，`axios`
-- `element-ui`，`vant`
+- `element-plus`，`vant`
 - `vue-cli`
 - `eslint`
 
