@@ -20,5 +20,5 @@
 - `vue3`，`vue-router`，`vuex`，`vue-i18n`，`axios`
 - `element-ui`，`vant`
 - `vue-cli`
-- `es-lint`
+- `eslint`
 
