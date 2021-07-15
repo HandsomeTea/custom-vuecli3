@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const path = require('path');
 const vendorPackage = ['axios', 'vant', 'vue', 'vue-i18n', 'vue-router', 'vuex', 'element-plus', 'lodash'];
 const catchPackagesGrouped = () => {
@@ -19,7 +20,8 @@ const catchPackagesGrouped = () => {
 module.exports = {
     target: 'web',
     plugins: [
-        new CleanWebpackPlugin()
+        new CleanWebpackPlugin(),
+        new HardSourceWebpackPlugin()
     ],
     optimization: {
         runtimeChunk: 'single',
