@@ -5,12 +5,16 @@
         <p class="demo_style" @click="testApi">原data数据：{{ test }}</p>
         language {{ language }}
         首页
+        <br />
+        <van-button type="primary">主要按钮</van-button>
+        <br />
+        <van-icon name="chat-o" />
     </el-main>
 </template>
 
 <script lang="ts">
 import Api from '@/api';
-import Tips from '@/ui-frame/ui-tips';
+import { Tips } from '@/ui-frame';
 
 import { defineComponent, ref } from 'vue';
 import { getLoginUserInfo, getLang } from '@/views/lib';

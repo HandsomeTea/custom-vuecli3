@@ -3,8 +3,7 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import i18n from './lang';
-import ElementPlus from './ui-frame/element-ui';
-import Vant from './ui-frame/vant';
+import { ElementPlusComponents, VantComponents } from './ui-frame';
 import './assets';
 
 const app = createApp(App)
@@ -12,7 +11,7 @@ const app = createApp(App)
     .use(router)
     .use(i18n);
 
-[...Vant, ...ElementPlus].forEach(component => {
+[...VantComponents, ...ElementPlusComponents].forEach(component => {
     app.use(component);
 });
 

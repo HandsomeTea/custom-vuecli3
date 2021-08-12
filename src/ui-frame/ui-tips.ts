@@ -5,15 +5,6 @@ import { INotificationOptions } from 'element-plus/lib/el-notification/src/notif
 import { ILoadingInstance, ILoadingOptions } from 'element-plus/lib/el-loading/src/loading.type';
 import { ElMessageBoxOptions, MessageBoxData } from 'element-plus/lib/el-message-box/src/message-box.type';
 
-import 'element-plus/lib/theme-chalk/el-message.css';
-import 'element-plus/lib/theme-chalk/el-message-box.css';
-import 'element-plus/lib/theme-chalk/el-loading.css';
-import 'element-plus/lib/theme-chalk/el-notification.css';
-
-import 'vant/lib/toast/style';
-import 'vant/lib/dialog/style';
-
-
 import i18n from '../lang';
 import store from '../store';
 import { ComponentInstance } from 'vant/lib/utils';
