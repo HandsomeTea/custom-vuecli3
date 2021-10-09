@@ -77,7 +77,8 @@ class HTTP {
         // 这里只处理 response.status >= 200 && response.status <= 207 的情况
         const { data /*, config, headers, request, status, statusText*/ } = response;
 
-        return Promise.resolve(data.data);
+
+        return Promise.resolve(data);
     }
 
     private async _receiveResponseNotSuccess(error: AxiosError): Promise<HttpException> {
@@ -108,7 +109,8 @@ class HTTP {
         return await axios.request({
             url,
             method,
-            // baseURL: ['development', undefined].includes(process?.env?.NODE_ENV) ? undefined : 'https://xxx.xxx.cxx',
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             headers: options.headers,
             params: { ...options.params },
             data: typeof options.data === 'object' && !Array.isArray(options.data) ? { ...options.data } : options.data
