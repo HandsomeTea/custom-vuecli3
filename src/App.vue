@@ -11,14 +11,13 @@ import i18n from './lang';
 
 export default defineComponent({
     setup() {
-        const store: Store<RootState> = useStore();
-
         const language = getLang();
 
         watch(language, () => {
             i18n.global.locale = language.value;
         });
 
+        const store: Store<RootState> = useStore();
         const setWindowSize = () => store.dispatch('setScreenType');
 
         onMounted(() => {
