@@ -1,31 +1,13 @@
+import { App } from 'vue';
 import {
-    ElContainer,
-    ElHeader,
-    ElAside,
-    ElMain,
-    ElMenu,
-    ElMenuItem,
-    ElMenuItemGroup,
-    ElSubmenu,
-    ElBreadcrumb,
-    ElBreadcrumbItem,
-    ElCollapseTransition
-} from 'element-plus';
+    Location,
+    Fold,
+    Expand
+} from '@element-plus/icons-vue';
 
-// 文字图标
-import 'element-plus/lib/theme-chalk/el-icon.css';
-// 组件样式配置了按需引入
 
-export default [
-    ElContainer,
-    ElHeader,
-    ElAside,
-    ElMain,
-    ElMenu,
-    ElMenuItem,
-    ElMenuItemGroup,
-    ElSubmenu,
-    ElBreadcrumb,
-    ElBreadcrumbItem,
-    ElCollapseTransition
-];
+export default (app: App<Element>): void => {
+    app.component('Location', Location);
+    app.component('Fold', Fold);
+    app.component('Expand', Expand);
+};

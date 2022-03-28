@@ -2,7 +2,7 @@
     <el-collapse-transition>
         <el-menu default-active="1" :collapse="isHideMenu" class="layout_menu" background-color="#16181D" text-color="rgba(255,255,255,.7)" active-text-color="#409EFF">
             <el-menu-item index="1" @click="redirectTo('/index')">
-                <i class="el-icon-menu"></i>
+                <el-icon><location /></el-icon>
                 <template #title>首页</template>
             </el-menu-item>
         </el-menu>

@@ -20,6 +20,7 @@ module.exports = {
     globals: {
         window: true,
         document: true,
+        Element: true,
         HttpException: true,
         HttpArgument: true,
         ApiResult: true,

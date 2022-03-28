@@ -11,8 +11,7 @@ const app = createApp(App)
     .use(router)
     .use(i18n);
 
-[...VantComponents, ...ElementPlusComponents].forEach(component => {
-    app.use(component);
-});
+ElementPlusComponents(app);
+VantComponents(app);
 
 app.mount('#app');

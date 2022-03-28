@@ -1,3 +1,4 @@
+import { App } from 'vue';
 import {
     Icon,
     Button
@@ -5,7 +6,7 @@ import {
 
 // 组件样式配置了按需引入
 
-export default [
-    Icon,
-    Button
-];
+export default (app: App<Element>): void => {
+    app.use(Icon);
+    app.use(Button);
+};
