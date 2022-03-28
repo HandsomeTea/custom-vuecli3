@@ -27,6 +27,7 @@ module.exports = {
         SupportLanguageType: true
     },
     rules: {
+        'vue/multi-word-component-names': 0,
         'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
         '@typescript-eslint/no-explicit-any': 2, // 是否允许声明any类型
