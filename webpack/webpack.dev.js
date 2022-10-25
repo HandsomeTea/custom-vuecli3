@@ -6,6 +6,7 @@ const common = require('./webpack.common');
 
 module.exports = merge(common, {
     mode: 'development',
+    cache: true,
     devtool: 'eval-source-map',
     plugins: [
         new webpack.DefinePlugin({
@@ -19,10 +20,12 @@ module.exports = merge(common, {
         port: 9013,
         headers: {},
         open: true,
+        https: false,
         proxy: {
             '/api/': {
                 target: 'http://localhost:8091',
-                changeOrigin: true
+                changeOrigin: true,
+                ws: true
             }
         }
     }

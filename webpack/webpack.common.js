@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+// const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const AutoImport = require('unplugin-auto-import/webpack');
 const Components = require('unplugin-vue-components/webpack');
 const { ElementPlusResolver, VantResolver } = require('unplugin-vue-components/resolvers');
@@ -24,7 +24,7 @@ module.exports = {
     target: 'web',
     plugins: [
         new CleanWebpackPlugin(),
-        new HardSourceWebpackPlugin(),
+        // new HardSourceWebpackPlugin(),
         AutoImport({
             resolvers: [ElementPlusResolver(), VantResolver()]
         }),

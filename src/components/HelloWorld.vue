@@ -65,15 +65,15 @@
 
 <script lang="ts">
 //  "vuex-class"
-import { Options, Vue } from 'vue-class-component';
-@Options({
-    props: {
-        msg: String
-    }
-})
-export default class HelloWorld extends Vue {
-    msg!: string;
-}
+// import { Options, Vue } from 'vue-class-component';
+// @Options({
+//     props: {
+//         msg: String
+//     }
+// })
+// export default class HelloWorld extends Vue {
+//     msg!: string;
+// }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
