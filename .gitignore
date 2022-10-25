@@ -121,3 +121,5 @@ dist
 # custom
 mark.txt
 webpack.default.*.txt
+auto-imports.d.ts
+components.d.ts
