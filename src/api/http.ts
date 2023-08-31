@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, Method } from 'axios';
+import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosError, Method } from 'axios';
 import Agent from 'agentkeepalive';
 
 class Exception extends Error {
@@ -34,13 +34,13 @@ class HTTP {
         // axios.defaults.headers.common['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
 
         // 请求拦截器
-        axios.interceptors.request.use(this._beforeSendToServer, this._beforeSendToServerButError);
+        axios.interceptors.request.use(config => this.beforeSendToServer(config), this._beforeSendToServerButError);
 
         // 响应拦截器
         axios.interceptors.response.use(this._receiveSuccessResponse, this._receiveResponseNotSuccess);
     }
 
-    private _beforeSendToServer(config: AxiosRequestConfig): AxiosRequestConfig {
+    private beforeSendToServer(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
         const zh = config.url?.match(/[\u4e00-\u9fa5]/g);
 
         if (zh) {

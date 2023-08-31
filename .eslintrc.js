@@ -28,8 +28,8 @@ module.exports = {
     },
     rules: {
         'vue/multi-word-component-names': 0,
-        'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-        'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+        'no-console': process.env.NODE_ENV === 'development' ? 0 : 'off',
+        'no-debugger': process.env.NODE_ENV === 'production' ? 0 : 'off',
         '@typescript-eslint/no-explicit-any': 2, // 是否允许声明any类型
         '@typescript-eslint/no-inferrable-types': 2, //类型推断
         '@typescript-eslint/explicit-module-boundary-types': 2,

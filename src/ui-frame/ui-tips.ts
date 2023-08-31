@@ -1,5 +1,5 @@
 import { ElMessage, ElMessageBox, ElLoading, ElNotification, ElMessageBoxOptions, MessageBoxData, LoadingOptions, NotificationProps } from 'element-plus';
-import { Toast, Dialog } from 'vant';
+import { showToast, Dialog, showLoadingToast } from 'vant';
 
 import i18n from '@/lang';
 import store from '@/store';
@@ -31,7 +31,7 @@ class UITool {
 
     public success(message: string): void {
         if (this.isMobile) {
-            Toast({
+            showToast({
                 type: 'success',
                 message: this.t(message),
                 position: 'top'
@@ -47,7 +47,7 @@ class UITool {
 
     public error(message: string): void {
         if (this.isMobile) {
-            Toast({
+            showToast({
                 type: 'fail',
                 message: this.t(message),
                 position: 'top'
@@ -63,7 +63,7 @@ class UITool {
 
     public warn(message: string): void {
         if (this.isMobile) {
-            Toast({
+            showToast({
                 message: this.t(message),
                 position: 'top'
             });
@@ -138,7 +138,7 @@ class UITool {
 
     public loading(option?: LoadingOptions, text?: string) {
         if (this.isMobile) {
-            return Toast.loading({
+            return showLoadingToast({
                 message: this.t(text || ''),
                 forbidClick: true,
                 duration: 0

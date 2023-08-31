@@ -18,6 +18,14 @@ class Accounts extends Base {
     public async test(body?: Record<string, unknown>): Promise<ApiResult> {
         return HTTP.get('/api/v1/users/search', { data: body }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
     }
+
+    public async login(type: 'pwd' | 'resume', payload: { account?: string, password?: string, token?: string }) {
+        return HTTP.send('/api/cemetapub/ops/v1/account/login', 'post', { data: { type, payload } }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+    }
+
+    public async getUserPermissions(userId: string) {
+        return HTTP.send('/api/cemetapub/ops/v1/account/login', 'post', { data: { userId } }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+    }
 }
 
 export default {

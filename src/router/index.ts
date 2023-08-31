@@ -2,12 +2,33 @@ import { createRouter, createWebHistory, RouteRecordRaw, RouteLocationNormalized
 
 const routes: Array<RouteRecordRaw> = [{
     path: '/',
+    redirect: '/login'
+}, {
+    path: '/login',
+    meta: { title: '登录' },
+    component: () => import(/* webpackChunkName: 'login' */ '../views/login.vue')
+}, {
+    path: '/view',
     redirect: '/index',
     component: () => import(/* webpackChunkName: 'layout' */ '../views/layout/index.vue'),
-    children: [{
-        path: '/index',
-        component: () => import(/* webpackChunkName: 'home' */ '../views/home.vue')
-    }]
+    children: [
+        {
+            path: '/index',
+            meta: { title: '首页', page: 'home' },
+            component: () => import(/* webpackChunkName: 'home' */ '../views/home.vue')
+        },
+        /** 用户 */
+        {
+            path: '/user',
+            meta: { title: '用户', group: '用户', page: 'user-list' },
+            component: () => import(/* webpackChunkName: 'user' */ '../views/user/user.vue')
+        },
+        {
+            path: '/role',
+            meta: { title: '角色', group: '用户', page: 'role-list' },
+            component: () => import(/* webpackChunkName: 'role' */ '../views/user/role.vue')
+        }
+    ]
 }];
 
 const router = createRouter({

@@ -1,7 +1,7 @@
 <template>
     <el-main class="demo_style">
         {{ $t("SUCCESS") }}
-        {{ user.username }}
+        {{ user.account }}
         <p class="demo_style" @click="testApi">原data数据：{{ test }}</p>
         language {{ language }}
         首页
@@ -61,6 +61,7 @@ export default defineComponent({
 .demo_style {
     color: @theme_color;
 }
+
 .video_test {
     width: 1000px;
 }

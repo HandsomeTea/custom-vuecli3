@@ -2,11 +2,11 @@
     <el-container>
         <el-aside :width="isHideMenu ? '64px' : '220px'">
             <Logo />
-            <Menu />
+            <navigation-menu />
         </el-aside>
         <el-container>
             <el-header height="50px">
-                <Header />
+                <page-header />
             </el-header>
             <el-main class="root_main">
                 <router-view></router-view>
@@ -21,9 +21,9 @@ import { getMenuStatus } from '@/views/lib';
 
 export default defineComponent({
     components: {
-        Menu: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './menu.vue')),
+        navigationMenu: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './menu.vue')),
         Logo: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './logo.vue')),
-        Header: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './header/index.vue'))
+        pageHeader: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './header/index.vue'))
     },
     setup() {
         return {
@@ -47,6 +47,7 @@ export default defineComponent({
         color: #666;
     }
 }
+
 .el-header {
     background-color: #fff;
     border-bottom: solid 1px #e6e6e6;

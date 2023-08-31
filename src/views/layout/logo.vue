@@ -2,10 +2,8 @@
     <div class="layout_menu_header">这是logo的位置</div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({});
+<script lang="ts" setup>
+// import {  } from 'vue';
 </script>
 
 <style lang="less" scoped>

@@ -1,6 +1,7 @@
 import { createStore } from 'vuex';
-import { RootState, UserState } from './stateModel';
+import { RootState } from './stateModel';
 import user from './user';
+import auth from './auth';
 import getters from './getters';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -15,7 +16,7 @@ const store = createStore({
     state,
     getters,
     modules: {
-        user
+        user, auth
     },
     mutations: {
         _toogleSideShrink(state: RootState, status?: boolean) {
@@ -24,13 +25,6 @@ const store = createStore({
             } else {
                 state.menuHidden = !state.menuHidden;
             }
-        },
-        _login(state: RootState, user: UserState) {
-            state.user = user;
-        },
-        _logout(state: RootState) {
-            // 是否登陆的判断就是看userId是否为空
-            state.user.userId = '';
         },
         _setLanguage(state: RootState, language: SupportLanguageType) {
             if (state.language !== language) {
@@ -50,12 +44,6 @@ const store = createStore({
     actions: {
         toogleSideShrink({ commit }, status?: boolean) {
             commit('_toogleSideShrink', status);
-        },
-        login({ commit }) {
-            commit('_login');
-        },
-        logout({ commit }) {
-            commit('_logout');
         },
         setLanguage({ commit }, language: SupportLanguageType) {
             commit('_setLanguage', language);

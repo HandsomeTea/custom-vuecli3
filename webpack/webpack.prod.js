@@ -23,7 +23,7 @@ module.exports = merge(common, {
                 productionGzip: true
             }
         }),
-        new webpack.HashedModuleIdsPlugin({
+        new webpack.ids.HashedModuleIdsPlugin({
             hashFunction: 'sha256',
             hashDigest: 'hex',
             hashDigestLength: 20
