@@ -10,6 +10,7 @@ import { computed, onMounted, watch, onBeforeMount } from 'vue';
 import { RootState } from '@/store/stateModel';
 import { getLang } from '@/views/lib';
 import i18n from './lang';
+import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
 
 const language = getLang();
 
@@ -22,7 +23,7 @@ const setWindowSize = () => store.dispatch('setScreenType');
 const loginByToken = async (): Promise<void> => {
     await store.dispatch('user/login', { type: 'resume' });
 };
-const locale = computed(() => i18n.global.locale);
+const locale = computed(() => zhCn);
 
 onMounted(() => {
     let waitForResizeEndTimer: null | number = null;

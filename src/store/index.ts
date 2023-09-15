@@ -1,7 +1,6 @@
 import { createStore } from 'vuex';
 import { RootState } from './stateModel';
 import user from './user';
-import auth from './auth';
 import getters from './getters';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -16,7 +15,7 @@ const store = createStore({
     state,
     getters,
     modules: {
-        user, auth
+        user
     },
     mutations: {
         _toogleSideShrink(state: RootState, status?: boolean) {

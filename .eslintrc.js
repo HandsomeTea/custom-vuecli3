@@ -33,6 +33,7 @@ module.exports = {
         '@typescript-eslint/no-explicit-any': 2, // 是否允许声明any类型
         '@typescript-eslint/no-inferrable-types': 2, //类型推断
         '@typescript-eslint/explicit-module-boundary-types': 2,
+        '@typescript-eslint/no-unused-vars': 2,
         // 'prettier/prettier': 'error',
         indent: [2, 4, { SwitchCase: 1 }], //缩进风格
         'linebreak-style': [0, 'error', 'windows', 'unix'], //换行风格
@@ -59,7 +60,6 @@ module.exports = {
         'no-unreachable': 2, //不能有无法执行的代码
         'no-unused-expressions': 2, //禁止无用的表达式 如：err? a = 1 : a = 2;
         'no-unused-vars': [2, { vars: 'all', args: 'after-used' }], //不能有声明后未被使用的变量或参数
-        '@typescript-eslint/no-unused-vars': 2,
         'no-use-before-define': 2, //未定义前不能使用
         'no-extra-boolean-cast': 2, //禁止不必要的boolean转换 如：!!a
         'no-void': 2, //禁用void操作符

@@ -1,19 +1,21 @@
 export interface UserState {
-    userId: string
-    account: string
-    token: string
+    token?: string
+    user?: {
+        email?: { address: string, verify: boolean }
+        id: string
+        name: string
+        phone: { number: string, verify: boolean }
+        role?: Array<string>
+        type: Array<string>
+    }
+    role?: string
     targetView?: string
 }
 
-export type PermissionType = {
-    add: boolean
-    delete: boolean
-    update: boolean
-};
-
-export interface AuthState {
-    role: 'admin' | 'user'
-    auth: Array<{ page: string } & PermissionType>
+export enum PermissionType {
+    add = 'add',
+    delete = 'delete',
+    update = 'update'
 }
 
 export interface RootState {
@@ -21,5 +23,4 @@ export interface RootState {
     menuHidden: boolean;
     screenType: 'phone' | 'ipad' | 'spc' | 'pc';
     user: UserState
-    auth: AuthState
 }

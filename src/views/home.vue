@@ -1,5 +1,5 @@
 <template>
-    <el-main class="demo_style">
+    <div class="demo_style">
         {{ $t("SUCCESS") }}
         {{ user.account }}
         <p class="demo_style" @click="testApi">原data数据：{{ test }}</p>
@@ -9,11 +9,11 @@
         <van-button type="primary">主要按钮</van-button>
         <br />
         <van-icon name="chat-o" />
-    </el-main>
+    </div>
 </template>
 
 <script lang="ts">
-import Api from '@/api';
+import { Account } from '@/api';
 import { Tips } from '@/ui-frame';
 
 import { defineComponent, ref } from 'vue';
@@ -42,7 +42,7 @@ export default defineComponent({
             await this.setLanguage('en');
             console.log(this.$t('SUCCESS'));
             console.log(123);
-            const { error } = await Api.Account.test({ 'test-body': '中文测试' });
+            const { error } = await Account.test({ 'test-body': '中文测试' });
 
             if (error) {
                 // throw error.type || 'USER_SAVE_FAILED';

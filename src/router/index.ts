@@ -1,4 +1,5 @@
-import { createRouter, createWebHistory, RouteRecordRaw, RouteLocationNormalized, NavigationGuardNext, NavigationFailure, isNavigationFailure, createWebHashHistory } from 'vue-router';
+import { Tips } from '@/ui-frame';
+import { createRouter, createWebHistory, RouteRecordRaw, RouteLocationNormalized, NavigationGuardNext, createWebHashHistory } from 'vue-router';
 
 const routes: Array<RouteRecordRaw> = [{
     path: '/',
@@ -26,7 +27,12 @@ const routes: Array<RouteRecordRaw> = [{
         {
             path: '/role',
             meta: { title: '角色', group: '用户', page: 'role-list' },
-            component: () => import(/* webpackChunkName: 'role' */ '../views/user/role.vue')
+            component: () => import(/* webpackChunkName: 'role' */ '../views/user/role.vue'),
+            children: [{
+                path: '/role/:id',
+                meta: { title: '角色详情', group: '用户', page: 'role-edit' },
+                component: () => import(/* webpackChunkName: 'role' */ '../views/user/role-edit.vue')
+            }]
         }
     ]
 }];
@@ -43,15 +49,16 @@ const router = createRouter({
 
 /* 前置导航守卫 */
 router.beforeEach((to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-    // do something before next route
+    if (!to.meta.auth) {
+        Tips.warn('没有权限');
+        return;
+    }
     next();
 });
 
 /* 后置导航守卫 */
-router.afterEach((to: RouteLocationNormalized, from: RouteLocationNormalized, failure?: NavigationFailure | void) => {
-    if (isNavigationFailure(failure)) {
-        console.log('failed navigation', failure);
-    }
+router.afterEach((to: RouteLocationNormalized/*, from: RouteLocationNormalized, failure?: NavigationFailure | void*/) => {
+    document.title = to.meta.title as string;
 });
 
 export default router;

@@ -1,19 +1,14 @@
 import { MutationTree, ActionTree, Module } from 'vuex';
 import { RootState, UserState } from './stateModel';
-import Api from '@/api';
-import router from '../router';
+import { Account, Role } from '@/api';
+import router from '@/router';
 import { Tips } from '@/ui-frame';
 
-const state: UserState = {
-    userId: '',
-    account: 'admin',
-    token: '',
-    targetView: ''
-};
+const state: UserState = {};
 const mutations: MutationTree<UserState> = {
-    _login(state: UserState, user: { userId: string, account: string, token: string }) {
-        state.account = user.account;
-        state.userId = user.userId;
+    _login(state: UserState, user: Required<UserState>) {
+        state.user = user.user;
+        state.role = user.role;
         state.token = user.token;
 
         window.localStorage.setItem('cemeta_ops_token', user.token);
@@ -21,11 +16,26 @@ const mutations: MutationTree<UserState> = {
             path: '/index'
         });
     },
+    _setPermission(_state: UserState, permission: Record<string, Array<string>> | boolean) {
+        const routerList = router.getRoutes();
+
+        for (let s = 0; s < routerList.length; s++) {
+            if (typeof permission === 'boolean') {
+                routerList[s].meta.auth = true;
+            } else {
+                const auth = permission[routerList[s].meta.page as string];
+
+                if (auth) {
+                    routerList[s].meta.auth = auth;
+                } else {
+                    routerList[s].meta.auth = false;
+                }
+            }
+        }
+    },
     _logout(state: UserState) {
-        state.userId = '';
-        state.account = '';
+        state.user = undefined;
         state.token = '';
-        state.targetView = '';
         window.localStorage.removeItem('cemeta_ops_token');
     },
     _rememberTargetPath(state: UserState, path: string) {
@@ -44,9 +54,9 @@ const actions: ActionTree<UserState, RootState> = {
         //     commit('_rememberTargetPath', viewPath);
         // }
         const loginUser = {
-            userId: '',
-            account: '',
-            token: ''
+            user: {},
+            token: '',
+            role: ''
         };
         let user: ApiResult = {};
 
@@ -54,7 +64,7 @@ const actions: ActionTree<UserState, RootState> = {
             if (!account || !password) {
                 return;
             }
-            user = await Api.Account.login('pwd', { account, password });
+            user = await Account.login('pwd', { account, password });
         }
 
         if (type === 'resume') {
@@ -66,14 +76,10 @@ const actions: ActionTree<UserState, RootState> = {
                 });
                 return;
             }
-            user = await Api.Account.login('resume', { token });
+            user = await Account.login('resume', { token });
         }
 
-        if (user.data) {
-            loginUser.account = user.data.user.account;
-            loginUser.userId = user.data.user.id;
-            loginUser.token = user.data.token;
-        } else {
+        if (user.error) {
             if (type !== 'resume') {
                 Tips.error('登录失败！');
             }
@@ -82,8 +88,28 @@ const actions: ActionTree<UserState, RootState> = {
             });
             return;
         }
+        loginUser.user = user.data.user;
+        loginUser.token = user.data.token;
 
-        return commit('_login', { userId: loginUser.userId, account: loginUser.account, token: loginUser.token });
+        if (user.data.user.role.length > 0) {
+            loginUser.role = user.data.user.role[0];
+
+            const permission = await Role.getPermissions(loginUser.role);
+
+            if (permission.error) {
+                if (type !== 'resume') {
+                    Tips.error('登录失败！');
+                }
+                router.replace({
+                    path: '/login'
+                });
+                return;
+            }
+            commit('_setPermission', permission.data.permission);
+        } else {
+            commit('_setPermission', true);
+        }
+        commit('_login', loginUser);
     },
     logout({ commit }) {
         commit('_logout');

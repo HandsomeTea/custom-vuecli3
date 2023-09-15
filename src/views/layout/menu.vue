@@ -19,7 +19,7 @@
 
             <!-- 没有子菜单 -->
             <template v-else>
-                <el-menu-item :key="i" :index="`${i}`" @click="redirectTo(menu.path)">
+                <el-menu-item v-if="menu.path" :key="i" :index="`${i}`" @click="redirectTo(menu.path)">
                     <template #title>
                         {{ menu.name }}
                     </template>
@@ -31,68 +31,9 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { PermissionType } from '@/store/stateModel';
-import { redirectTo, getMenuStatus } from '@/views/lib';
+import { redirectTo, getMenuStatus, getMenuList } from '@/views/lib';
 
-const { options: { routes: [, , menus] } } = useRouter();
-const menuMap: Array<{ name: string, path: string, list?: Array<{ name: string, path: string }> }> = [];
-const permissionList: Array<{ name: string, page?: string, permission?: PermissionType, list?: Array<{ name: string, page: string, permission: PermissionType }> }> = [];
-
-for (let s = 0; s < (menus.children?.length || 1); s++) {
-    const menu = menus.children && menus.children[s];
-    const name = menu?.meta?.title as string;
-    const group = menu?.meta?.group as string | undefined;
-    const path = menu?.path;
-    const authMark = menu?.meta?.page as string | undefined;
-
-    if (!path || !authMark) {
-        continue;
-    }
-
-    if (group) {
-        const index = menuMap.findIndex(a => a.name === group);
-
-        if (index >= 0) {
-            menuMap[index].list?.push({ name, path });
-            permissionList[index].list?.push({
-                name,
-                page: authMark,
-                permission: {
-                    add: false,
-                    delete: false,
-                    update: false
-                }
-            });
-        } else {
-            menuMap.push({ name: group, path, list: [{ name, path }] });
-            permissionList.push({
-                name: group,
-                list: [{
-                    name,
-                    page: authMark,
-                    permission: {
-                        add: false,
-                        delete: false,
-                        update: false
-                    }
-                }]
-            });
-        }
-    } else {
-        menuMap.push({ name, path });
-        permissionList.push({
-            name,
-            page: authMark,
-            permission: {
-                add: false,
-                delete: false,
-                update: false
-            }
-        });
-    }
-}
-const allMenu = ref(menuMap);
+const allMenu = ref(getMenuList().levelList);
 const isHideMenu = getMenuStatus();
 
 </script>

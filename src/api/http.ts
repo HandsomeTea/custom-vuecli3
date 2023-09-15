@@ -107,15 +107,15 @@ class HTTP {
         return Promise.reject(new Exception(errorResult));
     }
 
-    public async send(url: string, method: Method, options: HttpArgument): Promise<AxiosResponse> {
+    public async send(url: string, method: Method, options?: HttpArgument): Promise<AxiosResponse> {
         return await axios.request({
             url,
             method,
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            headers: options.headers,
-            params: { ...options.params },
-            data: typeof options.data === 'object' && !Array.isArray(options.data) ? { ...options.data } : options.data
+            headers: options?.headers,
+            params: { ...options?.params },
+            data: typeof options?.data === 'object' && !Array.isArray(options.data) ? { ...options.data } : options?.data
         });
     }
 

@@ -8,8 +8,10 @@
             <el-header height="50px">
                 <page-header />
             </el-header>
-            <el-main class="root_main">
-                <router-view></router-view>
+            <el-main>
+                <div class="root_main">
+                    <router-view></router-view>
+                </div>
             </el-main>
         </el-container>
     </el-container>
@@ -61,7 +63,6 @@ export default defineComponent({
 }
 
 .root_main {
-    background-color: @system_background_color;
     padding: 0;
     margin: 0;
     overflow: auto;

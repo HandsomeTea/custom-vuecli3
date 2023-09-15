@@ -2,6 +2,7 @@
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const AutoImport = require('unplugin-auto-import/webpack');
 const Components = require('unplugin-vue-components/webpack');
+// const IconsResolver = require('unplugin-icons/resolver');
 const { ElementPlusResolver, VantResolver } = require('unplugin-vue-components/resolvers');
 const path = require('path');
 const vendorPackage = ['axios', 'vant', 'vue', 'vue-i18n', 'vue-router', 'vuex', 'element-plus', 'lodash'];
@@ -24,10 +25,22 @@ module.exports = {
     plugins: [
         new CleanWebpackPlugin(),
         AutoImport({
-            resolvers: [ElementPlusResolver(), VantResolver()]
+            resolvers: [
+                ElementPlusResolver(),
+                VantResolver()
+                // IconsResolver({
+                //     prefix: 'Icon'
+                // })
+            ]
         }),
         Components({
-            resolvers: [ElementPlusResolver(), VantResolver()]
+            resolvers: [
+                ElementPlusResolver(),
+                VantResolver()
+                // IconsResolver({
+                //     enabledCollections: ['ep']
+                // })
+            ]
         })
     ],
     optimization: {

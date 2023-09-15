@@ -9,24 +9,57 @@
 
         <li class="item">
             <el-breadcrumb separator="/" class="route_path">
-                <el-breadcrumb-item v-if="(isHideMenu && platform === 'phone') || platform !== 'phone'"> 首页 </el-breadcrumb-item>
-                <el-breadcrumb-item v-if="(isHideMenu && platform === 'phone') || platform !== 'phone'"> 活动管理 </el-breadcrumb-item>
-                <el-breadcrumb-item>活动列表</el-breadcrumb-item>
+                <template v-for="(navigate, i) in navigateData">
+                    <el-breadcrumb-item :key="i + '1'"
+                        v-if="i <= 1 && ((isHideMenu && platform === 'phone') || platform !== 'phone')"
+                        :to="navigate.path && navigate.path !== $route.path ? { path: navigate.path } : null">
+                        {{ navigate.name }}
+                    </el-breadcrumb-item>
+                    <el-breadcrumb-item :key="i + '2'" v-if="i > 1"> {{ navigate.name }}</el-breadcrumb-item>
+                </template>
             </el-breadcrumb>
         </li>
     </ul>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { Ref, defineComponent, ref, watch } from 'vue';
 import { getMenuStatus, getScreenSize, toogleMenu } from '@/views/lib';
+import { RouteLocationMatched, useRoute } from 'vue-router';
 
 export default defineComponent({
     mixins: [toogleMenu],
     setup() {
+        const route = useRoute();
+        const navigateData: Ref<Array<{ path?: string, name: string, type: 'group' | 'page' }>> = ref([]);
+        const dealPathInfo = (matchedInfo: Array<RouteLocationMatched>) => {
+            navigateData.value = [];
+            matchedInfo.map(a => {
+                if (a.path !== '/view') {
+                    if (typeof a.meta.group === 'string' && !navigateData.value.find(s => s.type === 'group' && s.name === a.meta.group)) {
+                        navigateData.value.push({
+                            type: 'group',
+                            name: a.meta.group as string
+                        });
+                    }
+                    navigateData.value.push({
+                        type: 'page',
+                        path: a.path,
+                        name: a.meta.title as string
+                    });
+                }
+            });
+        };
+
+        dealPathInfo(route.matched);
+        watch(() => route.path, () => {
+            dealPathInfo(route.matched);
+        });
+
         return {
             isHideMenu: getMenuStatus(),
-            platform: getScreenSize()
+            platform: getScreenSize(),
+            navigateData
         };
     }
 });
@@ -54,7 +87,7 @@ export default defineComponent({
 
 .side_move {
     margin-left: 12px;
-    margin-right: 0;
+    margin-right: 10px;
     height: 40px;
     line-height: 40px;
     text-align: center;

@@ -1,7 +1,7 @@
 import router from '@/router';
-import { RootState, UserState } from '@/store/stateModel';
+import { PermissionType, RootState, UserState } from '@/store/stateModel';
 import { computed, ComputedRef } from 'vue';
-import { LocationQueryRaw } from 'vue-router';
+import { LocationQueryRaw, useRouter } from 'vue-router';
 import { Store, useStore } from 'vuex';
 
 /** 路由跳转 */
@@ -60,4 +60,85 @@ export const toogleMenu = {
             return await this.$store.dispatch('toogleSideShrink', status);
         }
     }
+};
+
+interface RouteData {
+    name: string
+    page: string
+    path: string
+}
+export type NavigationData = Partial<RouteData> & { list?: Array<RouteData> };
+
+/** 获取路由菜单原始数据 */
+export const getMenuList = (): { levelList: Array<NavigationData>, flatList: Array<RouteData> } => {
+    const levelList: Array<NavigationData> = [];
+    const flatList: Array<RouteData> = [];
+    const { options: { routes: [, , menus] } } = useRouter();
+
+    for (let s = 0; s < (menus.children?.length || 1); s++) {
+        const menu = menus.children && menus.children[s];
+
+        if (!menu?.meta?.auth) {
+            continue;
+        }
+        const name = menu?.meta?.title as string;
+        const group = menu?.meta?.group as string | undefined;
+        const path = menu?.path;
+        const pageMark = menu?.meta?.page as string | undefined;
+
+        if (!path || !pageMark) {
+            continue;
+        }
+        flatList.push({
+            name,
+            path,
+            page: pageMark
+        });
+
+        if (group) {
+            const index = levelList.findIndex(a => a.name === group);
+
+            if (index >= 0) {
+                levelList[index].list?.push({
+                    name,
+                    path,
+                    page: pageMark
+                });
+            } else {
+                levelList.push({
+                    name: group,
+                    list: [{
+                        name,
+                        path,
+                        page: pageMark
+                    }]
+                });
+            }
+        } else {
+            levelList.push({
+                name,
+                path,
+                page: pageMark
+            });
+        }
+    }
+    return { levelList, flatList };
+};
+
+export const getPageAuth = (): Partial<Record<PermissionType, boolean>> => {
+    const { getRoutes, currentRoute: { value: { meta } } } = useRouter();
+    const routes = getRoutes();
+
+    const permission = routes.find(a => a.meta.page === meta.page)?.meta?.auth as boolean | Array<string> | undefined;
+    const result: Partial<Record<PermissionType, boolean>> = {};
+
+    (['add', 'delete', 'update'] as Array<PermissionType>).map(a => {
+        if (typeof permission === 'object') {
+            result[a] = permission.includes(a);
+        } else {
+            result[a] = Boolean(permission);
+        }
+    });
+
+    return result;
 };
