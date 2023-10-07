@@ -1,6 +1,6 @@
 <template>
     <el-container>
-        <el-aside :width="isHideMenu ? '64px' : '220px'">
+        <el-aside style="transition: all 0.35s;" :width="isHideMenu ? '64px' : '220px'">
             <Logo />
             <navigation-menu />
         </el-aside>

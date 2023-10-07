@@ -44,8 +44,8 @@
         </el-form-item>
 
         <el-form-item>
-            <el-button type="primary" @click="submit">提交</el-button>
-            <el-button>返回</el-button>
+            <el-button type="primary" @click="submit(roleFormRef)">提交</el-button>
+            <el-button @click="redirectTo('/role')">返回</el-button>
         </el-form-item>
     </el-form>
 </template>
@@ -89,13 +89,6 @@ const formRules = reactive<FormRules<RoleForm>>({
     }]
 });
 
-if (isAdd) {
-    roleForm.name = '';
-    roleForm.permission = [];
-} else {
-    roleForm.name = '123';
-    roleForm.permission = [];
-}
 const permissionData: Record<string, { data: Array<PermissionType>, permission: Record<PermissionType, string> }> = {};
 
 for (const item of menuData.flatList) {
@@ -117,7 +110,34 @@ watch(() => roleForm.permission, (news, olds) => {
         }
     }
 });
-const submit = async () => {
+
+if (isAdd) {
+    roleForm.name = '';
+    roleForm.permission = [];
+} else {
+    const setEditData = async (id: string) => {
+        const role = await Role.getPermission(id);
+
+        if (role.error) {
+            Tips.error(role.error.type || '失败！');
+        } else {
+            roleForm.name = role.data.name;
+            const permission = role.data.permission as Record<string, Array<PermissionType>>;
+
+            roleForm.permission = Object.keys(role.data.permission);
+
+            for (const key in permission) {
+                permissionOpt[key].data = permission[key];
+            }
+        }
+    };
+
+    setEditData(dataId);
+}
+const submit = async (formEl?: FormInstance) => {
+    if (!await formEl?.validate(() => true)) {
+        return;
+    }
     const data: Record<string, Array<PermissionType>> = {};
 
     roleForm.permission.map(item => {
@@ -130,12 +150,12 @@ const submit = async () => {
     const res = await Role.addOrUpdate({
         name: roleForm.name,
         data,
-        id: dataId
+        ...isAdd ? {} : { id: dataId }
     });
 
     if (!res.error) {
         Tips.success('保存成功');
-        return redirectTo('/role/list');
+        return redirectTo('/role');
     }
     Tips.error('保存失败');
 };

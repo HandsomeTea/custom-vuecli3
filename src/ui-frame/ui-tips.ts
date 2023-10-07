@@ -104,8 +104,8 @@ class UITool {
         }
         return await ElMessageBox.alert(this.t(message), this.t(title || ''), {
             ...option,
-            confirmButtonText: this.t(option?.confirmButtonText || 'yes'),
-            cancelButtonText: this.t(option?.cancelButtonText || 'cancel'),
+            confirmButtonText: this.t(option?.confirmButtonText || '确认'),
+            cancelButtonText: this.t(option?.cancelButtonText || '取消'),
             type: option?.type || 'info',
             showClose: false,
             showCancelButton: true,

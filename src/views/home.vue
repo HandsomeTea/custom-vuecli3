@@ -1,7 +1,7 @@
 <template>
     <div class="demo_style">
         {{ $t("SUCCESS") }}
-        {{ user.account }}
+        {{ user.user?.name }}
         <p class="demo_style" @click="testApi">原data数据：{{ test }}</p>
         language {{ language }}
         首页

@@ -27,6 +27,7 @@ module.exports = {
         SupportLanguageType: true
     },
     rules: {
+        'vue/no-mutating-props': 0,
         'vue/multi-word-component-names': 0,
         'no-console': process.env.NODE_ENV === 'development' ? 0 : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 0 : 'off',

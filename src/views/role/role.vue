@@ -1,6 +1,6 @@
 <template>
-    <router-view v-show="$route.path.includes('/role/')" />
-    <div v-show="$route.path === '/role'">
+    <router-view v-if="$route.path.includes('/role/')" />
+    <div v-if="$route.path === '/role'">
         <div style="margin-bottom: 20px;">
             <el-input v-model="searchOption.keyword" placeholder="关键字搜索" style="width: 240px;" @keyup.enter="getTableList">
                 <template #prepend>
@@ -23,22 +23,33 @@
         </div>
 
         <el-table :data="tableList" :row-class-name="tableRowClassName" @selection-change="chosedData" border stripe
-            style="width: 100%">
+            style="width: 100%;">
             <el-table-column type="selection" width="46" />
-            <el-table-column label="名称" prop="name" width="200px" />
-            <el-table-column label="权限" prop="type">
+            <el-table-column label="名称" prop="name" width="240px">
                 <template #default="scope">
-                    {{ ({
-                        sd: 'Stable Diffusion'
-                    } as Record<string, string>)[scope.row.type] }}
+                    <el-link :href="scope.row.link" type="primary" target="_blank">
+                        {{ scope.row.name }}
+                    </el-link>
+                </template>
+            </el-table-column>
+            <el-table-column label="类型" prop="type" width="130px">
+                <template #default="scope">
+                    {{ scope.row.type === 'inner-admin' ? '内置管理员角色' : '自定义角色' }}
+                </template>
+            </el-table-column>
+            <el-table-column label="权限" prop="permission">
+                <template #default="scope">
+                    {{ scope.row.type === 'inner-admin' ? '全部' : getRoleDescription(scope.row.permission) }}
                 </template>
             </el-table-column>
             <el-table-column label="操作" align="right" width="150px">
                 <template #default="scope">
-                    <el-button size="small" type="danger" @click="deleteTableData(scope.row._id)"
-                        v-if="auth.delete">删除</el-button>
-                    <el-button size="small" type="primary" @click="redirectTo(`/role/${scope.row._id}`)"
-                        v-if="auth.update">编辑</el-button>
+                    <template v-if="scope.row.type !== 'inner-admin'">
+                        <el-button size="small" type="danger" @click="deleteTableData(scope.row._id)"
+                            v-if="auth.delete">删除</el-button>
+                        <el-button size="small" type="primary" @click="redirectTo(`/role/${scope.row._id}`)"
+                            v-if="auth.update">编辑</el-button>
+                    </template>
                 </template>
             </el-table-column>
         </el-table>
@@ -52,7 +63,7 @@
 import { Search, Plus } from '@element-plus/icons-vue';
 import { Tips } from '@/ui-frame';
 import { ref, onMounted } from 'vue';
-import { getPageAuth, redirectTo } from '@/views/lib';
+import { getMenuList, getPageAuth, redirectTo } from '@/views/lib';
 import { Role } from '@/api';
 import { PermissionType } from '@/store/stateModel';
 
@@ -131,6 +142,32 @@ const deleteTableData = async (id?: string) => {
         return Tips.success('成功！');
     }
     Tips.error('失败！');
+};
+const source = getMenuList().flatList;
+const getRoleDescription = (data: Record<string, Array<PermissionType>>) => {
+    const result: Array<string> = [];
+    const map = {
+        add: '添加',
+        delete: '删除',
+        update: '修改'
+    };
+
+    for (const key in data) {
+        let str = '';
+        const route = source.find(a => a.page === key);
+
+        if (route) {
+            if (data[key].length === 0) {
+                str += route.name;
+            } else if (data[key].length === 3) {
+                str += route.name + '全部';
+            } else {
+                str += route.name + '(' + data[key].map(a => map[a]).join(',') + ')';
+            }
+        }
+        result.push(str);
+    }
+    return result.join(',');
 };
 
 </script>

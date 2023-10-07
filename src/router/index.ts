@@ -27,11 +27,11 @@ const routes: Array<RouteRecordRaw> = [{
         {
             path: '/role',
             meta: { title: '角色', group: '用户', page: 'role-list' },
-            component: () => import(/* webpackChunkName: 'role' */ '../views/user/role.vue'),
+            component: () => import(/* webpackChunkName: 'role' */ '../views/role/role.vue'),
             children: [{
                 path: '/role/:id',
                 meta: { title: '角色详情', group: '用户', page: 'role-edit' },
-                component: () => import(/* webpackChunkName: 'role' */ '../views/user/role-edit.vue')
+                component: () => import(/* webpackChunkName: 'role' */ '../views/role/role-edit.vue')
             }]
         }
     ]

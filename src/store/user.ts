@@ -1,5 +1,5 @@
 import { MutationTree, ActionTree, Module } from 'vuex';
-import { RootState, UserState } from './stateModel';
+import { PermissionType, RootState, UserState } from './stateModel';
 import { Account, Role } from '@/api';
 import router from '@/router';
 import { Tips } from '@/ui-frame';
@@ -16,20 +16,38 @@ const mutations: MutationTree<UserState> = {
             path: '/index'
         });
     },
-    _setPermission(_state: UserState, permission: Record<string, Array<string>> | boolean) {
+    _setPermission(_state: UserState, permission: Array<Record<string, Array<string>>>) {
+        console.log('permission', permission);
         const routerList = router.getRoutes();
 
-        for (let s = 0; s < routerList.length; s++) {
-            if (typeof permission === 'boolean') {
-                routerList[s].meta.auth = true;
-            } else {
-                const auth = permission[routerList[s].meta.page as string];
+        if (permission.find(a => a.all)) {
+            for (let s = 0; s < routerList.length; s++) {
+                routerList[s].meta.auth = ['add', 'delete', 'update'] as Array<PermissionType>;
+            }
+            return;
+        }
+        const permissionResylt: Record<string, Set<string>> = {};
 
-                if (auth) {
-                    routerList[s].meta.auth = auth;
-                } else {
-                    routerList[s].meta.auth = false;
+        console.log('permissionResylt', permissionResylt);
+        for (let s = 0; s < permission.length; s++) {
+            if (!permission[s].all) {
+                for (const key in permission[s]) {
+                    if (!permissionResylt[key]) {
+                        permissionResylt[key] = new Set(permission[s][key]);
+                    } else {
+                        permissionResylt[key] = new Set(...permissionResylt[key], ...permission[s][key]);
+                    }
                 }
+            }
+        }
+
+        for (let s = 0; s < routerList.length; s++) {
+            const auth = permissionResylt[routerList[s].meta.page as string];
+
+            if (auth) {
+                routerList[s].meta.auth = auth;
+            } else {
+                routerList[s].meta.auth = false;
             }
         }
     },
@@ -56,7 +74,7 @@ const actions: ActionTree<UserState, RootState> = {
         const loginUser = {
             user: {},
             token: '',
-            role: ''
+            role: <Array<string>>[]
         };
         let user: ApiResult = {};
 
@@ -92,9 +110,9 @@ const actions: ActionTree<UserState, RootState> = {
         loginUser.token = user.data.token;
 
         if (user.data.user.role.length > 0) {
-            loginUser.role = user.data.user.role[0];
+            loginUser.role = user.data.user.role;
 
-            const permission = await Role.getPermissions(loginUser.role);
+            const permission = await Role.searchPermissions({ id: loginUser.role });
 
             if (permission.error) {
                 if (type !== 'resume') {
@@ -105,9 +123,7 @@ const actions: ActionTree<UserState, RootState> = {
                 });
                 return;
             }
-            commit('_setPermission', permission.data.permission);
-        } else {
-            commit('_setPermission', true);
+            commit('_setPermission', (permission.data as Array<{ permission: Record<string, Array<string>> }>).map(item => item.permission));
         }
         commit('_login', loginUser);
     },

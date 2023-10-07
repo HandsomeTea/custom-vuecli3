@@ -38,6 +38,10 @@ export const Role = new class Roles extends Base {
         return HTTP.send('/api/project/service/v1/role', 'get', { params: option }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
     }
 
+    async searchPermissions(option: { id?: Array<string>, name?: string }) {
+        return HTTP.send('/api/project/service/v1/role/search', 'get', { params: option }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+    }
+
     async delete(id: string | Array<string>) {
         return HTTP.send('/api/project/service/v1/role', 'delete', { data: { id } }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
     }
@@ -46,7 +50,29 @@ export const Role = new class Roles extends Base {
         return HTTP.send('/api/project/service/v1/role', 'post', { data: role }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
     }
 
-    async getPermissions(id: string) {
+    async getPermission(id: string) {
         return HTTP.send(`/api/project/service/v1/role/${id}`, 'get').then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+    }
+};
+
+export const User = new class Users extends Base {
+    constructor() {
+        super();
+    }
+
+    async saveUser(user: { name?: string, phone: string, email?: string, password?: string }) {
+        return HTTP.send('/api/project/service/v1/user', 'post', { data: user }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+    }
+
+    async getList(option?: { keyword?: string, skip?: number, limit?: number }) {
+        return HTTP.send('/api/project/service/v1/user', 'get', { params: option }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+    }
+
+    async getUserById(id: string) {
+        return HTTP.send(`/api/project/service/v1/user/${id}`, 'get').then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+    }
+
+    async delete(id: string | Array<string>) {
+        return HTTP.send('/api/project/service/v1/user', 'delete', { data: { id } }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
     }
 };
