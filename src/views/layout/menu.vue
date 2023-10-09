@@ -1,6 +1,6 @@
 <template>
-    <el-menu default-active="0" :collapse="isHideMenu" :unique-opened="true" class="layout_menu" background-color="#16181D"
-        text-color="rgba(255,255,255,.7)" active-text-color="#409EFF">
+    <el-menu :collapse="isHideMenu" :unique-opened="true" :default-active="router.currentRoute.value.matched[1].meta.page"
+        class="layout_menu" background-color="#16181D" text-color="rgba(255,255,255,.7)" active-text-color="#409EFF">
         <template v-for="(menu, i) in allMenu">
 
             <!-- 有子菜单 -->
@@ -10,7 +10,7 @@
                     <template #title>{{ menu.name }} </template>
 
                     <!-- 子菜单 -->
-                    <el-menu-item v-for="(child, s) in menu.list" :key="`${i}-${s}`" :index="`${i}-${s}`"
+                    <el-menu-item v-for="(child, s) in menu.list" :key="`${i}-${s}`" :index="child.page"
                         @click="redirectTo(child.path)">
                         {{ child.name }}
                     </el-menu-item>
@@ -19,7 +19,7 @@
 
             <!-- 没有子菜单 -->
             <template v-else>
-                <el-menu-item v-if="menu.path" :key="i" :index="`${i}`" @click="redirectTo(menu.path)">
+                <el-menu-item v-if="menu.path" :key="i" :index="menu.page" @click="redirectTo(menu.path)">
                     <template #title>
                         {{ menu.name }}
                     </template>
@@ -32,10 +32,16 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { redirectTo, getMenuStatus, getMenuList } from '@/views/lib';
+import { useRouter } from 'vue-router';
 
 const allMenu = ref(getMenuList().levelList);
 const isHideMenu = getMenuStatus();
+const router = useRouter();
+// const activeMenu = ref(router.currentRoute.value.matched[1].meta.page);
 
+// watch(() => router.currentRoute.value, () => {
+//     activeMenu.value = router.currentRoute.value.matched[1].meta.page;
+// }, { immediate: true, deep: true });
 </script>
 
 <style lang="less" scoped>

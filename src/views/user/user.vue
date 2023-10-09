@@ -26,7 +26,7 @@
             <el-table-column label="名称" prop="name">
                 <template #default="scope">
                     <div class="user_avatar" v-if="scope.row.avatar">
-                        <img :src="scope.row.avatar.url" style="width: 100%; height: 100%;">
+                        <img :src="scope.row.avatar.url" class="user_avatar_img" style="width: 100%; height: 100%;">
                     </div>
                     <el-link :href="scope.row.link" type="primary" target="_blank" class="user_name">
                         {{ scope.row.name }}
@@ -136,15 +136,22 @@ const deleteTableData = async (id?: string) => {
 </script>
 
 <style lang="less" scoped>
-@avatar_size: 26px;
+@avatar_size: 28px;
 
 .user_avatar {
     display: block;
     float: left;
     width: @avatar_size;
     height: @avatar_size;
-    border-radius: 50%;
+    padding: 4px;
     overflow: hidden;
+    border-radius: 50%;
+}
+
+.user_avatar_img {
+    .full();
+    border-radius: 50%;
+    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.62);
 }
 
 .user_name {
@@ -152,6 +159,6 @@ const deleteTableData = async (id?: string) => {
     float: left;
     height: @avatar_size;
     line-height: @avatar_size;
-    margin-left: 6px;
+    margin-left: 2px;
 }
 </style>

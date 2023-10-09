@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { Store, useStore } from 'vuex';
-import { computed, onMounted, watch, onBeforeMount } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { RootState } from '@/store/stateModel';
 import { getLang } from '@/views/lib';
 import i18n from './lang';
@@ -26,6 +26,7 @@ const loginByToken = async (): Promise<void> => {
 const locale = computed(() => zhCn);
 
 onMounted(() => {
+    loginByToken();
     let waitForResizeEndTimer: null | number = null;
 
     window.onresize = () => {
@@ -42,12 +43,5 @@ onMounted(() => {
             }, waitTime);
         }
     };
-});
-onBeforeMount(() => {
-    const token = window.localStorage.getItem('cemeta_ops_token');
-
-    if (token) {
-        loginByToken();
-    }
 });
 </script>

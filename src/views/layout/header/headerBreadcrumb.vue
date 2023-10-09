@@ -1,5 +1,5 @@
 <template>
-    <ul :class="['head_title', { side_shift_title: isHideMenu === true }]">
+    <ul>
         <li class="item side_move" @click="toogleMenu()">
             <el-icon class="toogle_menu_icon">
                 <fold style="height: 20px; width: 20px" v-show="!isHideMenu" />
@@ -66,30 +66,17 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-.head_title {
-    left: @layout_menu_width_big;
-    height: @layout_head_height;
-    overflow: hidden;
-}
-
 .item {
     height: @layout_head_height;
     line-height: @layout_head_height;
-    position: relative;
     display: inline-block;
     vertical-align: middle;
-    margin-right: 20px;
-}
-
-.side_shift_title {
-    left: @layout_menu_width_small;
 }
 
 .side_move {
-    margin-left: 12px;
     margin-right: 10px;
-    height: 40px;
-    line-height: 40px;
+    height: @layout_head_height;
+    line-height: @layout_head_height;
     text-align: center;
     .cp();
 }
@@ -97,10 +84,10 @@ export default defineComponent({
 .toogle_menu_icon {
     color: rgba(0, 0, 0, 0.45);
     font-size: 24px;
-    margin-top: 8px;
+    margin-top: calc((@layout_head_height - 24px)/2);
 }
 
 .route_path {
-    margin-top: 18px;
+    margin-top: calc((@layout_head_height - 14px)/2);
 }
 </style>

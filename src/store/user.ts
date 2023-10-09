@@ -8,7 +8,6 @@ const state: UserState = {};
 const mutations: MutationTree<UserState> = {
     _login(state: UserState, user: Required<UserState>) {
         state.user = user.user;
-        state.role = user.role;
         state.token = user.token;
 
         window.localStorage.setItem('cemeta_ops_token', user.token);
@@ -73,8 +72,7 @@ const actions: ActionTree<UserState, RootState> = {
         // }
         const loginUser = {
             user: {},
-            token: '',
-            role: <Array<string>>[]
+            token: ''
         };
         let user: ApiResult = {};
 
@@ -110,9 +108,7 @@ const actions: ActionTree<UserState, RootState> = {
         loginUser.token = user.data.token;
 
         if (user.data.user.role.length > 0) {
-            loginUser.role = user.data.user.role;
-
-            const permission = await Role.searchPermissions({ id: loginUser.role });
+            const permission = await Role.searchPermissions({ id: user.data.user.role });
 
             if (permission.error) {
                 if (type !== 'resume') {

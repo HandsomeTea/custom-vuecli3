@@ -49,7 +49,7 @@ const router = createRouter({
 
 /* 前置导航守卫 */
 router.beforeEach((to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-    if (!to.meta.auth) {
+    if (to.path !== '/login' && !to.meta.auth) {
         Tips.warn('没有权限');
         return;
     }

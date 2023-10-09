@@ -1,14 +1,16 @@
+type UserType = 'admin' | 'user';
+
 export interface UserState {
     token?: string
     user?: {
-        email?: { address: string, verify: boolean }
         id: string
         name: string
-        phone: { number: string, verify: boolean }
-        role?: Array<string>
-        type: Array<string>
+        phone: { number?: string, verify?: boolean }
+        email: { address?: string, verify?: boolean }
+        avatar?: { url: string, updateAt: Date }
+        type: Array<UserType>
+        role: Array<string>
     }
-    role?: string
     targetView?: string
 }
 
