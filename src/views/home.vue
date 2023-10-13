@@ -42,6 +42,31 @@ export default defineComponent({
             await this.setLanguage('en');
             console.log(this.$t('SUCCESS'));
             console.log(123);
+
+            // EventSource sse test
+            // if ('EventSource' in window) {
+            //     // 事件的结束应由服务器端控制，并在结束前发送结束的标志位
+            //     const source = new EventSource('/api/project/service/v1/user');
+            //     // const source = new EventSource('/api/v1/user/sse/test');
+
+            //     source.onmessage = (res) => {
+            //         const result = JSON.parse(res.data);
+
+            //         console.log(result);
+            //         if (result.streamEnd) {
+            //             source.close();
+            //         }
+            //     };
+            //     source.onerror = (event) => {
+            //         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //         // @ts-ignore
+            //         if (event.data) {
+            //             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //             // @ts-ignore
+            //             Tips.error(event.data);
+            //         }
+            //     };
+            // }
             const { error } = await Account.test({ 'test-body': '中文测试' });
 
             if (error) {

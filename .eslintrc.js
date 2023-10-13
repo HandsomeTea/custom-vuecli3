@@ -21,6 +21,7 @@ module.exports = {
         window: true,
         document: true,
         Element: true,
+        EventSource: true,
         HttpException: true,
         HttpArgument: true,
         ApiResult: true,

@@ -45,7 +45,7 @@
 import { User } from '@/api';
 import { Tips } from '@/ui-frame';
 import { FormInstance, FormRules } from 'element-plus';
-import { reactive, ref, defineProps, defineEmits, onActivated } from 'vue';
+import { reactive, ref, onActivated } from 'vue';
 
 interface UserForm {
     name: string

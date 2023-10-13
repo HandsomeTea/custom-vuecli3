@@ -17,7 +17,7 @@ export const Account = new class Accounts extends Base {
     }
 
     public async test(body?: Record<string, unknown>): Promise<ApiResult> {
-        return HTTP.get('/api/v1/users/search', { data: body }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+        return HTTP.send('/api/v1/user/user', 'get', { data: body }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
     }
 
     public async login(type: 'pwd' | 'resume', payload: { account?: string, password?: string, token?: string }) {

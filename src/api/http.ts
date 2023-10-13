@@ -1,4 +1,4 @@
-import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosError, Method } from 'axios';
+import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosError, Method, ResponseType /*,isAxiosError*/ } from 'axios';
 import Agent from 'agentkeepalive';
 
 class Exception extends Error {
@@ -18,26 +18,26 @@ class Exception extends Error {
 }
 
 class HTTP {
+    private server = axios.create();
     constructor() {
         this._init();
     }
 
     private _init(): void {
-        axios.defaults.timeout = 10000;
-        axios.defaults.httpAgent = new Agent({
+        this.server.defaults.timeout = 10000;
+        this.server.defaults.httpAgent = new Agent({
             keepAlive: true,
             timeout: 60000, // active socket keepalive for 60 seconds
             freeSocketTimeout: 30000, // free socket keepalive for 30 seconds
             freeSocketKeepAliveTimeout: 10,
             socketActiveTTL: 100
         });
-        // axios.defaults.headers.common['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
 
         // 请求拦截器
-        axios.interceptors.request.use(config => this.beforeSendToServer(config), this._beforeSendToServerButError);
+        this.server.interceptors.request.use(config => this.beforeSendToServer(config), this._beforeSendToServerButError);
 
         // 响应拦截器
-        axios.interceptors.response.use(this._receiveSuccessResponse, this._receiveResponseNotSuccess);
+        this.server.interceptors.response.use(this._receiveSuccessResponse, this._receiveResponseNotSuccess);
     }
 
     private beforeSendToServer(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
@@ -77,7 +77,6 @@ class HTTP {
         // 这里只处理 response.status >= 200 && response.status <= 207 的情况
         const { data /*, config, headers, request, status, statusText*/ } = response;
 
-
         return Promise.resolve(data);
     }
 
@@ -107,10 +106,11 @@ class HTTP {
         return Promise.reject(new Exception(errorResult));
     }
 
-    public async send(url: string, method: Method, options?: HttpArgument): Promise<AxiosResponse> {
-        return await axios.request({
+    public async send(url: string, method: Method, options?: HttpArgument & { responseType?: ResponseType }): Promise<AxiosResponse> {
+        return await this.server.request({
             url,
             method,
+            ...options?.responseType ? { responseType: options.responseType } : {},
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             headers: options?.headers,
