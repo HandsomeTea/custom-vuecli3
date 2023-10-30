@@ -16,6 +16,16 @@ export const Account = new class Accounts extends Base {
         super();
     }
 
+    // async fetchSseTest() {
+    //     // return await fetch('/api/project/service/v1/user', {
+    //     return await fetch('/api/v1/user/sse/test', {
+    //         method: 'get',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         }
+    //     });
+    // }
+
     public async test(body?: Record<string, unknown>): Promise<ApiResult> {
         return HTTP.send('/api/v1/user/user', 'get', { data: body }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
     }

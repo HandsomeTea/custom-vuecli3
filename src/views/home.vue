@@ -67,6 +67,22 @@ export default defineComponent({
             //         }
             //     };
             // }
+
+            // fetch 测试sse
+            // const res = await Account.fetchSseTest();
+            // const reader = await res.body?.getReader();
+            // const decoder = new TextDecoder();
+
+            // while (true) {
+            //     const { done, value } = await reader?.read() || {};
+
+            //     if (done) {
+            //         break;
+            //     }
+            //     const data = decoder.decode(value).split('\n').filter(a => /^(data:)/.test(a)).map(s => JSON.parse(s.replace(/^data: /, ''))).reduce((m, n) => ({ ...m, ...n }), {});
+
+            //     console.log(data);
+            // }
             const { error } = await Account.test({ 'test-body': '中文测试' });
 
             if (error) {
