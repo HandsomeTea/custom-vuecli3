@@ -1,5 +1,11 @@
 type UserType = 'admin' | 'user';
 
+export enum PermissionType {
+    add = 'add',
+    delete = 'delete',
+    update = 'update'
+}
+
 export interface UserState {
     token?: string
     user?: {
@@ -11,13 +17,8 @@ export interface UserState {
         type: Array<UserType>
         role: Array<string>
     }
+    permission?: Record<string, Set<string>>
     targetView?: string
-}
-
-export enum PermissionType {
-    add = 'add',
-    delete = 'delete',
-    update = 'update'
 }
 
 export interface RootState {

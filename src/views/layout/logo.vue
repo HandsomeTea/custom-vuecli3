@@ -1,5 +1,7 @@
 <template>
-    <div class="layout_menu_header">这是logo的位置</div>
+	<div class="layout_menu_header">
+		这是logo的位置
+	</div>
 </template>
 
 <script lang="ts" setup>
@@ -7,6 +9,8 @@
 </script>
 
 <style lang="less" scoped>
+@import '@/assets/style/global-var.less';
+
 .layout_menu_header {
     height: calc(@layout_head_height - 1px);
     color: #fff;

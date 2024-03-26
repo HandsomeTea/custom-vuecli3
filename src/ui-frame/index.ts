@@ -1,8 +1,3 @@
-import ElementPlusComponents from './element-ui';
-import './vant';
-import Tips from './ui-tips';
-
-export {
-    ElementPlusComponents,
-    Tips
-};
+export { VantComponents } from './vant';
+export { ElementPlusComponents } from './element-ui';
+export { EleTips as Tips } from './tip';

@@ -1,7 +1,7 @@
 <template>
-    <el-config-provider :locale="locale">
-        <router-view />
-    </el-config-provider>
+	<el-config-provider :locale="locale">
+		<router-view />
+	</el-config-provider>
 </template>
 
 <script lang="ts" setup>
@@ -15,33 +15,33 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
 const language = getLang();
 
 watch(language, () => {
-    i18n.global.locale = language.value;
+	i18n.global.locale = language.value;
 });
 
 const store: Store<RootState> = useStore();
 const setWindowSize = () => store.dispatch('setScreenType');
 const loginByToken = async (): Promise<void> => {
-    await store.dispatch('user/login', { type: 'resume' });
+	await store.dispatch('user/login', { type: 'resume' });
 };
 const locale = computed(() => zhCn);
 
 onMounted(() => {
-    loginByToken();
-    let waitForResizeEndTimer: null | number = null;
+	loginByToken();
+	let waitForResizeEndTimer: null | number = null;
 
-    window.onresize = () => {
-        const waitTime = 500;
+	window.onresize = () => {
+		const waitTime = 500;
 
-        if (waitForResizeEndTimer === null) {
-            waitForResizeEndTimer = window.setTimeout(() => {
-                setWindowSize();
-            }, waitTime);
-        } else {
-            clearTimeout(waitForResizeEndTimer);
-            waitForResizeEndTimer = window.setTimeout(() => {
-                setWindowSize();
-            }, waitTime);
-        }
-    };
+		if (waitForResizeEndTimer === null) {
+			waitForResizeEndTimer = window.setTimeout(() => {
+				setWindowSize();
+			}, waitTime);
+		} else {
+			clearTimeout(waitForResizeEndTimer);
+			waitForResizeEndTimer = window.setTimeout(() => {
+				setWindowSize();
+			}, waitTime);
+		}
+	};
 });
 </script>

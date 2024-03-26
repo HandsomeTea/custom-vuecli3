@@ -1,18 +1,18 @@
 <template>
-    <div class="full">
-        <page-title class="head_title" />
-        <Options class="head_option" />
-    </div>
+	<div class="full">
+		<page-title class="head_title head_location" />
+		<Options class="head_option head_location" />
+	</div>
 </template>
 
 <script lang="ts">
 import { defineComponent, defineAsyncComponent } from 'vue';
 
 export default defineComponent({
-    components: {
-        pageTitle: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './headerBreadcrumb.vue')),
-        Options: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './headerOption.vue'))
-    }
+	components: {
+		pageTitle: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './headerBreadcrumb.vue')),
+		Options: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './headerOption.vue'))
+	}
 });
 </script>
 
@@ -27,12 +27,10 @@ export default defineComponent({
 .head_title {
     float: left;
     padding: 0 12px;
-    .head_location();
 }
 
 .head_option {
     float: right;
     padding: 0 16px;
-    .head_location();
 }
 </style>

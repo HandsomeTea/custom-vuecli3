@@ -1,13 +1,13 @@
 import { App } from 'vue';
 import {
-    Location,
-    Fold,
-    Expand
+	Location,
+	Fold,
+	Expand
 } from '@element-plus/icons-vue';
 
 
-export default (app: App<Element>): void => {
-    app.component('Location', Location);
-    app.component('Fold', Fold);
-    app.component('Expand', Expand);
+export const ElementPlusComponents = (app: App<Element>): void => {
+	app.component('Location', Location);
+	app.component('Fold', Fold);
+	app.component('Expand', Expand);
 };

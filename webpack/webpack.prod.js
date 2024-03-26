@@ -6,28 +6,28 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const isTestBuild = process.argv.includes('-build-test');
 
 module.exports = merge(common, {
-    mode: 'production',
-    devtool: 'source-map',
-    stats: 'errors-only',
-    optimization: {
-        concatenateModules: true
-    },
-    plugins: [
-        new webpack.DefinePlugin({
-            'process.env': {
-                NODE_ENV: JSON.stringify('production')
-            }
-        }),
-        new webpack.LoaderOptionsPlugin({
-            options: {
-                productionGzip: true
-            }
-        }),
-        new webpack.ids.HashedModuleIdsPlugin({
-            hashFunction: 'sha256',
-            hashDigest: 'hex',
-            hashDigestLength: 20
-        }),
-        ...isTestBuild ? [new BundleAnalyzerPlugin()] : []
-    ]
+	mode: 'production',
+	devtool: 'source-map',
+	stats: 'errors-only',
+	optimization: {
+		concatenateModules: true
+	},
+	plugins: [
+		new webpack.DefinePlugin({
+			'process.env': {
+				NODE_ENV: JSON.stringify('production')
+			}
+		}),
+		new webpack.LoaderOptionsPlugin({
+			options: {
+				productionGzip: true
+			}
+		}),
+		new webpack.ids.HashedModuleIdsPlugin({
+			hashFunction: 'sha256',
+			hashDigest: 'hex',
+			hashDigestLength: 20
+		}),
+		...isTestBuild ? [new BundleAnalyzerPlugin()] : []
+	]
 });

@@ -1,20 +1,20 @@
 <template>
-    <el-container>
-        <el-aside style="transition: all 0.35s;" :width="isHideMenu ? '64px' : '220px'">
-            <Logo />
-            <navigation-menu />
-        </el-aside>
-        <el-container>
-            <el-header height="50px">
-                <page-header />
-            </el-header>
-            <el-main>
-                <div class="root_main">
-                    <router-view></router-view>
-                </div>
-            </el-main>
-        </el-container>
-    </el-container>
+	<el-container>
+		<el-aside style="transition: all 0.35s;" :width="isHideMenu ? '64px' : '220px'">
+			<Logo />
+			<navigation-menu />
+		</el-aside>
+		<el-container>
+			<el-header height="50px">
+				<page-header />
+			</el-header>
+			<el-main>
+				<div class="root_main">
+					<router-view />
+				</div>
+			</el-main>
+		</el-container>
+	</el-container>
 </template>
 
 <script lang="ts">
@@ -22,16 +22,16 @@ import { defineComponent, defineAsyncComponent } from 'vue';
 import { getMenuStatus } from '@/views/lib';
 
 export default defineComponent({
-    components: {
-        navigationMenu: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './menu.vue')),
-        Logo: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './logo.vue')),
-        pageHeader: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './header/index.vue'))
-    },
-    setup() {
-        return {
-            isHideMenu: getMenuStatus()
-        };
-    }
+	components: {
+		navigationMenu: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './menu.vue')),
+		Logo: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './logo.vue')),
+		pageHeader: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './header/index.vue'))
+	},
+	setup() {
+		return {
+			isHideMenu: getMenuStatus()
+		};
+	}
 });
 </script>
 
