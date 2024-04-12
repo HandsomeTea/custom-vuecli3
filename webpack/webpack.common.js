@@ -4,16 +4,23 @@ const AutoImport = require('unplugin-auto-import/webpack');
 const Components = require('unplugin-vue-components/webpack');
 // const IconsResolver = require('unplugin-icons/resolver');
 const { ElementPlusResolver, VantResolver } = require('unplugin-vue-components/resolvers');
-const path = require('path');
-const vendorPackage = ['axios', 'vant', 'vue', 'vue-i18n', 'vue-router', 'vuex', 'element-plus', 'lodash'];
+const vendorPackage = [
+	'vue', 'vue-i18n', 'vue-router', 'vuex',
+	'vant', 'element-plus', '@arco-design/web-vue',
+	'axios', 'lodash'
+];
 const catchPackagesGrouped = () => {
 	const result = {};
 
 	vendorPackage.map(package => {
 		result[package] = {
-			test: module => module.resource && /\.js$/.test(module.resource) && module.resource.includes(path.join(__dirname, `../node_modules/${package}/`)),
+			test: new RegExp(`[\\\\/]node_modules[\\\\/]${package}[\\\\/]`),
 			name: package,
-			chunks: 'all'
+			minSize: 0,
+			priority: 120,
+			maxInitialRequests: 10,
+			chunks: 'all',
+			minChunks: 1
 		};
 	});
 
@@ -46,7 +53,7 @@ module.exports = {
 	optimization: {
 		runtimeChunk: 'single',
 		splitChunks: {
-			chunks: 'async',
+			chunks: 'all',
 			cacheGroups: {
 				...catchPackagesGrouped()
 			}

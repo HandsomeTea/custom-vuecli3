@@ -29,8 +29,10 @@
   },
   "homepage": "https://github.com/HandsomeTea/custom-vuecli3#readme",
   "dependencies": {
+    "@arco-design/web-vue": "^2.55.1",
     "@element-plus/icons-vue": "^2.3.1",
     "agentkeepalive": "^4.2.1",
+    "ant-design-vue": "^4.1.2",
     "axios": "^1.6.8",
     "core-js": "^3.36.1",
     "element-plus": "^2.6.1",

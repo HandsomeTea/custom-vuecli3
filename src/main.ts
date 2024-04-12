@@ -3,7 +3,7 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import i18n from './lang';
-import { ElementPlusComponents, Tips } from './ui-frame';
+import { ElementPlusComponents } from './ui-frame';
 import './assets';
 
 const app = createApp(App)
@@ -13,10 +13,16 @@ const app = createApp(App)
 
 app.config.performance = true;
 app.config.errorHandler = async (error: unknown /*, instance?: ComponentPublicInstance*/) => {
-	Tips.error(`${error}`);/* eslint-disable-line no-console */
+	if (process?.env?.NODE_ENV === 'development') {
+		// eslint-disable-next-line no-console
+		console.error(error);
+	}
 };
 app.config.warnHandler = (msg: string /*, instance?: ComponentPublicInstance*/) => {
-	Tips.warn(msg); /* eslint-disable-line no-console */
+	if (process?.env?.NODE_ENV === 'development') {
+		// eslint-disable-next-line no-console
+		console.warn(msg);
+	}
 };
 
 ElementPlusComponents(app);
