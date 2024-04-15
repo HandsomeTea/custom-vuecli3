@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+  custom-vuecli3:
+    image: node:20.11.1
+    restart: always
+    container_name: custom-vuecli3
+    ports:
+      - 9013:9013
+      - 3003:3003 # 接口服务器的端口
+    volumes:
+      - ../:/usr/src/app
+    environment:
+      NODE_ENV: development
+    command:
+      - sh
+      - -c
+      - |
+        cd /usr/src/app
+        [ ! -d "/usr/src/app/node_modules" ] && npm install
+        npm run start
