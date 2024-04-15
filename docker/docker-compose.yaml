@@ -6,7 +6,6 @@ services:
     container_name: custom-vuecli3
     ports:
       - 9013:9013
-      - 3003:3003 # 接口服务器的端口
     volumes:
       - ../:/usr/src/app
     environment:
