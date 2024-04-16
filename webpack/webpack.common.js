@@ -14,7 +14,10 @@ const catchPackagesGrouped = () => {
 
 	vendorPackage.map(package => {
 		result[package] = {
-			test: new RegExp(`[\\\\/]node_modules[\\\\/]${package}[\\\\/]`),
+			// test: new RegExp(`[\\\\/]node_modules[\\\\/]${package}[\\\\/]`),
+			test: module => {
+				return module.resource && module.resource.includes(`/node_modules/${package}/`);
+			},
 			name: package,
 			minSize: 0,
 			priority: 120,

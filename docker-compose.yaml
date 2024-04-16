@@ -7,7 +7,7 @@ services:
     ports:
       - 9013:9013
     volumes:
-      - ../:/usr/src/app
+      - ./:/usr/src/app
     environment:
       NODE_ENV: development
     command:

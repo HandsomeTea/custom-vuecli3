@@ -1,27 +1,18 @@
 # 环境
 - nodejs v20.11.1
 - npm 10.2.4
+- vue3
 
-# 说明
+# docker-compose
+- 启动项目：在项目根目录执行`sudo docker-compose -f docker-compose.yaml up -d`。
+- 查看容器启动状态：`sudo docker ps -a --filter name=custom-vuecli3`。
+- 停止容器：`sudo docker stop custom-vuecli3`。
+- 重启容器：`sudo docker restart custom-vuecli3`。
+- 删除容器：`sudo docker rm custom-vuecli3`。
+- 查看容器日志：`sudo docker logs -f custom-vuecli3`。
+- 进入容器：`sudo docker exec -it custom-vuecli3 /bin/bash`，进入容器可执行项目的build，lint等指令。
+  - 退出:`exit`。
+- 开发环境webpack-dev-server接口代理
+  - 接口域名可直接用`http://ip:port`，不用映射，如：接口地址在本机`http://localhost:8080`，本机ip为`1.2.3.4`，则webpack的接口代理地址应设为`http://1.2.3.4:8080`。
 
-该项目初衷为以`vue3`为基础，使用`vue-cli`创建，根据以往开发经验，总结和提取开发技巧，不断学习和改进，做一个自己可直接使用的初始前端项目。该项目包含以下内容
-
-- 封装基于`axios`的`api`调用机制。
-- 封装了结构合理的`vue-router`，`vuxe`，`vue-i18n`(包括错误码机制)。
-- 封装了`element-ui`，`vant`及其常用提示和提示的多语言支持。
-- 封装了各个模块对`typescript`的良好支持。
-- 封装了`vue-cli`对原生的`webpack`配置的使用。
-- 做了几个简单的界面，展示了对该项目中各个封装模块的正确使用方法。
-- 封装了`start`，`build`，依赖包的`upgrade`，代码的`lint`，代码提交前的检查等项目常用的`npm`指令。
-
-
-
-## 涉及的技术和框架
-
-- `less`
-- `typescript`
-- `webpack`
-- `vue3`，`vue-router`，`vuex`，`vue-i18n`，`axios`
-- `element-plus`，`vant`
-- `vue-cli`
-- `eslint`
+# docker
