@@ -6,10 +6,9 @@ services:
     container_name: custom-vuecli3
     ports:
       - 9013:9013
+      - 8888:8888
     volumes:
-      - ./:/usr/src/app
-    environment:
-      NODE_ENV: development
+      - ../:/usr/src/app
     command:
       - sh
       - -c

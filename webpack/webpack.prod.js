@@ -28,6 +28,6 @@ module.exports = merge(common, {
 			hashDigest: 'hex',
 			hashDigestLength: 20
 		}),
-		...isTestBuild ? [new BundleAnalyzerPlugin()] : []
+		...isTestBuild ? [new BundleAnalyzerPlugin({ analyzerHost: '0.0.0.0', analyzerPort: 8888 })] : []
 	]
 });
