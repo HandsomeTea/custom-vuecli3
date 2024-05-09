@@ -1,18 +1,18 @@
 version: "3.8"
 services:
-  custom-vuecli3:
-    image: node:20.11.1
-    restart: always
-    container_name: custom-vuecli3
-    ports:
-      - 9013:9013
-      - 8888:8888
-    volumes:
-      - ../:/usr/src/app
-    command:
-      - sh
-      - -c
-      - |
-        cd /usr/src/app
-        [ ! -d "/usr/src/app/node_modules" ] && npm install
-        npm run start
+    custom-vuecli3:
+        image: node:20.11.1
+        restart: always
+        container_name: custom-vuecli3
+        ports:
+            - 9013:9013
+            - 8888:8888
+        volumes:
+            - ../:/usr/src/app
+        command:
+            - sh
+            - -c
+            - |
+                cd /usr/src/app
+                [ ! -d "/usr/src/app/node_modules" ] && npm install
+                npm run start

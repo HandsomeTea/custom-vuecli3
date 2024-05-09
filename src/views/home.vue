@@ -49,6 +49,7 @@ export default defineComponent({
 			// console.log(123);
 
 			// EventSource sse test
+			// 推荐做法：原生的sse会自动解析数据格式，fetch解析数据需要自己处理，比较容易丢失数据原有的格式和分段，尤其是分段！
 			// if ('EventSource' in window) {
 			//     // 事件的结束应由服务器端控制，并在结束前发送结束的标志位
 			//     const source = new EventSource('/api/project/service/v1/user');

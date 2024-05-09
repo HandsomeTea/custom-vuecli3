@@ -152,7 +152,7 @@ const formRules = reactive<FormRules<UserForm>>({
 	}]
 });
 const submitUser = async (formEl?: FormInstance) => {
-	if (!await formEl?.validate(() => true)) {
+	if (!await formEl?.validate()) {
 		return;
 	}
 	const password = userForm.password1 && userForm.password2 ? userForm.password2 : '';

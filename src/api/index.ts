@@ -64,7 +64,8 @@ export const Role = new class Roles extends Base {
 				{ 'home': ['add', 'delete', 'update'] },
 				{ 'user-list': ['add'] },
 				{ 'role-list': ['delete'] },
-				{ 'role-edit': ['update'] }
+				{ 'role-edit': ['update'] },
+				{ 'sse-test': ['add', 'delete', 'update'] }
 			]
 		};
 	}

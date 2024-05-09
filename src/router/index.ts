@@ -34,6 +34,10 @@ const routes: Array<RouteRecordRaw> = [{
 				meta: { title: '角色详情', group: '用户', page: 'role-edit' },
 				component: () => import(/* webpackChunkName: 'role' */ '../views/role/role-edit.vue')
 			}]
+		}, {
+			path: '/ssetest',
+			meta: { title: 'SSE测试', group: 'SSE', page: 'sse-test' },
+			component: () => import(/* webpackChunkName: 'sse' */ '../views/sse/index.vue')
 		}
 	]
 }];

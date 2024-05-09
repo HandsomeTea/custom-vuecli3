@@ -164,7 +164,7 @@ if (isAdd) {
 	setEditData(dataId);
 }
 const submit = async (formEl?: FormInstance) => {
-	if (!await formEl?.validate(() => true)) {
+	if (!await formEl?.validate()) {
 		return;
 	}
 	const data: Record<string, Array<PermissionType>> = {};
