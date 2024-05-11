@@ -1,11 +1,11 @@
 <template>
 	<div>
-		<h1>SSE</h1>
-		<el-input v-model="recordId" placeholder="请输入用户名称" style="width: 320px;" />
+		<h1>xterm显示ssh执行日志示例</h1>
+		<el-input v-model="recordId" placeholder="请输入日志记录id" style="width: 320px;" />
 		<el-button type="primary" @click="getData()">
 			确定
 		</el-button>
-		<div id="terminal" />
+		<div id="terminal" class="overflow-hidden rounded-[5px]" />
 	</div>
 </template>
 
@@ -14,6 +14,7 @@ import '@xterm/xterm/css/xterm.css';
 import { ref, onMounted } from 'vue';
 import { Terminal } from '@xterm/xterm';
 import { Tips } from '@/ui-frame';
+import { blueLog, greenLog, redLog, whiteLog, yellowLog } from './lib';
 
 const term = new Terminal({
 	overviewRulerWidth: 1100,
@@ -22,11 +23,12 @@ const term = new Terminal({
 	lineHeight: 1.5,
 	fontSize: 13,
 	letterSpacing: 1,
+	fontFamily: '"JetBrains Mono", "Menlo", "DejaVu Sans Mono", "Liberation Mono", "Consolas", "Ubuntu Mono", "Courier New", "andale mono", "lucida console", monospace',
 	theme: {
-		background: 'rgb(35 35 35)'
+		background: 'rgba(17, 24, 39, 1)'
 	}
 });
-const recordId = ref('663c3ccbcbb939bc306283d3');
+const recordId = ref('663c4384de3295535b49ede0');
 
 onMounted(() => {
 	const terminalContainer = document.getElementById('terminal');
@@ -41,11 +43,6 @@ const getData = async () => {
 	if (!recordId.value) {
 		return;
 	}
-	const blueLog = (log: string) => `\x1b[1;96m${log}\x1b[0m`;
-	const greenLog = (log: string) => `\x1b[1;92m${log}\x1b[0m`;
-	const yellowLog = (log: string) => `\x1b[1;93m${log}\x1b[0m`;
-	const redLog = (log: string) => `\x1b[1;91m${log}\x1b[0m`;
-	const whiteLog = (log: string) => `\x1b[97m${log}\x1b[0m`;
 	const source = new EventSource(`/api/v1/feature/remote-ssh-task/${recordId.value}/log`);
 
 	source.onopen = () => {

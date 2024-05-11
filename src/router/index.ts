@@ -35,9 +35,13 @@ const routes: Array<RouteRecordRaw> = [{
 				component: () => import(/* webpackChunkName: 'role' */ '../views/role/role-edit.vue')
 			}]
 		}, {
-			path: '/ssetest',
-			meta: { title: 'SSE测试', group: 'SSE', page: 'sse-test' },
-			component: () => import(/* webpackChunkName: 'sse' */ '../views/sse/index.vue')
+			path: '/ssh-xterm-test',
+			meta: { title: 'xterm-SSH日志', group: 'SSE', page: 'sse-ssh-log-xterm' },
+			component: () => import(/* webpackChunkName: 'xterm-ssh' */ '../views/sse/xterm.vue')
+		}, {
+			path: '/ssh-ansiup-test',
+			meta: { title: 'ansiup-SSH日志', group: 'SSE', page: 'sse-ssh-log-ansiup' },
+			component: () => import(/* webpackChunkName: 'xterm-ssh' */ '../views/sse/ansiup.vue')
 		}
 	]
 }];

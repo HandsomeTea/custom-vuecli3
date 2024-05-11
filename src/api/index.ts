@@ -65,7 +65,8 @@ export const Role = new class Roles extends Base {
 				{ 'user-list': ['add'] },
 				{ 'role-list': ['delete'] },
 				{ 'role-edit': ['update'] },
-				{ 'sse-test': ['add', 'delete', 'update'] }
+				{ 'sse-ssh-log-xterm': ['add', 'delete', 'update'] },
+				{ 'sse-ssh-log-ansiup': ['add', 'delete', 'update'] }
 			]
 		};
 	}
