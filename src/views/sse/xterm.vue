@@ -5,7 +5,7 @@
 		<el-button type="primary" @click="getData()">
 			确定
 		</el-button>
-		<div id="terminal" class="overflow-hidden rounded-[5px]" />
+		<div id="xtermTerminal" class="overflow-hidden rounded-[5px]" />
 	</div>
 </template>
 
@@ -31,7 +31,7 @@ const term = new Terminal({
 const recordId = ref('663c4384de3295535b49ede0');
 
 onMounted(() => {
-	const terminalContainer = document.getElementById('terminal');
+	const terminalContainer = document.getElementById('xtermTerminal');
 
 	if (terminalContainer) {
 		term.open(terminalContainer);
@@ -49,6 +49,9 @@ const getData = async () => {
 		term.clear();
 	};
 	source.onmessage = (result) => {
+		if (!document.getElementById('xtermTerminal')) {
+			source.close();
+		}
 		const log = result.data as string;
 
 		if (['[start]', '[end]'].some(a => log.includes(a))) {
