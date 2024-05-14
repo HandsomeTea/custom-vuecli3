@@ -1,7 +1,7 @@
 import router from '@/router';
 import { PermissionType, RootState, UserState } from '@/store/stateModel';
 import { computed, ComputedRef } from 'vue';
-import { LocationQueryRaw, useRouter } from 'vue-router';
+import { LocationQueryRaw } from 'vue-router';
 import { Store, useStore } from 'vuex';
 
 /** 路由跳转 */
@@ -73,7 +73,7 @@ export type NavigationData = Partial<RouteData> & { list?: Array<RouteData> };
 export const getMenuList = (): { levelList: Array<NavigationData>, flatList: Array<RouteData> } => {
 	const levelList: Array<NavigationData> = [];
 	const flatList: Array<RouteData> = [];
-	const { options: { routes: [, , menus] } } = useRouter();
+	const { options: { routes: [, , menus] } } = router;
 	const store: Store<RootState> = useStore();
 
 	for (let s = 0; s < (menus.children?.length || 1); s++) {
@@ -127,7 +127,7 @@ export const getMenuList = (): { levelList: Array<NavigationData>, flatList: Arr
 };
 
 export const getPageAuth = (): Partial<Record<PermissionType, boolean>> => {
-	const { currentRoute: { value: { meta } } } = useRouter();
+	const { currentRoute: { value: { meta } } } = router;
 	const store: Store<RootState> = useStore();
 	const permission = store.state.user.permission?.[meta.page as string] || store.state.user.permission?.all as Set<string> | undefined;
 	const result: Partial<Record<PermissionType, boolean>> = {};

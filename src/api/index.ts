@@ -32,13 +32,13 @@ export const Account = new class Accounts extends Base {
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	public async login(type: 'pwd' | 'resume', payload: { account?: string, password?: string, token?: string }) {
-		// return HTTP.send('/api/projectpub/service/v1/account/login', 'post', { data: { type, payload } }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
-		return {
-			data: {
-				user: { id: '123123dsfsdf34tsd', name: 'coco', type: ['admin'], role: ['admin'] },
-				token: '00000000000'
-			}
-		};
+		return HTTP.send('/api/projectpub/service/v1/account/login', 'post', { data: { type, payload } }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+		// return {
+		// 	data: {
+		// 		user: { id: '123123dsfsdf34tsd', name: 'coco', type: ['admin'], role: ['admin'] },
+		// 		token: '00000000000'
+		// 	}
+		// };
 	}
 
 	public async getUserPermissions(userId: string) {
@@ -57,18 +57,18 @@ export const Role = new class Roles extends Base {
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async searchPermissions(option: { id?: Array<string>, name?: string }) {
-		// return HTTP.send('/api/project/service/v1/role/search', 'get', { params: option }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
-		return {
-			data: [
-				// { all: ['add', 'delete', 'update'] }
-				{ 'home': ['add', 'delete', 'update'] },
-				{ 'user-list': ['add'] },
-				{ 'role-list': ['delete'] },
-				{ 'role-edit': ['update'] },
-				{ 'sse-ssh-log-xterm': ['add', 'delete', 'update'] },
-				{ 'sse-ssh-log-ansiup': ['add', 'delete', 'update'] }
-			]
-		};
+		return HTTP.send('/api/project/service/v1/role/search', 'get', { params: option }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+		// return {
+		// 	data: [
+		// 		// { all: ['*'] }
+		// 		{ 'home': ['add', 'delete', 'update'] },
+		// 		{ 'user-list': ['add'] },
+		// 		{ 'role-list': ['delete'] },
+		// 		{ 'role-edit': ['update'] },
+		// 		{ 'sse-ssh-log-xterm': ['add', 'delete', 'update'] },
+		// 		{ 'sse-ssh-log-ansiup': ['add', 'delete', 'update'] }
+		// 	]
+		// };
 	}
 
 	async delete(id: string | Array<string>) {

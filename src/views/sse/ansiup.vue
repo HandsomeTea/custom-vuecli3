@@ -5,9 +5,13 @@
 		<el-button type="primary" @click="getData()">
 			确定
 		</el-button>
-		<div class="rounded-[5px] bg-gray-900 overflow-y-auto h-[calc(100%-60px)]" id="ansiupTerminal">
-			<div class="leading-[24px] text-[13px] px-[6px] tracking-[3px] whitespace-pre-wrap break-all log_box"
-				v-for="(log, index) in html" :key="index" v-html="log" />
+		<div id="ansiupTerminal" class="rounded-[5px] bg-gray-900 overflow-y-auto h-[calc(100%-60px)]">
+			<div
+				v-for="(log, index) in html"
+				:key="index"
+				class="leading-[24px] text-[13px] px-[6px] tracking-[3px] whitespace-pre-wrap break-all log_box"
+				v-html="log"
+			/>
 		</div>
 	</div>
 </template>
@@ -62,6 +66,7 @@ const getData = async () => {
 		}
 	};
 };
+
 </script>
 <style lang="less">
 .root_main:has(#ansiupTerminal) {

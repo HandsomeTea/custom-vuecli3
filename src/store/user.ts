@@ -6,13 +6,13 @@ import { Tips } from '@/ui-frame';
 
 const state: UserState = {};
 const mutations: MutationTree<UserState> = {
-	_login(state: UserState, user: Required<UserState>) {
-		state.user = user.user;
-		state.token = user.token;
+	_login(state: UserState, login: { entryPath: string } & Required<UserState>) {
+		state.user = login.user;
+		state.token = login.token;
 
-		window.localStorage.setItem('cemeta_ops_token', user.token);
+		window.localStorage.setItem('cemeta_ops_token', login.token);
 		router.replace({
-			path: '/index'
+			path: login.entryPath
 		});
 	},
 	_setPermission(state: UserState, permission: Array<Record<string, Array<string>>>) {
@@ -20,10 +20,16 @@ const mutations: MutationTree<UserState> = {
 
 		for (let s = 0; s < permission.length; s++) {
 			for (const key in permission[s]) {
+				let auth = permission[s][key];
+
+				if (auth.includes('*')) {
+					auth = ['add', 'delete', 'update'];
+				}
+
 				if (!permissionResult[key]) {
-					permissionResult[key] = new Set(permission[s][key]);
+					permissionResult[key] = new Set(auth);
 				} else {
-					permissionResult[key] = new Set(...permissionResult[key], ...permission[s][key]);
+					permissionResult[key] = new Set(...permissionResult[key], ...auth);
 				}
 			}
 		}
@@ -55,7 +61,8 @@ const actions: ActionTree<UserState, RootState> = {
 		// }
 		const loginUser = {
 			user: {},
-			token: ''
+			token: '',
+			entryPath: '/index'
 		};
 		let user: ApiResult = {};
 
@@ -102,7 +109,21 @@ const actions: ActionTree<UserState, RootState> = {
 				});
 				return;
 			}
-			commit('_setPermission', permission.data as Array<Record<string, Array<string>>>);
+			const permissionResult: Array<Record<string, Array<string>>> = permission.data;
+
+			commit('_setPermission', permissionResult);
+			const authPages = permissionResult.map(item => Object.keys(item)).flat();
+
+			if (!authPages.includes('all')) {
+				const allPages = router.getRoutes();
+
+				for (let s = 0; s < allPages.length; s++) {
+					if (authPages.includes(allPages[s].meta.page as string)) {
+						loginUser.entryPath = allPages[s].path;
+						break;
+					}
+				}
+			}
 		}
 		commit('_login', loginUser);
 	},

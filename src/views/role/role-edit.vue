@@ -170,9 +170,10 @@ const submit = async (formEl?: FormInstance) => {
 	const data: Record<string, Array<PermissionType>> = {};
 
 	roleForm.permission.map(item => {
-		if (permissionOpt[item].data.length > 0) {
-			data[item] = [...permissionOpt[item].data];
-		}
+		// 不判断，数组长度为0代表该页面只能看
+		// if (permissionOpt[item].data.length > 0) {
+		data[item] = [...permissionOpt[item].data];
+		// }
 	});
 
 	const res = await Role.addOrUpdate({

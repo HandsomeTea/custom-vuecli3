@@ -16,11 +16,7 @@
 			</el-input>
 
 			<div style="float: right;">
-				<el-button
-					v-show="chosedIds.length > 0 && auth.delete"
-					type="danger"
-					@click="deleteTableData()"
-				>
+				<el-button v-show="chosedIds.length > 0 && auth.delete" type="danger" @click="deleteTableData()">
 					批量删除
 				</el-button>
 
@@ -50,17 +46,17 @@
 			</el-table-column>
 			<el-table-column label="类型" prop="type" width="130px">
 				<template #default="scope">
-					{{ scope.row.type === 'inner-admin' ? '内置管理员角色' : '自定义角色' }}
+					{{ scope.row.type === 'INNER_ADMIN' ? '内置管理员角色' : '自定义角色' }}
 				</template>
 			</el-table-column>
 			<el-table-column label="权限" prop="permission">
 				<template #default="scope">
-					{{ scope.row.type === 'inner-admin' ? '全部' : getRoleDescription(scope.row.permission) }}
+					{{ scope.row.type === 'INNER_ADMIN' ? '全部' : getRoleDescription(scope.row.permission) }}
 				</template>
 			</el-table-column>
 			<el-table-column label="操作" align="right" width="150px">
 				<template #default="scope">
-					<template v-if="scope.row.type !== 'inner-admin'">
+					<template v-if="scope.row.type !== 'INNER_ADMIN'">
 						<el-button
 							v-if="auth.delete"
 							size="small"
@@ -103,11 +99,11 @@ import { Role } from '@/api';
 import { PermissionType } from '@/store/stateModel';
 
 interface RoleData {
-    _id: string
-    name: string
-    permission: Record<string, Array<PermissionType>>
-    createdAt: Date
-    updatedAt: Date
+	_id: string
+	name: string
+	permission: Record<string, Array<PermissionType>>
+	createdAt: Date
+	updatedAt: Date
 }
 
 const auth = ref(getPageAuth());
@@ -162,6 +158,7 @@ const changeListLimit = (limit: number) => {
 const deleteTableData = async (id?: string) => {
 	const ids = id ? [id] : chosedIds.value.length > 0 ? chosedIds.value : [];
 
+	console.log(ids, id);
 	if (ids.length === 0) {
 		return;
 	}
