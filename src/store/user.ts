@@ -54,15 +54,11 @@ const mutations: MutationTree<UserState> = {
 const actions: ActionTree<UserState, RootState> = {
 	async login({ commit }, option: { type: 'pwd' | 'resume', account?: string, password?: string }) {
 		const { type, account, password } = option;
-		// const viewPath = window.location.href.replace(window.location.origin, '').replace('/#', '');
-
-		// if (viewPath !== '/ops/index' && viewPath !== '/login') {
-		//     commit('_rememberTargetPath', viewPath);
-		// }
+		const viewPath = window.location.href.replace(window.location.origin, '').replace('/#', '');
 		const loginUser = {
 			user: {},
 			token: '',
-			entryPath: '/index'
+			entryPath: viewPath !== '/login' ? viewPath : '/index'
 		};
 		let user: ApiResult = {};
 
@@ -116,11 +112,14 @@ const actions: ActionTree<UserState, RootState> = {
 
 			if (!authPages.includes('all')) {
 				const allPages = router.getRoutes();
+				const defaultEntryPathPage = allPages.find(item => item.path === loginUser.entryPath)?.meta.page as string;
 
-				for (let s = 0; s < allPages.length; s++) {
-					if (authPages.includes(allPages[s].meta.page as string)) {
-						loginUser.entryPath = allPages[s].path;
-						break;
+				if (!authPages.includes(defaultEntryPathPage)) {
+					for (let s = 0; s < allPages.length; s++) {
+						if (authPages.includes(allPages[s].meta.page as string)) {
+							loginUser.entryPath = allPages[s].path;
+							break;
+						}
 					}
 				}
 			}

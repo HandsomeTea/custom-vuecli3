@@ -73,11 +73,11 @@ export type NavigationData = Partial<RouteData> & { list?: Array<RouteData> };
 export const getMenuList = (): { levelList: Array<NavigationData>, flatList: Array<RouteData> } => {
 	const levelList: Array<NavigationData> = [];
 	const flatList: Array<RouteData> = [];
-	const { options: { routes: [, , menus] } } = router;
+	const { options: { routes: [, , { children }] } } = router;
 	const store: Store<RootState> = useStore();
 
-	for (let s = 0; s < (menus.children?.length || 1); s++) {
-		const menu = menus.children && menus.children[s];
+	for (let s = 0; s < (children?.length || 1); s++) {
+		const menu = children && children[s];
 
 		if (!store.state.user.permission?.all && !store.state.user.permission?.[menu?.meta?.page as string]) {
 			continue;

@@ -2,6 +2,9 @@ import { Tips } from '@/ui-frame';
 import { createRouter, createWebHistory, RouteRecordRaw, RouteLocationNormalized, NavigationGuardNext, createWebHashHistory } from 'vue-router';
 import store from '@/store';
 
+// 所有与路由相关的逻辑处理都只考虑了两层的路由嵌套
+
+
 const routes: Array<RouteRecordRaw> = [{
 	path: '/',
 	redirect: '/login'
