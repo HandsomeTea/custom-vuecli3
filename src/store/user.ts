@@ -98,7 +98,7 @@ const actions: ActionTree<UserState, RootState> = {
 		loginUser.token = user.data.token;
 
 		if (user.data.user.role.length > 0) {
-			const permission: ApiResult = await Role.searchPermissions({ id: user.data.user.role });
+			const permission: ApiResult = await Role.getRolePermissions(user.data.user.role);
 
 			if (permission.error) {
 				if (type !== 'resume') {
@@ -127,8 +127,12 @@ const actions: ActionTree<UserState, RootState> = {
 		}
 		commit('_login', loginUser);
 	},
-	logout({ commit }) {
-		commit('_logout');
+	async logout({ commit }) {
+		const res = await Account.logout();
+
+		if (!res.error) {
+			commit('_logout');
+		}
 	}
 };
 

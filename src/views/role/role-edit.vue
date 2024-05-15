@@ -176,10 +176,13 @@ const submit = async (formEl?: FormInstance) => {
 		// }
 	});
 
-	const res = await Role.addOrUpdate({
+	const res = isAdd ? await Role.create({
 		name: roleForm.name,
-		data,
-		...isAdd ? {} : { id: dataId }
+		data
+	}) : await Role.uppdate({
+		id: dataId,
+		name: roleForm.name,
+		data
 	});
 
 	if (!res.error) {

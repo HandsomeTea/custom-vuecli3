@@ -1,5 +1,6 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosError, Method, ResponseType /*,isAxiosError*/ } from 'axios';
 import Agent from 'agentkeepalive';
+import store from '@/store';
 
 class Exception extends Error {
 	private status: number;
@@ -55,6 +56,14 @@ class HTTP {
 			for (const key in _obj) {
 				config.url = config.url?.replace(new RegExp(key, 'g'), _obj[key]);
 			}
+		}
+
+		if (!config.headers.get('x-auth-token')) {
+			config.headers.set('x-auth-token', store.state.user.token);
+		}
+
+		if (!config.headers.get('x-user-id')) {
+			config.headers.set('x-user-id', store.state.user.user?.id);
 		}
 
 		return config;

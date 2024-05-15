@@ -165,7 +165,15 @@ const deleteTableData = async (id?: string) => {
 	if (!confirm) {
 		return;
 	}
-	const res = await User.delete(ids);
+	const deleteIds = ids.filter(a => a !== user.value.user?.id);
+
+	if (ids.length !== deleteIds.length) {
+		Tips.warn('不能删除自己！');
+	}
+	if (deleteIds.length === 0) {
+		return;
+	}
+	const res = await User.delete(ids.filter(a => a !== user.value.user?.id));
 
 	if (!res.error) {
 		await getTableList();

@@ -44,6 +44,10 @@ export const Account = new class Accounts extends Base {
 	public async getUserPermissions(userId: string) {
 		return HTTP.send('/api/project/service/v1/account/login', 'post', { data: { userId } }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
 	}
+
+	public async logout() {
+		return HTTP.send('/api/project/service/v1/account/logout', 'put').then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+	}
 };
 
 export const Role = new class Roles extends Base {
@@ -56,8 +60,8 @@ export const Role = new class Roles extends Base {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async searchPermissions(option: { id?: Array<string>, name?: string }) {
-		return HTTP.send('/api/project/service/v1/role/search', 'get', { params: option }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+	async getRolePermissions(id: Array<string>) {
+		return HTTP.send('/api/project/service/v1/role/permission', 'get', { params: { id } }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
 		// return {
 		// 	data: [
 		// 		// { all: ['*'] }
@@ -75,8 +79,12 @@ export const Role = new class Roles extends Base {
 		return HTTP.send('/api/project/service/v1/role', 'delete', { data: { id } }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
 	}
 
-	async addOrUpdate(role: { name: string, data: Record<string, Array<PermissionType>>, id?: string }) {
+	async create(role: { name: string, data: Record<string, Array<PermissionType>> }) {
 		return HTTP.send('/api/project/service/v1/role', 'post', { data: role }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+	}
+
+	async uppdate(role: { name: string, data: Record<string, Array<PermissionType>>, id: string }) {
+		return HTTP.send('/api/project/service/v1/role', 'put', { data: role }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
 	}
 
 	async getRoleById(id: string) {
@@ -93,8 +101,12 @@ export const User = new class Users extends Base {
 		super();
 	}
 
-	async saveUser(user: { name?: string, phone: string, email?: string, password?: string, role: Array<string> }) {
+	async create(user: { name?: string, phone: string, email?: string, password?: string, role: Array<string> }) {
 		return HTTP.send('/api/project/service/v1/user', 'post', { data: user }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+	}
+
+	async updateUserById(id: string, user: { name?: string, phone: string, email?: string, password?: string, role: Array<string> }) {
+		return HTTP.send(`/api/project/service/v1/user/${id}`, 'patch', { data: user }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
 	}
 
 	async getList(option?: { keyword?: string, skip?: number, limit?: number }) {

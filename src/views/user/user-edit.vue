@@ -204,7 +204,13 @@ const submitUser = async (formEl?: FormInstance) => {
 		return;
 	}
 	const password = userForm.password1 && userForm.password2 ? userForm.password2 : '';
-	const res = await User.saveUser({
+	const res = !props.editId ? await User.create({
+		name: userForm.name,
+		phone: userForm.phone,
+		role: userForm.role,
+		...userForm.emailPre ? { email: userForm.emailPre + userForm.emailSuf } : {},
+		...password ? { password } : {}
+	}) : await User.updateUserById(props.editId, {
 		name: userForm.name,
 		phone: userForm.phone,
 		role: userForm.role,
