@@ -16,14 +16,14 @@ export const Account = new class Accounts extends Base {
 		super();
 	}
 
-	// async fetchSseTest() {
-	//     // return await fetch('/api/project/service/v1/user', {
-	//     return await fetch('/api/v1/user/sse/test', {
-	//         method: 'get',
-	//         headers: {
-	//             'Content-Type': 'application/json'
-	//         }
-	//     });
+	// async fetchSseTest(recordId: string) {
+	// 	return await fetch('/api/project/service/v1/user', {
+	// 	// return await fetch(`/api/v1/feature/remote-ssh-task/${recordId}/log`, {
+	// 		method: 'get',
+	// 		headers: {
+	// 			'Content-Type': 'application/json'
+	// 		}
+	// 	});
 	// }
 
 	public async test(body?: Record<string, unknown>): Promise<ApiResult> {
