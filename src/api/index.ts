@@ -79,8 +79,12 @@ export const Role = new class Roles extends Base {
 		return HTTP.send('/api/project/service/v1/role', 'post', { data: role }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
 	}
 
-	async getPermission(id: string) {
+	async getRoleById(id: string) {
 		return HTTP.send(`/api/project/service/v1/role/${id}`, 'get').then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
+	}
+
+	async getSelectRoleList() {
+		return HTTP.send('/api/project/service/v1/role/select', 'get').then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
 	}
 };
 
@@ -89,7 +93,7 @@ export const User = new class Users extends Base {
 		super();
 	}
 
-	async saveUser(user: { name?: string, phone: string, email?: string, password?: string }) {
+	async saveUser(user: { name?: string, phone: string, email?: string, password?: string, role: Array<string> }) {
 		return HTTP.send('/api/project/service/v1/user', 'post', { data: user }).then(r => this.successHandle(r)).catch(e => this.errorHandle(e));
 	}
 

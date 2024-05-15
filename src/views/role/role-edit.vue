@@ -145,7 +145,7 @@ if (isAdd) {
 	roleForm.permission = [];
 } else {
 	const setEditData = async (id: string) => {
-		const role = await Role.getPermission(id);
+		const role = await Role.getRoleById(id);
 
 		if (role.error) {
 			Tips.error(role.error.type || '失败！');

@@ -2,17 +2,22 @@
 	<el-dialog
 		v-model="props.show"
 		draggable
-		show-close
+		destroy-on-close
+		:close-on-press-escape="false"
+		:close-on-click-modal="false"
+		:show-close="false"
 		:title="!!props.editId ? '修改用户' : '新建用户'"
 		width="600px"
 		@close="() => emit('cancel')"
 	>
+		<div v-if="loading" v-loading="loading" class="h-[376px]" />
 		<el-form
+			v-else
 			ref="formRef"
 			:model="userForm"
 			size="default"
 			label-width="140px"
-			style="width: 600px;padding: 38px 0;"
+			class="py-[38px]"
 			:rules="formRules"
 			status-icon
 		>
@@ -37,6 +42,24 @@
 					</template>
 				</el-input>
 			</el-form-item>
+
+			<el-form-item label="角色" prop="role">
+				<el-select
+					v-model="userForm.role"
+					multiple
+					placeholder="请选择角色"
+					no-data-text="请先创建角色！"
+					style="width: 320px;"
+				>
+					<el-option
+						v-for="role in roleSelectList"
+						:key="role._id"
+						:label="role.name"
+						:value="role._id"
+					/>
+				</el-select>
+			</el-form-item>
+
 			<el-form-item label="密码" prop="password1">
 				<el-input
 					v-model="userForm.password1"
@@ -58,25 +81,29 @@
 		</el-form>
 
 		<template #footer>
-			<span class="dialog-footer">
-				<el-button @click="emit('cancel')">取消</el-button>
-				<el-button type="primary" @click="submitUser(formRef)"> 提交 </el-button>
-			</span>
+			<el-button @click="emit('cancel')">
+				取消
+			</el-button>
+			<el-button type="primary" @click="submitUser(formRef)">
+				提交
+			</el-button>
 		</template>
 	</el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { User } from '@/api';
+import { watch } from 'vue';
+import { User, Role } from '@/api';
 import { Tips } from '@/ui-frame';
 import { FormInstance, FormRules } from 'element-plus';
-import { reactive, ref, onActivated } from 'vue';
+import { reactive, ref } from 'vue';
 
 interface UserForm {
 	name: string
 	phone: string
 	emailPre: string
 	emailSuf: string
+	role: Array<string>
 	password1: string
 	password2: string
 }
@@ -97,11 +124,25 @@ const userForm = reactive<UserForm>({
 	phone: '',
 	emailPre: '',
 	emailSuf: '@qq.com',
+	role: [],
 	password1: '',
 	password2: ''
 });
+const roleSelectList = ref<Array<{ _id: string, name: string }>>([]);
+const loading = ref(false);
 
-onActivated(async () => {
+watch(() => props.show, async () => {
+	if (!props.show) {
+		return;
+	}
+	loading.value = true;
+	const roleList = await Role.getSelectRoleList();
+
+	if (!roleList.error) {
+		roleSelectList.value = roleList.data;
+	} else {
+		Tips.error('角色信息获取失败');
+	}
 	if (!props.editId) {
 		userForm.name = '';
 		userForm.phone = '';
@@ -115,6 +156,7 @@ onActivated(async () => {
 		if (!user.error) {
 			userForm.name = user.data.name;
 			userForm.phone = user.data.phone.number;
+			userForm.role = user.data.role;
 			const email = user.data.email?.address;
 
 			if (email) {
@@ -123,10 +165,11 @@ onActivated(async () => {
 				userForm.emailPre = emailPre;
 				userForm.emailSuf = emailSuf;
 			}
-			return;
+		} else {
+			Tips.error('用户信息获取失败');
 		}
-		Tips.error('用户信息获取失败');
 	}
+	loading.value = false;
 });
 const formRef = ref<FormInstance>();
 const formRules = reactive<FormRules<UserForm>>({
@@ -139,6 +182,11 @@ const formRules = reactive<FormRules<UserForm>>({
 		pattern: /^1[3-9]\d{9}$/,
 		message: '手机号码格式不正确',
 		trigger: 'blur'
+	}],
+	role: [{
+		required: true,
+		message: '请选择角色',
+		trigger: 'change'
 	}],
 	password2: [{
 		validator: (rule: unknown, value: unknown, callback: (error?: string | Error | undefined) => void) => {
@@ -159,6 +207,7 @@ const submitUser = async (formEl?: FormInstance) => {
 	const res = await User.saveUser({
 		name: userForm.name,
 		phone: userForm.phone,
+		role: userForm.role,
 		...userForm.emailPre ? { email: userForm.emailPre + userForm.emailSuf } : {},
 		...password ? { password } : {}
 	});

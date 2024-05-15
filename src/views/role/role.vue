@@ -158,7 +158,6 @@ const changeListLimit = (limit: number) => {
 const deleteTableData = async (id?: string) => {
 	const ids = id ? [id] : chosedIds.value.length > 0 ? chosedIds.value : [];
 
-	console.log(ids, id);
 	if (ids.length === 0) {
 		return;
 	}
