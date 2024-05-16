@@ -47,11 +47,11 @@ const routes: Array<RouteRecordRaw> = [{
 			children: [{
 				path: '/role/:id',
 				meta: { title: '编辑角色', group: '用户', page: 'role-edit', authDependParent: 'update' },
-				component: () => import(/* webpackChunkName: 'role' */ '../views/role/role-edit.vue')
+				component: () => import(/* webpackChunkName: 'role-form' */ '../views/role/role-edit.vue')
 			}, {
 				path: '/role/add',
 				meta: { title: '添加角色', group: '用户', page: 'role-add', authDependParent: 'add' },
-				component: () => import(/* webpackChunkName: 'role' */ '../views/role/role-edit.vue')
+				component: () => import(/* webpackChunkName: 'role-form' */ '../views/role/role-edit.vue')
 			}] // /role/:id和/role/add虽然正则匹配一样，但是vue任然认为是两个不同的路由，通过获取params的id依然可以区分
 		}, {
 			path: '/ssh-xterm-test',

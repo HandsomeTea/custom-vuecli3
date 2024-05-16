@@ -107,7 +107,7 @@ interface RoleData {
 }
 
 const auth = ref(getPageAuth());
-const tableList = ref([]);
+const tableList = ref<Array<RoleData>>([]);
 const tableRowClassName = ({ /*row, */rowIndex }: { row: RoleData, rowIndex: number }) => {
 	if (rowIndex === 0) {
 		return 'warning-row';
