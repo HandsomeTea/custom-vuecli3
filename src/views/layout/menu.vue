@@ -48,8 +48,8 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { redirectTo, getMenuStatus, getMenuList } from '@/views/lib';
 import { useRouter } from 'vue-router';
+import { redirectTo, getMenuStatus, getMenuList } from '@/views/lib';
 
 const allMenu = ref(getMenuList().levelList);
 const isHideMenu = getMenuStatus();

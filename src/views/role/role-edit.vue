@@ -95,7 +95,7 @@ interface RoleForm {
 }
 
 const router = useRouter();
-const isAdd = router.currentRoute.value.params.id === 'add';
+const isAdd = !router.currentRoute.value.params.id;
 const dataId = isAdd ? '' : router.currentRoute.value.params.id as string;
 const menuData = getMenuList();
 const permissionList = ref(menuData.levelList);
