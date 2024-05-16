@@ -10,7 +10,7 @@
 			</el-header>
 			<el-main>
 				<div class="root_main">
-					<router-view />
+					<router-view :key="routeKey" />
 				</div>
 			</el-main>
 		</el-container>
@@ -18,8 +18,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, defineAsyncComponent } from 'vue';
+import { defineComponent, defineAsyncComponent, computed } from 'vue';
 import { getMenuStatus } from '@/views/lib';
+import router from '@/router';
 
 export default defineComponent({
 	components: {
@@ -28,8 +29,11 @@ export default defineComponent({
 		pageHeader: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './header/index.vue'))
 	},
 	setup() {
+		const routeKey = computed(() => router.currentRoute.value.path);
+
 		return {
-			isHideMenu: getMenuStatus()
+			isHideMenu: getMenuStatus(),
+			routeKey
 		};
 	}
 });
@@ -39,34 +43,34 @@ export default defineComponent({
 @system_background_color: #fbfbfb;
 
 #app {
-    width: 100%;
-    height: 100%;
+	width: 100%;
+	height: 100%;
 
-    .el-container {
-        width: 100%;
-        height: 100%;
-        background-color: @system_background_color;
-        color: #666;
-    }
+	.el-container {
+		width: 100%;
+		height: 100%;
+		background-color: @system_background_color;
+		color: #666;
+	}
 }
 
 .el-header {
-    background-color: #fff;
-    border-bottom: solid 1px #e6e6e6;
-    padding: 0;
+	background-color: #fff;
+	border-bottom: solid 1px #e6e6e6;
+	padding: 0;
 }
 
 .el-aside {
-    background-color: rgb(22, 24, 29);
-    border-right: solid 1px #e6e6e6;
-    overflow: hidden;
+	background-color: rgb(22, 24, 29);
+	border-right: solid 1px #e6e6e6;
+	overflow: hidden;
 }
 
 .root_main {
-    padding: 0;
-    margin: 0;
-    overflow: auto;
-    border-radius: 0;
-    box-shadow: none;
+	padding: 0;
+	margin: 0;
+	overflow: auto;
+	border-radius: 0;
+	box-shadow: none;
 }
 </style>
