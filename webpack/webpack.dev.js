@@ -10,9 +10,8 @@ module.exports = merge(common, {
 	devtool: 'eval-source-map',
 	plugins: [
 		new webpack.DefinePlugin({
-			'process.env': {
-				NODE_ENV: JSON.stringify('development')
-			}
+			__VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
+			'process.env.NODE_ENV': '"development"'
 		}),
 		new ForkTsCheckerWebpackPlugin()
 	],

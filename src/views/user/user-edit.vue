@@ -1,6 +1,6 @@
 <template>
 	<el-dialog
-		v-model="props.show"
+		v-model="showDialog"
 		draggable
 		destroy-on-close
 		:close-on-press-escape="false"
@@ -130,8 +130,10 @@ const userForm = reactive<UserForm>({
 });
 const roleSelectList = ref<Array<{ _id: string, name: string }>>([]);
 const loading = ref(false);
+const showDialog = ref(false);
 
 watch(() => props.show, async () => {
+	showDialog.value = props.show;
 	if (!props.show) {
 		return;
 	}
