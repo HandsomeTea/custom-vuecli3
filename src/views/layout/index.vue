@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, defineAsyncComponent, computed } from 'vue';
+import { defineComponent, defineAsyncComponent, ref, watch } from 'vue';
 import { getMenuStatus } from '@/views/lib';
 import router from '@/router';
 
@@ -29,7 +29,17 @@ export default defineComponent({
 		pageHeader: defineAsyncComponent(() => import(/* webpackChunkName: 'layout' */ './header/index.vue'))
 	},
 	setup() {
-		const routeKey = computed(() => router.currentRoute.value.path);
+		const routeKey = ref('');
+
+		watch(() => router.currentRoute.value.path, path => {
+			const lastPath = router.options.history.state.back as string;
+
+			// 强制刷新 /xxx/xx 跳转到 /xxx 时的 /xxx 路由的页面
+			// 不刷新所有路由是因为如果 /xxx/xx/x 跳转到 /xxx/xx 全部刷新会导致 /xxx/xx 页面的某些暂时的内容丢失
+			if (lastPath.split('/').length === 3 && path.split('/').length === 2) {
+				routeKey.value = `level2_ro_level1_${new Date().getTime()}`;
+			}
+		});
 
 		return {
 			isHideMenu: getMenuStatus(),

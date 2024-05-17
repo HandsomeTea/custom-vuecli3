@@ -17,7 +17,7 @@
 				<template v-for="(permission, i) in permissionList">
 					<template v-if="!permission.list">
 						<template v-if="permission.page">
-							<el-checkbox :key="i" :label="permission.page" border>
+							<el-checkbox :key="i" :value="permission.page" border>
 								{{ permission.name }}
 							</el-checkbox>
 							<el-checkbox-group
@@ -28,7 +28,7 @@
 								<el-checkbox
 									v-for="(name, value) of permissionOpt[permission.page].permission"
 									:key="`opt-${value}`"
-									:label="value"
+									:value="value"
 									:disabled="!roleForm.permission.includes(permission.page)"
 								>
 									{{ name }}
@@ -48,7 +48,7 @@
 						</el-button>
 
 						<div v-for="(perChild, s) in permission.list" :key="s" style="margin-left: 20px;">
-							<el-checkbox style="margin-top: 8px;" :label="perChild.page" border>
+							<el-checkbox style="margin-top: 8px;" :value="perChild.page" border>
 								{{ perChild.name }}
 							</el-checkbox>
 
@@ -56,7 +56,7 @@
 								<el-checkbox
 									v-for="(name, value) of permissionOpt[perChild.page].permission"
 									:key="`opt-${value}`"
-									:label="value"
+									:value="value"
 									:disabled="!roleForm.permission.includes(perChild.page)"
 								>
 									{{ name }}
