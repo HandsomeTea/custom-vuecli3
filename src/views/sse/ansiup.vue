@@ -9,7 +9,7 @@
 			<!-- <div
 				v-for="(log, index) in html"
 				:key="index"
-				class="leading-[24px] text-[13px] px-[6px] tracking-[3px] whitespace-pre-wrap break-all log_box"
+				class="leading-[22px] text-[13px] px-[6px] tracking-[1px] whitespace-pre-wrap break-all log_box"
 				v-html="log"
 			/> -->
 		</div>
@@ -64,7 +64,7 @@ const getData = async () => {
 			// html.value.push(new AnsiUp().ansi_to_html(whiteLog(log)));
 			html = new AnsiUp().ansi_to_html(whiteLog(log));
 		}
-		container.innerHTML += `<div class="leading-[24px] text-[13px] px-[6px] tracking-[3px] whitespace-pre-wrap break-all log_box">${html}</div>`;
+		container.innerHTML += `<div class="leading-[22px] text-[13px] px-[6px] tracking-[1px] whitespace-pre-wrap break-all log_box">${html}</div>`;
 
 		if (log.includes('[stop]') || log.includes('[end]')) {
 			source.close();
@@ -87,18 +87,16 @@ const getData = async () => {
 	height: 100%;
 	overflow: hidden;
 }
+
+.log_box span {
+	font-family: "Menlo", "Liberation Mono", "Consolas", "DejaVu Sans Mono", "Ubuntu Mono", "Courier New", "andale mono", "lucida console";
+	font-size: 12px;
+	text-rendering: optimizeLegibility;
+	word-wrap: break-word;
+}
 </style>
 
 <style lang="less" scoped>
-.root_main:has(#ansiupTerminal) {
-	height: 100%;
-	overflow: hidden;
-}
-
-.log_box {
-	font-family: "JetBrains Mono", "Menlo", "DejaVu Sans Mono", "Liberation Mono", "Consolas", "Ubuntu Mono", "Courier New", "andale mono", "lucida console", monospace;
-}
-
 #ansiupTerminal::-webkit-scrollbar {
 	width: 8px;
 	height: 8px;
