@@ -43,7 +43,7 @@ const getData = async () => {
 	if (!recordId.value) {
 		return;
 	}
-	const source = new EventSource(`/api/v1/feature/remote-ssh-task/${recordId.value}/log`);
+	const source = new EventSource(`/api/v1/feature/remote-ssh-task/record/${recordId.value}/log`);
 
 	source.onopen = () => {
 		term.clear();

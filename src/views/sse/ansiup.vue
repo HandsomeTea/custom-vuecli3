@@ -23,7 +23,7 @@ import { Tips } from '@/ui-frame';
 import { blueLog, greenLog, redLog, whiteLog, yellowLog } from './lib';
 
 
-const recordId = ref('663c4384de3295535b49ede0');
+const recordId = ref('6656a4a06ee0da742a59bb48');
 // const html = ref<Array<string>>([]);
 
 const getData = async () => {
@@ -35,7 +35,7 @@ const getData = async () => {
 	if (!container) {
 		return;
 	}
-	const source = new EventSource(`/api/v1/feature/remote-ssh-task/${recordId.value}/log`);
+	const source = new EventSource(`/api/v1/feature/remote-ssh-task/record/${recordId.value}/log`);
 
 	source.onopen = () => {
 		// html.value = [];
