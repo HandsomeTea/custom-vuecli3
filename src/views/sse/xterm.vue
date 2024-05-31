@@ -39,6 +39,8 @@ onMounted(() => {
 	}
 });
 
+let oldResource: EventSource | null = null;
+
 const getData = async () => {
 	if (!recordId.value) {
 		return;
@@ -46,7 +48,11 @@ const getData = async () => {
 	const source = new EventSource(`/api/v1/feature/remote-ssh-task/record/${recordId.value}/log`);
 
 	source.onopen = () => {
+		if (oldResource) {
+			oldResource.close();
+		}
 		term.clear();
+		oldResource = source;
 	};
 	source.onmessage = (result) => {
 		if (!document.getElementById('xtermTerminal')) {
@@ -61,7 +67,7 @@ const getData = async () => {
 		} else if (log.includes('[command]')) {
 			term.writeln(greenLog(log.replace('[command]:', '')));
 		} else if (log.includes('[error]')) {
-			term.writeln(redLog(log.replace('[error]:', '')));
+			term.writeln(redLog(log.replace(/\[error\]:/g, '')));
 		} else {
 			term.writeln(whiteLog(log));
 		}
