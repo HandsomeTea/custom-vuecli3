@@ -140,3 +140,92 @@ export const getPageAuth = (): Partial<Record<PermissionType, boolean>> => {
 
 	return result;
 };
+
+export const Logger = new class Logger {
+	private colors = {
+		info: '#909399',
+		success: '#67C23A',
+		error: '#F56C6C',
+		warn: '#E6A23C'
+	};
+	constructor() {
+		// this.image('https://nimg.ws.126.net/?url=http%3A%2F%2Fdingyue.ws.126.net%2F2024%2F0514%2Fd0ea93ebj00sdgx56001xd200u000gtg00hz00a2.jpg&thumbnail=660x2147483647&quality=80&type=jpg')
+	}
+
+	private titleStyle(level: keyof typeof this.colors) {
+		const color = this.colors[level];
+
+		return `background:${color};border:1px solid ${color}; padding: 1px; color: #fff;`;
+	}
+
+	private logStyle(level: keyof typeof this.colors) {
+		const color = this.colors[level];
+
+		return `border:1px solid ${color}; padding: 1px; color: ${color};`;
+	}
+
+	private log(log: string, level: keyof typeof this.colors, title?: string) {
+		// eslint-disable-next-line no-console
+		const logger = level === 'success' ? console.log : console[level];
+
+		logger(
+			`%c ${title || level} %c ${log} %c`,
+			this.titleStyle(level),
+			this.logStyle(level),
+			'background:transparent'
+		);
+	}
+
+	table(log: Array<Record<string, string | number | boolean>> | Record<string, string | number | boolean>) {
+		// eslint-disable-next-line no-console
+		console.table(log);
+	}
+
+	info(log: string, title?: string) {
+		this.log(log, 'info', title);
+	}
+
+	success(log: string, title?: string) {
+		this.log(log, 'success', title);
+	}
+
+	error(log: string, title?: string) {
+		this.log(log, 'error', title);
+	}
+
+	warn(log: string, title?: string) {
+		this.log(log, 'warn', title);
+	}
+
+	image(url: string, scale = 1) {
+		const img = new Image();
+
+		img.crossOrigin = 'anonymous';
+		img.onload = () => {
+			const c = document.createElement('canvas');
+			const ctx = c.getContext('2d');
+
+			if (ctx) {
+				c.width = img.width;
+				c.height = img.height;
+				ctx.fillStyle = 'red';
+				ctx.fillRect(0, 0, c.width, c.height);
+				ctx.drawImage(img, 0, 0);
+				const dataUri = c.toDataURL('image/png');
+
+				// eslint-disable-next-line no-console
+				console.log(
+					'%c sup?',
+					`font-size: 1px;
+						padding: ${Math.floor(img.height * scale / 2)}px ${Math.floor(img.width * scale / 2)}px;
+						background-image: url(${dataUri});
+						background-repeat: no-repeat;
+						background-size: ${img.width * scale}px ${img.height * scale}px;
+						color: transparent;
+						`
+				);
+			}
+		};
+		img.src = url;
+	}
+};

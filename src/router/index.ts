@@ -61,6 +61,18 @@ const routes: Array<RouteRecordRaw> = [{
 			path: '/ssh-ansiup-test',
 			meta: { title: 'ansiup-SSH日志', group: 'SSE', page: 'sse-ssh-log-ansiup' },
 			component: () => import(/* webpackChunkName: 'xterm-ssh' */ '../views/sse/ansiup.vue')
+		}, {
+			path: '/code-view-highlight',
+			meta: { title: 'highlight.js', group: '代码预览', page: 'code-view-highlight' },
+			component: () => import(/* webpackChunkName: 'code-view' */ '../views/code-view/highlight.vue')
+		}, {
+			path: '/code-view-codemirror',
+			meta: { title: 'CodeMirror', group: '代码预览', page: 'code-view-codemirror' },
+			component: () => import(/* webpackChunkName: 'code-view' */ '../views/code-view/codemirror.vue')
+		}, {
+			path: '/code-view-other',
+			meta: { title: '其它', group: '代码预览', page: 'code-view-other' },
+			component: () => import(/* webpackChunkName: 'code-view' */ '../views/code-view/other.vue')
 		}
 	]
 }];
