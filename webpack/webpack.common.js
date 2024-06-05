@@ -3,7 +3,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const AutoImport = require('unplugin-auto-import/webpack');
 const Components = require('unplugin-vue-components/webpack');
 // const IconsResolver = require('unplugin-icons/resolver');
-const { ElementPlusResolver, VantResolver } = require('unplugin-vue-components/resolvers');
+const { ElementPlusResolver, VantResolver, ArcoResolver } = require('unplugin-vue-components/resolvers');
 const vendorPackage = [
 	'vue', 'vue-i18n', 'vue-router', 'vuex',
 	'vant', 'element-plus', '@arco-design/web-vue',
@@ -37,7 +37,8 @@ module.exports = {
 		AutoImport({
 			resolvers: [
 				ElementPlusResolver(),
-				VantResolver()
+				VantResolver(),
+				ArcoResolver()
 				// IconsResolver({
 				//     prefix: 'Icon'
 				// })
@@ -46,7 +47,8 @@ module.exports = {
 		Components({
 			resolvers: [
 				ElementPlusResolver(),
-				VantResolver()
+				VantResolver(),
+				ArcoResolver()
 				// IconsResolver({
 				//     enabledCollections: ['ep']
 				// })
@@ -65,8 +67,16 @@ module.exports = {
 	},
 	module: {
 		rules: [{
-			test: /\.(css|less)$/,
+			test: /\.css$/,
 			use: ['postcss-loader']
+		}, {
+			test: /\.less$/,
+			use: [{
+				loader: 'less-loader',
+				options: {
+					additionalData: `@import '/src/assets/style/global-var.less';`,
+				}
+			}, 'postcss-loader']
 		}, {
 			// 图片单独打包到一个文件夹
 			test: /\.(png|jpe?g|gif|eot|svg|tff|woff|woff2|webp)(\?.*)?$/,

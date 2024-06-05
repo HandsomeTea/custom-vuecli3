@@ -70,8 +70,6 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import '@/assets/style/global-var.less';
-
 .item {
 	height: @layout_head_height;
 	line-height: @layout_head_height;

@@ -1,0 +1,55 @@
+@font-face {
+  font-family: "icon-template"; /* Project id 1431418 */
+  src: url('iconfont.woff2?t=1717572467840') format('woff2'),
+       url('iconfont.woff?t=1717572467840') format('woff'),
+       url('iconfont.ttf?t=1717572467840') format('truetype');
+}
+
+.icon-template {
+  font-family: "icon-template" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-remove1:before {
+  content: "\e73f";
+}
+
+.icon-gaojishaixuan:before {
+  content: "\e688";
+}
+
+.icon-add1:before {
+  content: "\e646";
+}
+
+.icon-search:before {
+  content: "\e6b9";
+}
+
+.icon-info-fill:before {
+  content: "\e83d";
+}
+
+.icon-add:before {
+  content: "\e605";
+}
+
+.icon-deletes:before {
+  content: "\e604";
+}
+
+.icon-edit:before {
+  content: "\e61f";
+}
+
+.icon-delete:before {
+  content: "\e61e";
+}
+
+.icon-transverse-toggle:before {
+  content: "\e603";
+}
+

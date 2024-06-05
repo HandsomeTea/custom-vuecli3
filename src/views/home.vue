@@ -108,8 +108,6 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import '@/assets/style/global-var.less';
-
 .demo_style {
 	color: @theme_color;
 }

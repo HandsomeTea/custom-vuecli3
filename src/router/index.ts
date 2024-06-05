@@ -73,6 +73,14 @@ const routes: Array<RouteRecordRaw> = [{
 			path: '/code-view-other',
 			meta: { title: '其它', group: '代码预览', page: 'code-view-other' },
 			component: () => import(/* webpackChunkName: 'code-view' */ '../views/code-view/other.vue')
+		}, {
+			path: '/list/common',
+			meta: { title: '普通列表', group: '列表', page: 'list-common' },
+			component: () => import(/* webpackChunkName: 'list' */ '../views/list/common.vue')
+		}, {
+			path: '/list/expand',
+			meta: { title: '折叠列表', group: '列表', page: 'list-expand' },
+			component: () => import(/* webpackChunkName: 'list' */ '../views/list/expand.vue')
 		}
 	]
 }];

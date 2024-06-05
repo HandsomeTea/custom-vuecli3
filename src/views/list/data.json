@@ -1,0 +1,730 @@
+[
+	{
+		"id": "51",
+		"ip": "10.53.4.13",
+		"port": 22,
+		"servername": "",
+		"user_name": "autotester",
+		"password": "devcenter@sensetime.com",
+		"work_dir": "/data/autotester",
+		"tag": "bj-linux",
+		"ratio": 2,
+		"use_num": 0,
+		"status": 1,
+		"device_context": {
+			"cpu": 8
+		},
+		"custom_context": {
+			"init_cmd": "source ~/.profile ; mkdir -p /data/autotester;source /usr/local/toolchains/profile"
+		},
+		"owner": "liqiang1@sensetime.com",
+		"features": "build,test,sdk,internalsdk",
+		"server_type": "server",
+		"pod_info": {
+			"cpus": 0,
+			"required_mem": 0,
+			"mem_per_cpu": 0
+		},
+		"users": [
+			{
+				"user": "bearssl"
+			},
+			{
+				"user": "ctx_cpu"
+			},
+			{
+				"user": "ctx_cuda"
+			},
+			{
+				"user": "ctx_ocl"
+			},
+			{
+				"user": "cvflow"
+			},
+			{
+				"user": "eigen"
+			},
+			{
+				"user": "gaorui@sensetime.com"
+			},
+			{
+				"user": "gerrit-read-only"
+			},
+			{
+				"user": "gtest"
+			},
+			{
+				"user": "hisi"
+			},
+			{
+				"user": "internal"
+			},
+			{
+				"user": "internal_nart"
+			},
+			{
+				"user": "liqiang1@sensetime.com"
+			},
+			{
+				"user": "litiezhu@sensetime.com"
+			},
+			{
+				"user": "manager"
+			},
+			{
+				"user": "minihttp_client"
+			},
+			{
+				"user": "post_release_lib"
+			},
+			{
+				"user": "ppl2"
+			},
+			{
+				"user": "ppl3"
+			},
+			{
+				"user": "ppl3_prebuilt_lib"
+			},
+			{
+				"user": "ppl3pro"
+			},
+			{
+				"user": "ppl3pro_prebuilt_lib"
+			},
+			{
+				"user": "protobuf"
+			},
+			{
+				"user": "protobuf3"
+			},
+			{
+				"user": "sdk_3d_understanding"
+			},
+			{
+				"user": "sdk_body"
+			},
+			{
+				"user": "sdk_classify"
+			},
+			{
+				"user": "sdk_clothes"
+			},
+			{
+				"user": "sdk_common"
+			},
+			{
+				"user": "sdk_cv"
+			},
+			{
+				"user": "sdk_depth"
+			},
+			{
+				"user": "sdk_detect"
+			},
+			{
+				"user": "sdk_dewatermark"
+			},
+			{
+				"user": "sdk_face"
+			},
+			{
+				"user": "sdk_face_ci_test"
+			},
+			{
+				"user": "sdk_framework"
+			},
+			{
+				"user": "sdk_hand"
+			},
+			{
+				"user": "sdk_imat"
+			},
+			{
+				"user": "sdk_license"
+			},
+			{
+				"user": "sdk_liveness"
+			},
+			{
+				"user": "sdk_matrix"
+			},
+			{
+				"user": "sdk_model"
+			},
+			{
+				"user": "sdk_ocr"
+			},
+			{
+				"user": "sdk_remote"
+			},
+			{
+				"user": "sdk_segment"
+			},
+			{
+				"user": "sdk_style"
+			},
+			{
+				"user": "sdk_utils"
+			},
+			{
+				"user": "snpe"
+			},
+			{
+				"user": "st_imagehelper"
+			},
+			{
+				"user": "st_videohelper"
+			},
+			{
+				"user": "stpu"
+			},
+			{
+				"user": "tensorrt"
+			},
+			{
+				"user": "x@x.com"
+			},
+			{
+				"user": "yangyanning@sensetime.com"
+			}
+		],
+		"enabled": true,
+		"disable": false,
+		"inUsing": false,
+		"isOffline": false
+	},
+	{
+		"id": "52",
+		"ip": "",
+		"port": 22,
+		"servername": "ubuntu16pod",
+		"user_name": "root",
+		"password": "internalsdk",
+		"work_dir": "/root",
+		"tag": "bj-linux",
+		"ratio": 4,
+		"use_num": 0,
+		"status": 0,
+		"device_context": {},
+		"custom_context": {
+			"init_cmd": "source /usr/local/toolchains/profile;export BUILD_JOBS={.cpu_num}"
+		},
+		"owner": "caominghui.vendor@sensetime.com",
+		"features": "build,ubuntu,internalsdk_remote",
+		"server_type": "pod",
+		"pod_info": {
+			"cpus": 4,
+			"required_mem": 8192,
+			"mem_per_cpu": 1,
+			"server_addr": "https://mordor.sensetime.com/k8s/clusters/c-jl66z",
+			"cluster_name": "lgidc-prod-diamond",
+			"auth_name": "lgidc-prod-diamond",
+			"token": "kubeconfig-u-uzedqswapi:pczsk8czhsxpjscjrmvz5b4k9w67rtxhfmfbzzpt4fgbvjz6b2mkvt",
+			"context_name": "lgidc-prod-diamond",
+			"name_space": "internalsdkonline-detect",
+			"pod_name": "ubuntu16-buildserver-77dfcb749f-cw82n"
+		},
+		"users": [
+			{
+				"user": "bearssl"
+			},
+			{
+				"user": "ctx_cpu"
+			},
+			{
+				"user": "ctx_cuda"
+			},
+			{
+				"user": "ctx_ocl"
+			},
+			{
+				"user": "cvflow"
+			},
+			{
+				"user": "eigen"
+			},
+			{
+				"user": "gaorui@sensetime.com"
+			},
+			{
+				"user": "gerrit-read-only"
+			},
+			{
+				"user": "gtest"
+			},
+			{
+				"user": "hisi"
+			},
+			{
+				"user": "internal"
+			},
+			{
+				"user": "internal_nart"
+			},
+			{
+				"user": "liqiang1@sensetime.com"
+			},
+			{
+				"user": "litiezhu@sensetime.com"
+			},
+			{
+				"user": "manager"
+			},
+			{
+				"user": "minihttp_client"
+			},
+			{
+				"user": "post_release_lib"
+			},
+			{
+				"user": "ppl2"
+			},
+			{
+				"user": "ppl3"
+			},
+			{
+				"user": "ppl3_prebuilt_lib"
+			},
+			{
+				"user": "ppl3pro"
+			},
+			{
+				"user": "ppl3pro_prebuilt_lib"
+			},
+			{
+				"user": "protobuf"
+			},
+			{
+				"user": "protobuf3"
+			},
+			{
+				"user": "sdk_3d_understanding"
+			},
+			{
+				"user": "sdk_body"
+			},
+			{
+				"user": "sdk_classify"
+			},
+			{
+				"user": "sdk_clothes"
+			},
+			{
+				"user": "sdk_common"
+			},
+			{
+				"user": "sdk_cv"
+			},
+			{
+				"user": "sdk_depth"
+			},
+			{
+				"user": "sdk_detect"
+			},
+			{
+				"user": "sdk_dewatermark"
+			},
+			{
+				"user": "sdk_face"
+			},
+			{
+				"user": "sdk_framework"
+			},
+			{
+				"user": "sdk_hand"
+			},
+			{
+				"user": "sdk_imat"
+			},
+			{
+				"user": "sdk_license"
+			},
+			{
+				"user": "sdk_liveness"
+			},
+			{
+				"user": "sdk_matrix"
+			},
+			{
+				"user": "sdk_model"
+			},
+			{
+				"user": "sdk_ocr"
+			},
+			{
+				"user": "sdk_remote"
+			},
+			{
+				"user": "sdk_segment"
+			},
+			{
+				"user": "sdk_style"
+			},
+			{
+				"user": "sdk_utils"
+			},
+			{
+				"user": "snpe"
+			},
+			{
+				"user": "st_imagehelper"
+			},
+			{
+				"user": "st_videohelper"
+			},
+			{
+				"user": "stpu"
+			},
+			{
+				"user": "tensorrt"
+			},
+			{
+				"user": "x@x.com"
+			},
+			{
+				"user": "yangyanning@sensetime.com"
+			}
+		],
+		"enabled": true,
+		"disable": false,
+		"inUsing": false,
+		"isOffline": true
+	},
+	{
+		"id": "53",
+		"ip": "10.5.32.29",
+		"port": 22,
+		"servername": "",
+		"user_name": "matrix_compile",
+		"password": "nopasswd",
+		"work_dir": "/data/matrix2_1",
+		"tag": "bj-linux",
+		"ratio": 5,
+		"use_num": 0,
+		"status": 1,
+		"device_context": {
+			"cpu": 40
+		},
+		"custom_context": {
+			"init_cmd": "source /etc/profile && source /usr/local/toolchains/profile"
+		},
+		"owner": "fanxuzeng@senseauto.com",
+		"features": "build,test,matrix_compile,x86_64_matrix_compile_29,IntelligentCabin",
+		"server_type": "server",
+		"pod_info": {
+			"cpus": 0,
+			"required_mem": 0,
+			"mem_per_cpu": 0
+		},
+		"users": [
+			{
+				"user": "devcenter_full"
+			},
+			{
+				"user": "fanxuzeng@senseauto.com"
+			},
+			{
+				"user": "matrix_compile"
+			}
+		],
+		"enabled": false,
+		"disable": true,
+		"inUsing": false,
+		"isOffline": false
+	},
+	{
+		"id": "54",
+		"ip": "10.53.25.166",
+		"port": 22,
+		"servername": "",
+		"user_name": "matrix_compile",
+		"password": "nopasswd",
+		"work_dir": "/data/workspace4_2",
+		"tag": "bj-linux",
+		"ratio": 3,
+		"use_num": 0,
+		"status": 0,
+		"device_context": {
+			"cpu": 8
+		},
+		"custom_context": {
+			"init_cmd": "source /etc/profile && source /usr/local/toolchains/profile"
+		},
+		"owner": "fanxuzeng@senseauto.com",
+		"features": "build,test,matrix_compile,IntelligentCabin",
+		"server_type": "server",
+		"pod_info": {
+			"cpus": 0,
+			"required_mem": 0,
+			"mem_per_cpu": 0
+		},
+		"users": [
+			{
+				"user": "devcenter_full"
+			},
+			{
+				"user": "fanxuzeng@senseauto.com"
+			},
+			{
+				"user": "matrix_compile"
+			}
+		],
+		"enabled": false,
+		"disable": true,
+		"inUsing": false,
+		"isOffline": true
+	},
+	{
+		"id": "55",
+		"ip": "10.53.24.237",
+		"port": 22,
+		"servername": "",
+		"user_name": "matrix_compile",
+		"password": "nopasswd",
+		"work_dir": "/data/workspace6_3",
+		"tag": "bj-linux",
+		"ratio": 3,
+		"use_num": 0,
+		"status": 0,
+		"device_context": {
+			"cpu": 8
+		},
+		"custom_context": {
+			"init_cmd": "source /etc/profile && source /usr/local/toolchains/profile"
+		},
+		"owner": "fanxuzeng@senseauto.com",
+		"features": "build,test,matrix_compile,IntelligentCabin",
+		"server_type": "server",
+		"pod_info": {
+			"cpus": 0,
+			"required_mem": 0,
+			"mem_per_cpu": 0
+		},
+		"users": [
+			{
+				"user": "devcenter_full"
+			},
+			{
+				"user": "fanxuzeng@senseauto.com"
+			},
+			{
+				"user": "matrix_compile"
+			}
+		],
+		"enabled": false,
+		"disable": true,
+		"inUsing": false,
+		"isOffline": true
+	},
+	{
+		"id": "56",
+		"ip": "10.53.24.247",
+		"port": 22,
+		"servername": "",
+		"user_name": "autotester",
+		"password": "devcenter@sensetime.com",
+		"work_dir": "/cygdrive/d/workspace",
+		"tag": "bj-windows",
+		"ratio": 1,
+		"use_num": 0,
+		"status": 1,
+		"device_context": {
+			"cpu": 16
+		},
+		"custom_context": {
+			"init_cmd": "source ~/.bashrc && source /usr/local/toolchains/profile"
+		},
+		"owner": "fanxuzeng@senseauto.com",
+		"features": "build,test,matrix_compile,IntelligentCabin",
+		"server_type": "server",
+		"pod_info": {
+			"cpus": 0,
+			"required_mem": 0,
+			"mem_per_cpu": 0
+		},
+		"users": [
+			{
+				"user": "devcenter_full"
+			},
+			{
+				"user": "fanxuzeng@senseauto.com"
+			},
+			{
+				"user": "matrix_compile"
+			}
+		],
+		"enabled": true,
+		"disable": false,
+		"inUsing": false,
+		"isOffline": false
+	},
+	{
+		"id": "57",
+		"ip": "10.53.25.246",
+		"port": 22,
+		"servername": "",
+		"user_name": "matrix_compile",
+		"password": "nopasswd",
+		"work_dir": "/data/workspace1_2",
+		"tag": "bj-linux",
+		"ratio": 3,
+		"use_num": 0,
+		"status": 1,
+		"device_context": {
+			"cpu": 8
+		},
+		"custom_context": {
+			"init_cmd": "source /etc/profile && source /usr/local/toolchains/profile"
+		},
+		"owner": "fanxuzeng@senseauto.com",
+		"features": "build,test,matrix_compile,IntelligentCabin",
+		"server_type": "server",
+		"pod_info": {
+			"cpus": 0,
+			"required_mem": 0,
+			"mem_per_cpu": 0
+		},
+		"users": [
+			{
+				"user": "devcenter_full"
+			},
+			{
+				"user": "fanxuzeng@senseauto.com"
+			},
+			{
+				"user": "matrix_compile"
+			}
+		],
+		"enabled": false,
+		"disable": true,
+		"inUsing": false,
+		"isOffline": false
+	},
+	{
+		"id": "58",
+		"ip": "10.53.25.42",
+		"port": 22,
+		"servername": "",
+		"user_name": "matrix_compile",
+		"password": "nopasswd",
+		"work_dir": "/data/workspace2_3",
+		"tag": "bj-linux",
+		"ratio": 3,
+		"use_num": 0,
+		"status": 0,
+		"device_context": {
+			"cpu": 4
+		},
+		"custom_context": {
+			"init_cmd": "source /etc/profile && source /usr/local/toolchains/profile"
+		},
+		"owner": "fanxuzeng@senseauto.com",
+		"features": "build,test,matrix_compile,IntelligentCabin",
+		"server_type": "server",
+		"pod_info": {
+			"cpus": 0,
+			"required_mem": 0,
+			"mem_per_cpu": 0
+		},
+		"users": [
+			{
+				"user": "devcenter_full"
+			},
+			{
+				"user": "fanxuzeng@senseauto.com"
+			},
+			{
+				"user": "matrix_compile"
+			}
+		],
+		"enabled": false,
+		"disable": true,
+		"inUsing": false,
+		"isOffline": true
+	},
+	{
+		"id": "59",
+		"ip": "10.53.26.15",
+		"port": 22,
+		"servername": "",
+		"user_name": "matrix_compile",
+		"password": "nopasswd",
+		"work_dir": "/data/workspace3_2",
+		"tag": "bj-linux",
+		"ratio": 3,
+		"use_num": 0,
+		"status": 0,
+		"device_context": {
+			"cpu": 8
+		},
+		"custom_context": {
+			"init_cmd": "source /etc/profile && source /usr/local/toolchains/profile"
+		},
+		"owner": "fanxuzeng@senseauto.com",
+		"features": "build,test,matrix_compile,IntelligentCabin",
+		"server_type": "server",
+		"pod_info": {
+			"cpus": 0,
+			"required_mem": 0,
+			"mem_per_cpu": 0
+		},
+		"users": [
+			{
+				"user": "devcenter_full"
+			},
+			{
+				"user": "fanxuzeng@senseauto.com"
+			},
+			{
+				"user": "matrix_compile"
+			}
+		],
+		"enabled": false,
+		"disable": true,
+		"inUsing": false,
+		"isOffline": true
+	},
+	{
+		"id": "60",
+		"ip": "10.53.27.131",
+		"port": 22,
+		"servername": "",
+		"user_name": "matrix_compile",
+		"password": "nopasswd",
+		"work_dir": "/data/workspace5_2",
+		"tag": "bj-linux",
+		"ratio": 3,
+		"use_num": 0,
+		"status": 0,
+		"device_context": {
+			"cpu": 8
+		},
+		"custom_context": {
+			"init_cmd": "source /etc/profile && source /usr/local/toolchains/profile"
+		},
+		"owner": "fanxuzeng@senseauto.com",
+		"features": "build,test,matrix_compile,IntelligentCabin",
+		"server_type": "server",
+		"pod_info": {
+			"cpus": 0,
+			"required_mem": 0,
+			"mem_per_cpu": 0
+		},
+		"users": [
+			{
+				"user": "devcenter_full"
+			},
+			{
+				"user": "fanxuzeng@senseauto.com"
+			},
+			{
+				"user": "matrix_compile"
+			}
+		],
+		"enabled": false,
+		"disable": true,
+		"inUsing": false,
+		"isOffline": true
+	}
+]

@@ -62,8 +62,6 @@ const router = useRouter();
 </script>
 
 <style lang="less" scoped>
-@import '@/assets/style/global-var.less';
-
 .layout_menu {
 	overflow: hidden;
 	height: calc(100% - @layout_head_height) !important;

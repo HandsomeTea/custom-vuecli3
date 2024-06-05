@@ -52,8 +52,6 @@ const userOperation = (command: string) => {
 </script>
 
 <style lang="less" scoped>
-@import '@/assets/style/global-var.less';
-
 .option {
 	height: @layout_head_height;
 	line-height: @layout_head_height;
