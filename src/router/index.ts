@@ -83,7 +83,7 @@ const routes: Array<RouteRecordRaw> = [{
 			component: () => import(/* webpackChunkName: 'list' */ '../views/list/expand.vue')
 		}, {
 			path: '/chart/cytoscape',
-			meta: { title: '关系图', group: '可视化', page: 'visualization-cytoscape' },
+			meta: { title: 'cytoscape', group: '可视化', page: 'visualization-cytoscape' },
 			component: () => import(/* webpackChunkName: 'visualization' */ '../views/chart/cytoscape.vue')
 		}
 	]
