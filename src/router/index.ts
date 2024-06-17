@@ -81,6 +81,10 @@ const routes: Array<RouteRecordRaw> = [{
 			path: '/list/expand',
 			meta: { title: '折叠列表', group: '列表', page: 'list-expand' },
 			component: () => import(/* webpackChunkName: 'list' */ '../views/list/expand.vue')
+		}, {
+			path: '/chart/cytoscape',
+			meta: { title: '关系图', group: '可视化', page: 'visualization-cytoscape' },
+			component: () => import(/* webpackChunkName: 'visualization' */ '../views/chart/cytoscape.vue')
 		}
 	]
 }];

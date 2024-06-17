@@ -14,7 +14,12 @@
 				<el-sub-menu :key="i" :index="`${i}`">
 					<!-- 分组名称 -->
 					<template #title>
-						{{ menu.name }}
+						<el-icon>
+							<location />
+						</el-icon>
+						<template v-if="!isHideMenu">
+							{{ menu.name }}
+						</template>
 					</template>
 
 					<!-- 子菜单 -->
@@ -37,6 +42,9 @@
 					:index="menu.page"
 					@click="redirectTo(menu.path)"
 				>
+					<el-icon>
+						<location />
+					</el-icon>
 					<template #title>
 						{{ menu.name }}
 					</template>
@@ -49,6 +57,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import {
+	Location
+} from '@element-plus/icons-vue';
 import { redirectTo, getMenuStatus, getMenuList } from '@/views/lib';
 
 const allMenu = ref(getMenuList().levelList);

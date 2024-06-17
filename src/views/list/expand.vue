@@ -103,14 +103,14 @@
 import { ref, watch, onMounted, h, VNode } from 'vue';
 import { TableData, TableExpandable } from '@arco-design/web-vue';
 import { Tips } from '@/ui-frame';
-import { TableItem, getTableList } from './lib';
+import { TableItemType, getTableList } from './lib';
 
 const searchPending = ref(false);
 const page = ref(1);
 const limit = ref(10);
 const total = ref(0);
 const keyword = ref('');
-const tableData = ref<Array<TableItem>>([]);
+const tableData = ref<Array<TableItemType>>([]);
 const getList = async (option?: { toPage?: number, loading?: boolean, clearChosed?: boolean }) => {
 	const { toPage, loading = true } = option || {};
 
@@ -159,7 +159,7 @@ const expandDisplayItemData = (title: string, data: string) => h('div', { class:
 	]),
 	h('p', { class: 'expand_data_item_content' }, data)
 ]);
-const expandDisplayData = (device: TableItem): Array<{ title: string, data: Array<VNode> }> => [{
+const expandDisplayData = (device: TableItemType): Array<{ title: string, data: Array<VNode> }> => [{
 	title: '基本信息',
 	data: (() => {
 		if (device.server_type === 'server') {
@@ -212,7 +212,7 @@ const expandable: TableExpandable = {
 	width: 25,
 	expandedRowRender: (record: TableData) => {
 		return h('div', { class: 'expand_container' }, [
-			expandDisplayData(record as TableItem).map(item => {
+			expandDisplayData(record as TableItemType).map(item => {
 				return h('div', { class: 'expand_content' }, [
 					h('div', { class: 'expand_data_title' }, [
 						h('p', { style: 'position: relative;top:50%;transform:translateY(-50%);' }, item.title)

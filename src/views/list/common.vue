@@ -250,7 +250,7 @@
 import { ref, watch, onMounted } from 'vue';
 import { Tips } from '@/ui-frame';
 import { TableRowSelection } from '@arco-design/web-vue';
-import { TableItem, getTableList, getRandomColor, redirectToEdit } from './lib';
+import { TableItemType, getTableList, getRandomColor, redirectToEdit } from './lib';
 
 const statusPending = ref<Array<string>>([]);
 const searchPending = ref(false);
@@ -261,10 +261,10 @@ const limit = ref(10);
 const total = ref(0);
 const keyword = ref('');
 const chosedIds = ref<Array<string>>([]);
-const tableData = ref<Array<TableItem>>([]);
+const tableData = ref<Array<TableItemType>>([]);
 const searchOption = ref<Array<{ key: string, value: string }>>([]);
 
-type SearchKey = keyof Omit<TableItem, 'pod_info'> | keyof TableItem['pod_info'];
+type SearchKey = keyof Omit<TableItemType, 'pod_info'> | keyof TableItemType['pod_info'];
 const searchKeyNameMap: Partial<Record<SearchKey, string>> = {
 	servername: '名称',
 	tag: 'Tag',
@@ -347,7 +347,7 @@ watch(page, () => {
 // 		Tips.noticing(`${e.name}操作失败`, e.message);
 // 	}
 // };
-const deleteDevice = async (deviceList: Array<TableItem>) => {
+const deleteDevice = async (deviceList: Array<TableItemType>) => {
 	if (deviceList.length === 0) {
 		return;
 	}
@@ -367,11 +367,11 @@ const deleteDevice = async (deviceList: Array<TableItem>) => {
 		getList({ loading: false, clearChosed: false });
 	}
 };
-const editDeviceStatus = async (device: Array<TableItem> | TableItem, enabled?: boolean): Promise<void> => {
+const editDeviceStatus = async (device: Array<TableItemType> | TableItemType, enabled?: boolean): Promise<void> => {
 	let _enabled = false;
 
 	if (typeof enabled === 'undefined') {
-		_enabled = (device as TableItem).disable;
+		_enabled = (device as TableItemType).disable;
 	} else {
 		_enabled = enabled;
 	}
@@ -404,7 +404,7 @@ type selectFn = (value: string | number | Record<string, any> | undefined, ev: E
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const batchOperate: selectFn = async (operate: 'delete' | 'disabled' | 'enabled') => {
-	const chosedDevices = chosedIds.value.map(a => tableData.value.find(b => b.id === a)) as Array<TableItem>;
+	const chosedDevices = chosedIds.value.map(a => tableData.value.find(b => b.id === a)) as Array<TableItemType>;
 
 	if (chosedDevices.find(a => a.inUsing)) {
 		Tips.warn('选中的设备中有正在使用的设备，将跳过操作！');

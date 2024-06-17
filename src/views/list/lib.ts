@@ -1,4 +1,4 @@
-export interface TableItem {
+export interface TableItemType {
 	custom_context: Record<string, unknown>
 	device_context: {
 		in_use_cpu: number
@@ -66,7 +66,7 @@ export const getTableList = (skip: number, limit: number, keyword?: string) => {
 		data: {
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-ignore
-			list: data as Array<TableItem>,
+			list: data as Array<TableItemType>,
 			total: 53,
 			skip,
 			limit,
