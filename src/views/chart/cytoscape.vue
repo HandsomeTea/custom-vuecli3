@@ -46,6 +46,13 @@
 				>
 					最短路径
 				</li>
+				<li
+					v-if="Object.keys(selectedNode).length > 0 || Object.keys(selectedEdge).length > 0"
+					class="p-[5px] hover:bg-gray-200 hover:text-blue-500"
+					@click="cxttapCommand('delete-selected')"
+				>
+					删除已选
+				</li>
 				<li class="p-[5px] hover:bg-gray-200 hover:text-blue-500" @click="cxttapCommand('reset-layout')">
 					整理布局
 				</li>
@@ -71,7 +78,7 @@
 
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue';
-import cytoscape, { EdgeDataDefinition, NodeDataDefinition, NodeSingular } from 'cytoscape';
+import cytoscape, { EdgeDataDefinition, ElementGroup, NodeDataDefinition, NodeSingular, EdgeSingular } from 'cytoscape';
 import { Tips } from '@/ui-frame';
 import { random } from './lib';
 import {
@@ -80,7 +87,7 @@ import {
 } from './cytoscape';
 
 interface cxttapDataType {
-	group: 'nodes' | 'edges' | 'blank' | ''
+	group: ElementGroup | 'blank' | ''
 	data: NodeDataDefinition | EdgeDataDefinition
 }
 
@@ -92,14 +99,15 @@ const cxttapData = ref<cxttapDataType>({
 const cxttapPosition = ref({ x: 0, y: 0 });
 const newEdgeSourceNodeId = ref<string>('');
 const selectedNode = ref<Record<string, NodeSingular>>({});
+const selectedEdge = ref<Record<string, EdgeSingular>>({});
 
 watch(newEdgeSourceNodeId, () => {
 	if (newEdgeSourceNodeId.value) {
-		cy?.$(`#${newEdgeSourceNodeId.value}`).style(nodeSelectedStyle);
+		cy?.$(`#${newEdgeSourceNodeId.value}`).select();
 	}
 });
 const detailOperate = ref(false);
-/** 显示右键菜单 */
+/** 处理右键菜单的显示 */
 const dealCxttap = (position?: { x: number, y: number }) => {
 	const menu = document.getElementById('cxttapMenu');
 
@@ -132,8 +140,54 @@ const clearStyle = (includeSelscted = false) => {
 	cy?.$('node:unselected').style(nodeStyle);
 	cy?.$('edge:unselected').style(edgeStyle);
 };
+/** 删除多个node/edge */
+const deleteEle = async (eles: Array<NodeSingular | EdgeSingular>) => {
+	if (!cy || eles.length === 0) {
+		return;
+	}
+	let usedCount = 0;
+
+	for (let s = 0; s < eles.length; s++) {
+		const ele = eles[s];
+		const used =
+			// 当要删除的元素是edge时，查找其关联的节点数量
+			cy.$id(ele.data('source')).size() +
+			cy.$id(ele.data('target')).size() +
+			// 当要删除的元素是node时，查找其关联的edge数量
+			cy.$(`[target = "${ele.id()}"]`).size() +
+			cy.$(`[source = "${ele.id()}"]`).size();
+
+		usedCount += used;
+	}
+
+	let confirm = true;
+
+	if (usedCount > 0) {
+		let message = '确定删除吗？';
+
+		if (eles.length === 1) {
+			message = eles[0].group() === 'edges' ? '确定删除关联吗？' : '确定删除节点吗？';
+		}
+		confirm = await Tips.confirm(message, '删除提示');
+	}
+
+	if (confirm) {
+		for (let s = 0; s < eles.length; s++) {
+			const id = eles[s].id();
+
+			cy.remove(`#${id}`);
+			// 如果删除的是节点，还需删除与之关联的edge
+			if (eles[s].group() === 'nodes') {
+				cy.remove(cy.edges(`[target = "${id}"]`));
+				cy.remove(cy.edges(`[source = "${id}"]`));
+			}
+			delete selectedNode.value[id];
+			delete selectedEdge.value[id];
+		}
+	}
+};
 /** 右键菜单事件处理 */
-const cxttapCommand = async (command: 'detail' | 'delete' | 'edge-to' | 'new-node' | 'reset-layout' | 'show-bfs' | 'show-dfs' | 'short-path' | 'clear-style' | 'exchange') => {
+const cxttapCommand = async (command: 'detail' | 'delete' | 'edge-to' | 'new-node' | 'reset-layout' | 'show-bfs' | 'show-dfs' | 'short-path' | 'clear-style' | 'exchange' | 'delete-selected') => {
 	if (!cy) {
 		return;
 	}
@@ -143,19 +197,7 @@ const cxttapCommand = async (command: 'detail' | 'delete' | 'edge-to' | 'new-nod
 		menu.style.display = 'none';
 	}
 	if (command === 'delete') {
-		const usedSelector = cy.$id(cxttapData.value.data.source).size() +
-			cy.$id(cxttapData.value.data.target).size() +
-			cy.$(`[target = "${cxttapData.value.data.id}"]`).size() +
-			cy.$(`[source = "${cxttapData.value.data.id}"]`).size();
-		const confirm = usedSelector > 0 ?
-			await Tips.confirm(cxttapData.value.group === 'edges' ? '确定删除关联吗？' : '确定删除节点吗？', '删除提示') :
-			true;
-
-		if (confirm) {
-			cy.remove(cy.$id(cxttapData.value.data.id as string));
-			cy.remove(cy.edges(`[target = "${cxttapData.value.data.id}"]`));
-			cy.remove(cy.edges(`[source = "${cxttapData.value.data.id}"]`));
-		}
+		deleteEle([cy.$id(cxttapData.value.data.id as string).first()]);
 	} else if (command === 'edge-to') {
 		newEdgeSourceNodeId.value = cxttapData.value.data.id as string;
 	} else if (command === 'new-node') {
@@ -246,6 +288,8 @@ const cxttapCommand = async (command: 'detail' | 'delete' | 'edge-to' | 'new-nod
 				target: source
 			}
 		});
+	} else if (command === 'delete-selected') {
+		deleteEle([...Object.values(selectedNode.value), ...Object.values(selectedEdge.value)]);
 	} else {
 		const a: never = command;
 
@@ -362,6 +406,7 @@ onMounted(() => {
 		}
 		if (e.target.isEdge()) {
 			e.target.style(edgeSelectedStyle);
+			selectedEdge.value[e.target.id()] = e.target;
 		}
 	}).on('unselect', (e) => { // 取消选中事件
 		if (e.target.isNode()) {
@@ -370,6 +415,7 @@ onMounted(() => {
 		}
 		if (e.target.isEdge()) {
 			e.target.style(edgeStyle);
+			delete selectedEdge.value[e.target.id()];
 		}
 	});
 	// cy.$('#a').trigger('tap');;

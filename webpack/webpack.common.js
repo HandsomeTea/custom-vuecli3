@@ -7,7 +7,7 @@ const { ElementPlusResolver, VantResolver, ArcoResolver } = require('unplugin-vu
 const vendorPackage = [
 	'vue', 'vue-i18n', 'vue-router', 'vuex',
 	'vant', 'element-plus', '@arco-design/web-vue',
-	'axios', 'lodash'
+	'axios', 'lodash', 'cytoscape'
 ];
 const catchPackagesGrouped = () => {
 	const result = {};
