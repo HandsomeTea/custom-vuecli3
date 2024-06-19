@@ -71,16 +71,14 @@
 					size="medium"
 					:column="2"
 					:data="Object.keys(cxttapData.data).map(key => ({ label: key, value: cxttapData.data[key] }))"
-					title="User Info"
 				/>
 				<a-input
 					v-model="editData.label"
-					:style="{ width: '320px' }"
-					placeholder="请输入节点名称"
+					:placeholder="`请输入${cxttapData.group === 'edges' ? '关联关系' : '节点名称'}`"
 					allow-clear
 				>
 					<template #prepend>
-						节点名称
+						{{ cxttapData.group === 'edges' ? '关联关系' : '节点名称' }}
 					</template>
 				</a-input>
 			</div>
@@ -153,8 +151,8 @@ const clearStyle = (includeSelscted = false) => {
 		cy?.$('node:selected').style(nodeSelectedStyle);
 		cy?.$('edge:selected').style(edgeSelectedStyle);
 	}
-	cy?.$('node:unselected').style(nodeStyle);
-	cy?.$('edge:unselected').style(edgeStyle);
+	cy?.$('node:unselected').style({ ...nodeStyle, label: undefined });
+	cy?.$('edge:unselected').style({ ...edgeStyle, label: undefined });
 };
 const updateEditData = () => {
 	cy?.$id(cxttapData.value.data.id as string).data({
@@ -392,7 +390,7 @@ onMounted(() => {
 
 		// 最后清空右键点击了关联到...的source节点
 		if (newEdgeSourceNodeId.value) {
-			cy?.$(`#${newEdgeSourceNodeId.value}`).style(nodeStyle);
+			cy?.$(`#${newEdgeSourceNodeId.value}`).style({ ...nodeStyle, label: undefined });
 			newEdgeSourceNodeId.value = '';
 		}
 	}).on('dblclick', (e) => { // 双击事件
@@ -427,11 +425,11 @@ onMounted(() => {
 		}
 	}).on('unselect', (e) => { // 取消选中事件
 		if (e.target.isNode()) {
-			e.target.style(nodeStyle);
+			e.target.style({ ...nodeStyle, label: undefined });
 			delete selectedNode.value[e.target.id()];
 		}
 		if (e.target.isEdge()) {
-			e.target.style(edgeStyle);
+			e.target.style({ ...edgeStyle, label: undefined });
 			delete selectedEdge.value[e.target.id()];
 		}
 	});
