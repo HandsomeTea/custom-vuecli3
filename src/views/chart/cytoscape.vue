@@ -62,15 +62,27 @@
 			</template>
 		</ul>
 
-		<!-- @ok="handleOk" @cancel="handleCancel" -->
-		<a-modal v-model:visible="detailOperate" title-align="start">
+		<a-modal v-model:visible="detailOperate" title-align="start" @ok="updateEditData">
 			<template #title>
 				{{ cxttapData.group === 'edges' ? '关联' : '节点' }}详情
 			</template>
 			<div>
-				You can customize modal body text by the current situation. This modal will be closed immediately once
-				you press
-				the OK button.
+				<a-descriptions
+					size="medium"
+					:column="2"
+					:data="Object.keys(cxttapData.data).map(key => ({ label: key, value: cxttapData.data[key] }))"
+					title="User Info"
+				/>
+				<a-input
+					v-model="editData.label"
+					:style="{ width: '320px' }"
+					placeholder="请输入节点名称"
+					allow-clear
+				>
+					<template #prepend>
+						节点名称
+					</template>
+				</a-input>
 			</div>
 		</a-modal>
 	</div>
@@ -90,6 +102,10 @@ interface cxttapDataType {
 	group: ElementGroup | 'blank' | ''
 	data: NodeDataDefinition | EdgeDataDefinition
 }
+
+const editData = ref({
+	label: ''
+});
 
 let cy: null | cytoscape.Core = null;
 const cxttapData = ref<cxttapDataType>({
@@ -139,6 +155,11 @@ const clearStyle = (includeSelscted = false) => {
 	}
 	cy?.$('node:unselected').style(nodeStyle);
 	cy?.$('edge:unselected').style(edgeStyle);
+};
+const updateEditData = () => {
+	cy?.$id(cxttapData.value.data.id as string).data({
+		label: editData.value.label
+	});
 };
 /** 删除多个node/edge */
 const deleteEle = async (eles: Array<NodeSingular | EdgeSingular>) => {
@@ -213,6 +234,7 @@ const cxttapCommand = async (command: 'detail' | 'delete' | 'edge-to' | 'new-nod
 			}
 		});
 	} else if (command === 'detail') {
+		editData.value.label = cxttapData.value.data.label;
 		detailOperate.value = true;
 	} else if (command === 'reset-layout') {
 		resetLayout();
@@ -279,14 +301,9 @@ const cxttapCommand = async (command: 'detail' | 'delete' | 'edge-to' | 'new-nod
 		const source = cxttapData.value.data.source;
 		const target = cxttapData.value.data.target;
 
-		cy.remove(`#${cxttapData.value.data.id}`);
-		cy.add({
-			group: 'edges',
-			data: {
-				...cxttapData.value.data,
-				source: target,
-				target: source
-			}
+		cy.$id(cxttapData.value.data.id as string).move({
+			source: target,
+			target: source
 		});
 	} else if (command === 'delete-selected') {
 		deleteEle([...Object.values(selectedNode.value), ...Object.values(selectedEdge.value)]);
