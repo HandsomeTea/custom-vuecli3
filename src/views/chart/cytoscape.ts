@@ -19,11 +19,11 @@ export const edgeStyle = {
 	'line-opacity': 1,
 	'curve-style': 'bezier',
 	'text-rotation': 'autorotate',
-	'text-background-opacity': 0.5,
+	'text-background-opacity': 1,
 	'text-background-color': 'white',
-	'text-background-padding': '5px',
+	'text-background-padding': '2px',
 	'color': '#808080',
-	'text-margin-y': -14,
+	// 'text-margin-y': -14,
 	'label': 'data(label)'
 };
 

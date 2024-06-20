@@ -6,57 +6,63 @@
 		<ul
 			id="cxttapMenu"
 			style="display: none;"
-			class="absolute top-0 left-0 w-[100px] text-[14px] text-gray-500 bg-white border border-solid rounded-[4px] border-gray-400 overflow-hidden hover:cursor-pointer"
+			class="absolute top-0 left-0 w-[114px] text-[13px] text-gray-500 bg-white border border-solid rounded-[2px] shadow-2xl border-gray-200 overflow-hidden hover:cursor-pointer"
 		>
 			<template v-if="new Set(['nodes', 'edges']).has(cxttapData.group)">
-				<li class="p-[5px] hover:bg-gray-200 hover:text-blue-500" @click="cxttapCommand('detail')">
+				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('detail')">
 					详情/编辑
 				</li>
-				<li class="p-[5px] hover:bg-gray-200 hover:text-blue-500" @click="cxttapCommand('delete')">
+				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('delete')">
 					删除
 				</li>
 			</template>
 
 			<template v-if="new Set(['edges']).has(cxttapData.group)">
-				<li class="p-[5px] hover:bg-gray-200 hover:text-blue-500" @click="cxttapCommand('exchange')">
+				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('exchange')">
 					倒置
 				</li>
 			</template>
 
 			<template v-if="new Set(['nodes']).has(cxttapData.group)">
-				<li class="p-[5px] hover:bg-gray-200 hover:text-blue-500" @click="cxttapCommand('edge-to')">
+				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('edge-to')">
 					关联到...
 				</li>
-				<li class="p-[5px] hover:bg-gray-200 hover:text-blue-500" @click="cxttapCommand('show-bfs')">
-					显示BFS路径
+				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('show-bfs')">
+					子节点BFS路径
 				</li>
-				<li class="p-[5px] hover:bg-gray-200 hover:text-blue-500" @click="cxttapCommand('show-dfs')">
-					显示DFS路径
+				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('show-dfs')">
+					子节点DFS路径
 				</li>
 			</template>
 
 			<template v-if="new Set(['blank']).has(cxttapData.group)">
-				<li class="p-[5px] hover:bg-gray-200 hover:text-blue-500" @click="cxttapCommand('new-node')">
+				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('new-node')">
 					新建节点
 				</li>
 				<li
 					v-if="Object.keys(selectedNode).length === 2"
-					class="p-[5px] hover:bg-gray-200 hover:text-blue-500"
+					class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600"
 					@click="cxttapCommand('short-path')"
 				>
 					最短路径
 				</li>
 				<li
 					v-if="Object.keys(selectedNode).length > 0 || Object.keys(selectedEdge).length > 0"
-					class="p-[5px] hover:bg-gray-200 hover:text-blue-500"
+					class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600"
 					@click="cxttapCommand('delete-selected')"
 				>
 					删除已选
 				</li>
-				<li class="p-[5px] hover:bg-gray-200 hover:text-blue-500" @click="cxttapCommand('reset-layout')">
+				<li
+					class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600"
+					@click="cxttapCommand('reset-layout')"
+				>
 					整理布局
 				</li>
-				<li class="p-[5px] hover:bg-gray-200 hover:text-blue-500" @click="cxttapCommand('clear-style')">
+				<li
+					class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600"
+					@click="cxttapCommand('clear-style')"
+				>
 					清除显示
 				</li>
 			</template>
@@ -66,12 +72,15 @@
 			<template #title>
 				{{ cxttapData.group === 'edges' ? '关联' : '节点' }}详情
 			</template>
-			<div>
+			<div class="px-[40px]">
 				<a-descriptions
 					size="medium"
 					:column="2"
-					:data="Object.keys(cxttapData.data).map(key => ({ label: key, value: cxttapData.data[key] }))"
+					:data="getCxttapListData()"
+					layout="inline-vertical"
+					bordered
 				/>
+				<a-divider />
 				<a-input
 					v-model="editData.label"
 					:placeholder="`请输入${cxttapData.group === 'edges' ? '关联关系' : '节点名称'}`"
@@ -79,6 +88,7 @@
 				>
 					<template #prepend>
 						{{ cxttapData.group === 'edges' ? '关联关系' : '节点名称' }}
+						&nbsp;<icon-edit />
 					</template>
 				</a-input>
 			</div>
@@ -88,13 +98,14 @@
 
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue';
-import cytoscape, { EdgeDataDefinition, ElementGroup, NodeDataDefinition, NodeSingular, EdgeSingular } from 'cytoscape';
+import cytoscape, {
+	EdgeDataDefinition, ElementGroup, NodeDataDefinition,
+	NodeSingular, EdgeSingular, Core, CollectionReturnValue
+} from 'cytoscape';
+import { IconEdit } from '@arco-design/web-vue/es/icon';
 import { Tips } from '@/ui-frame';
-import { random } from './lib';
-import {
-	nodeHighlightStyle, edgeHighlightStyle, nodeStyle, edgeStyle,
-	nodeSelectedStyle, edgeSelectedStyle
-} from './cytoscape';
+import { random, clearStyle, resetLayout, highlightPaths } from './lib';
+import { nodeStyle, edgeStyle, nodeSelectedStyle, edgeSelectedStyle } from './cytoscape';
 
 interface cxttapDataType {
 	group: ElementGroup | 'blank' | ''
@@ -105,7 +116,7 @@ const editData = ref({
 	label: ''
 });
 
-let cy: null | cytoscape.Core = null;
+let cy: null | Core = null;
 const cxttapData = ref<cxttapDataType>({
 	group: '',
 	data: {}
@@ -121,6 +132,12 @@ watch(newEdgeSourceNodeId, () => {
 	}
 });
 const detailOperate = ref(false);
+const getCxttapListData = () => {
+	if (detailOperate.value !== true) {
+		return [];
+	}
+	return Object.keys(cxttapData.value.data).map(key => ({ label: key, value: cxttapData.value.data[key] }));
+};
 /** 处理右键菜单的显示 */
 const dealCxttap = (position?: { x: number, y: number }) => {
 	const menu = document.getElementById('cxttapMenu');
@@ -134,25 +151,6 @@ const dealCxttap = (position?: { x: number, y: number }) => {
 			menu.style.display = 'block';
 		}
 	}
-};
-const resetLayout = () => cy?.layout({
-	name: 'breadthfirst',
-	animate: true,
-	animationDuration: 500,
-	animationEasing: 'ease-in-out',
-	directed: true,
-	padding: 10
-}).run();
-const clearStyle = (includeSelscted = false) => {
-	if (includeSelscted) {
-		cy?.$('node:selected').unselect();
-		cy?.$('edge:selected').unselect();
-	} else {
-		cy?.$('node:selected').style(nodeSelectedStyle);
-		cy?.$('edge:selected').style(edgeSelectedStyle);
-	}
-	cy?.$('node:unselected').style({ ...nodeStyle, label: undefined });
-	cy?.$('edge:unselected').style({ ...edgeStyle, label: undefined });
 };
 const updateEditData = () => {
 	cy?.$id(cxttapData.value.data.id as string).data({
@@ -235,10 +233,10 @@ const cxttapCommand = async (command: 'detail' | 'delete' | 'edge-to' | 'new-nod
 		editData.value.label = cxttapData.value.data.label;
 		detailOperate.value = true;
 	} else if (command === 'reset-layout') {
-		resetLayout();
+		resetLayout(cy);
 	} else if (command === 'show-bfs' || command === 'show-dfs') {
 		// 该项显示的是使用深度优先和广度优先算法分别遍历目标节点的子节点的路径，已经遍历的节点不会被再次遍历，因此其它通往该节点的路径不会被图示
-		clearStyle(true);
+		clearStyle(cy, true);
 		const data = command === 'show-bfs' ? cy.elements().bfs({
 			root: cy.$(`#${cxttapData.value.data.id as string}`),
 			directed: true
@@ -247,23 +245,13 @@ const cxttapCommand = async (command: 'detail' | 'delete' | 'edge-to' | 'new-nod
 			directed: true
 		});
 
-		let i = 0;
-		const showNextEle = () => {
-			if (i < data.path.length) {
-				data.path[i].style(edgeHighlightStyle);
-
-				i++;
-				setTimeout(showNextEle, 200);
-			}
-		};
-
-		showNextEle();
+		highlightPaths(data.path);
 	} else if (command === 'short-path') {
-		clearStyle();
+		clearStyle(cy);
 		const ids = Object.keys(selectedNode.value);
 		const source = cy.$(`#${ids[0]}`);
 		const target = cy.$(`#${ids[1]}`);
-		const getPath = (startNode: cytoscape.CollectionReturnValue, endNode: cytoscape.CollectionReturnValue) => {
+		const getPath = (startNode: CollectionReturnValue, endNode: CollectionReturnValue) => {
 			if (!cy) {
 				return;
 			}
@@ -279,22 +267,12 @@ const cxttapCommand = async (command: 'detail' | 'delete' | 'edge-to' | 'new-nod
 		if (path && path.length <= 1) {
 			path = getPath(target, source);
 		}
-		if (!path) {
-			return;
-		}
 
-		if (path.length > 1) {
-			for (let s = 0; s < path.length; s++) {
-				if (path[s].isEdge()) {
-					path[s].style(edgeHighlightStyle);
-				}
-				if (path[s].isNode()) {
-					path[s].style(nodeHighlightStyle);
-				}
-			}
+		if (path && path.length > 2) {
+			highlightPaths(path);
 		}
 	} else if (command === 'clear-style') {
-		clearStyle();
+		clearStyle(cy);
 	} else if (command === 'exchange') {
 		const source = cxttapData.value.data.source;
 		const target = cxttapData.value.data.target;
@@ -343,7 +321,7 @@ onMounted(() => {
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
 	cy.style().selector('edge').style(edgeStyle).update();
-	resetLayout();
+	resetLayout(cy);
 
 	cy.on('cxttap', (e) => { // 右键事件
 		if (cy) {
@@ -375,7 +353,9 @@ onMounted(() => {
 
 		// 点击空白处
 		if (typeof e.target.size() !== 'number') {
-			clearStyle(true);
+			if (cy) {
+				clearStyle(cy, true);
+			}
 		}
 
 		// 如果点击了关联到...,name点击的节点则为关联的target节点
@@ -422,6 +402,9 @@ onMounted(() => {
 		if (e.target.isEdge()) {
 			e.target.style(edgeSelectedStyle);
 			selectedEdge.value[e.target.id()] = e.target;
+		}
+		if (cy) {
+			clearStyle(cy);
 		}
 	}).on('unselect', (e) => { // 取消选中事件
 		if (e.target.isNode()) {
