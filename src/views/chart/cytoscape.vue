@@ -6,64 +6,6 @@
 		</a-checkbox>
 		<div id="cyContainer" class="h-[600px] border-gray-400 border border-solid rounded-[6px]" />
 
-		<!-- <ul id="cxttapMenu" style="display: none;"
-			class="absolute top-0 left-0 w-[114px] text-[13px] text-gray-500 bg-white border border-solid rounded-[2px] shadow-2xl border-gray-200 overflow-hidden hover:cursor-pointer">
-			<template v-if="new Set(['nodes', 'edges']).has(cxttapData.group)">
-				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('detail')">
-					详情/编辑
-				</li>
-				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('delete')">
-					删除
-				</li>
-			</template>
-
-<template v-if="new Set(['edges']).has(cxttapData.group)">
-				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('exchange')">
-					倒置
-				</li>
-			</template>
-
-<template v-if="new Set(['nodes']).has(cxttapData.group)">
-				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('edge-to')">
-					关联到...
-				</li>
-				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('show-bfs')">
-					子节点BFS路径
-				</li>
-				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('show-dfs')">
-					子节点DFS路径
-				</li>
-			</template>
-
-<template v-if="new Set(['blank']).has(cxttapData.group)">
-				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('new-node')">
-					新建节点
-				</li>
-				<li v-if="Object.keys(selectedNode).length === 2"
-					class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600"
-					@click="cxttapCommand('short-path')">
-					最短路径
-				</li>
-				<li v-if="Object.keys(selectedNode).length === 2"
-					class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('all-path')">
-					所有路径
-				</li>
-				<li v-if="Object.keys(selectedNode).length > 0 || Object.keys(selectedEdge).length > 0"
-					class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600"
-					@click="cxttapCommand('delete-selected')">
-					删除已选
-				</li>
-				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600"
-					@click="cxttapCommand('reset-layout')">
-					整理布局
-				</li>
-				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600"
-					@click="cxttapCommand('clear-style')">
-					清除显示
-				</li>
-			</template>
-</ul> -->
-
 		<a-modal v-model:visible="detailOperate" title-align="start" @ok="updateEditData">
 			<template #title>
 				{{ cxttapData.group === 'edges' ? '关联' : '节点' }}详情
@@ -153,7 +95,6 @@ const cxttapData = ref<cxttapDataType>({
 	data: {}
 });
 const cxttapPosition = ref({ x: 0, y: 0 });
-const newEdgeSourceNodeId = ref<string>('');
 const selectedNode = ref<Record<string, NodeSingular>>({});
 const selectedEdge = ref<Record<string, EdgeSingular>>({});
 
@@ -169,16 +110,20 @@ watch(cxttapData, () => {
 			name: '清除样式',
 			command: 'clear-style'
 		},
-		...Object.keys(selectedNode.value).length === 2 ? [{
-			name: '最短路径',
-			command: 'short-path' as RightClickCommand
-		}, {
-			name: '所有路径',
-			command: 'all-paths' as RightClickCommand
-		}] : [],
 		...Object.keys(selectedNode.value).length > 0 || Object.keys(selectedEdge.value).length > 0 ? [{
 			name: '删除已选',
 			command: 'delete-selected' as RightClickCommand
+		}] : [],
+		...Object.keys(selectedNode.value).length === 2 ? [{
+			name: '更多...',
+			command: 'more' as RightClickCommand,
+			children: [{
+				name: '最短路径',
+				command: 'short-path' as RightClickCommand
+			}, {
+				name: '所有路径',
+				command: 'all-paths' as RightClickCommand
+			}]
 		}] : []
 		];
 	} else if (cxttapData.value.group === 'edges') {
@@ -203,11 +148,15 @@ watch(cxttapData, () => {
 			name: '关联到...',
 			command: 'edge-to'
 		}, {
-			name: '子节点BFS路径',
-			command: 'show-bfs'
-		}, {
-			name: '子节点DFS路径',
-			command: 'show-dfs'
+			name: '算法',
+			command: 'algorithm' as RightClickCommand,
+			children: [{
+				name: '子节点BFS路径',
+				command: 'show-bfs'
+			}, {
+				name: '子节点DFS路径',
+				command: 'show-dfs'
+			}]
 		}];
 	} else if (cxttapData.value.group !== '') {
 		const a: never = cxttapData.value.group;
@@ -215,6 +164,8 @@ watch(cxttapData, () => {
 		alert(a);
 	}
 });
+
+const newEdgeSourceNodeId = ref<string>('');
 
 watch(newEdgeSourceNodeId, () => {
 	if (newEdgeSourceNodeId.value) {
@@ -228,20 +179,6 @@ const getCxttapListData = () => {
 	}
 	return Object.keys(cxttapData.value.data).map(key => ({ label: key, value: cxttapData.value.data[key] }));
 };
-/** 处理右键菜单的显示 */
-// const dealCxttap = (position?: { x: number, y: number }) => {
-// 	const menu = document.getElementById('cxttapMenu');
-
-// 	if (menu) {
-// 		if (!cxttapData.value.group) {
-// 			menu.style.display = 'none';
-// 		} else if (position) {
-// 			menu.style.top = `${position.y - 10}px`;
-// 			menu.style.left = `${position.x + 10}px`;
-// 			menu.style.display = 'block';
-// 		}
-// 	}
-// };
 const updateEditData = () => {
 	cy?.$id(cxttapData.value.data.id as string).data({
 		label: editData.value.label
@@ -300,11 +237,7 @@ const cxttapCommand = async (data: { command: RightClickCommand, e: MouseEvent, 
 	}
 	menuShow.value = false;
 	const { command } = data;
-	// const menu = document.getElementById('cxttapMenu');
 
-	// if (menu) {
-	// 	menu.style.display = 'none';
-	// }
 	if (command === 'delete') {
 		deleteEle([cy.$id(cxttapData.value.data.id as string).first()]);
 	} else if (command === 'edge-to') {
@@ -436,7 +369,7 @@ onMounted(() => {
 				cxttapData.value = { group: 'edges', data };
 			}
 		}
-		// dealCxttap({ x: e.originalEvent.clientX, y: e.originalEvent.clientY });
+
 		menuPosition.value = {
 			left: e.originalEvent.clientX + 10,
 			top: e.originalEvent.clientY - 10
@@ -445,7 +378,6 @@ onMounted(() => {
 	}).on('tap', (e) => { // 点击事件
 		// 清空右键行为
 		cxttapData.value = { group: '', data: {} };
-		// dealCxttap();
 		menuShow.value = false;
 
 		// 点击空白处
@@ -515,6 +447,5 @@ onMounted(() => {
 			delete selectedEdge.value[e.target.id()];
 		}
 	});
-	// cy.$('#a').trigger('tap');;
 });
 </script>
