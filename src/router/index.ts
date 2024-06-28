@@ -19,7 +19,7 @@ import { PermissionType } from '@/store/stateModel';
 
 const routes: Array<RouteRecordRaw> = [{
 	path: '/',
-	redirect: '/login'
+	redirect: '/index'
 }, {
 	path: '/login',
 	meta: { title: '登录' },
@@ -85,6 +85,10 @@ const routes: Array<RouteRecordRaw> = [{
 			path: '/chart/cytoscape',
 			meta: { title: 'cytoscape', group: '可视化', page: 'visualization-cytoscape' },
 			component: () => import(/* webpackChunkName: 'visualization' */ '../views/chart/cytoscape.vue')
+		}, {
+			path: '/chart/echarts',
+			meta: { title: 'echarts', group: '可视化', page: 'visualization-echarts' },
+			component: () => import(/* webpackChunkName: 'visualization' */ '../views/chart/echarts.vue')
 		}
 	]
 }];

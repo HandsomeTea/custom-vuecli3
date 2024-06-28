@@ -41,6 +41,7 @@
 		"codemirror-json-schema": "^0.7.7",
 		"core-js": "^3.37.0",
 		"cytoscape": "^3.29.2",
+		"echarts": "^5.5.0",
 		"element-plus": "^2.7.2",
 		"highlight.js": "^11.9.0",
 		"vant": "^4.9.0",

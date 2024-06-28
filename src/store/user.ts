@@ -58,7 +58,7 @@ const actions: ActionTree<UserState, RootState> = {
 		const loginUser = {
 			user: {},
 			token: '',
-			entryPath: viewPath !== '/login' ? viewPath : '/index'
+			entryPath: viewPath !== '/login' && viewPath !== '/' ? viewPath : '/index'
 		};
 		let user: ApiResult = {};
 

@@ -1,13 +1,13 @@
 <template>
 	<div>
 		<h1>Cytoscape</h1>
-		<div id="cyContainer" class="h-[500px] border-gray-400 border border-solid rounded-[6px]" />
+		<a-checkbox v-model="displayDirection">
+			显示为有向图
+		</a-checkbox>
+		<div id="cyContainer" class="h-[600px] border-gray-400 border border-solid rounded-[6px]" />
 
-		<ul
-			id="cxttapMenu"
-			style="display: none;"
-			class="absolute top-0 left-0 w-[114px] text-[13px] text-gray-500 bg-white border border-solid rounded-[2px] shadow-2xl border-gray-200 overflow-hidden hover:cursor-pointer"
-		>
+		<!-- <ul id="cxttapMenu" style="display: none;"
+			class="absolute top-0 left-0 w-[114px] text-[13px] text-gray-500 bg-white border border-solid rounded-[2px] shadow-2xl border-gray-200 overflow-hidden hover:cursor-pointer">
 			<template v-if="new Set(['nodes', 'edges']).has(cxttapData.group)">
 				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('detail')">
 					详情/编辑
@@ -17,13 +17,13 @@
 				</li>
 			</template>
 
-			<template v-if="new Set(['edges']).has(cxttapData.group)">
+<template v-if="new Set(['edges']).has(cxttapData.group)">
 				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('exchange')">
 					倒置
 				</li>
 			</template>
 
-			<template v-if="new Set(['nodes']).has(cxttapData.group)">
+<template v-if="new Set(['nodes']).has(cxttapData.group)">
 				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('edge-to')">
 					关联到...
 				</li>
@@ -35,38 +35,34 @@
 				</li>
 			</template>
 
-			<template v-if="new Set(['blank']).has(cxttapData.group)">
+<template v-if="new Set(['blank']).has(cxttapData.group)">
 				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('new-node')">
 					新建节点
 				</li>
-				<li
-					v-if="Object.keys(selectedNode).length === 2"
+				<li v-if="Object.keys(selectedNode).length === 2"
 					class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600"
-					@click="cxttapCommand('short-path')"
-				>
+					@click="cxttapCommand('short-path')">
 					最短路径
 				</li>
-				<li
-					v-if="Object.keys(selectedNode).length > 0 || Object.keys(selectedEdge).length > 0"
+				<li v-if="Object.keys(selectedNode).length === 2"
+					class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600" @click="cxttapCommand('all-path')">
+					所有路径
+				</li>
+				<li v-if="Object.keys(selectedNode).length > 0 || Object.keys(selectedEdge).length > 0"
 					class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600"
-					@click="cxttapCommand('delete-selected')"
-				>
+					@click="cxttapCommand('delete-selected')">
 					删除已选
 				</li>
-				<li
-					class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600"
-					@click="cxttapCommand('reset-layout')"
-				>
+				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600"
+					@click="cxttapCommand('reset-layout')">
 					整理布局
 				</li>
-				<li
-					class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600"
-					@click="cxttapCommand('clear-style')"
-				>
+				<li class="px-[9px] py-[6px] hover:bg-gray-200 hover:text-gray-600"
+					@click="cxttapCommand('clear-style')">
 					清除显示
 				</li>
 			</template>
-		</ul>
+</ul> -->
 
 		<a-modal v-model:visible="detailOperate" title-align="start" @ok="updateEditData">
 			<template #title>
@@ -93,30 +89,65 @@
 				</a-input>
 			</div>
 		</a-modal>
+
+		<right-click-menu
+			:menu-data="menuData"
+			:show="menuShow"
+			:show-position="menuPosition"
+			@chosed="cxttapCommand"
+		/>
 	</div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, defineAsyncComponent } from 'vue';
 import cytoscape, {
 	EdgeDataDefinition, ElementGroup, NodeDataDefinition,
-	NodeSingular, EdgeSingular, Core, CollectionReturnValue
+	NodeSingular, EdgeSingular, Core
 } from 'cytoscape';
 import { IconEdit } from '@arco-design/web-vue/es/icon';
 import { Tips } from '@/ui-frame';
-import { random, clearStyle, resetLayout, highlightPaths } from './lib';
-import { nodeStyle, edgeStyle, nodeSelectedStyle, edgeSelectedStyle } from './cytoscape';
+import { random } from './lib';
+import {
+	nodeStyle, edgeStyle, nodeSelectedStyle, edgeSelectedStyle,
+	clearStyle, resetLayout, highlightPaths
+} from './cytoscape';
+import { MenuItem, MenuShowPosition } from '@/components/right-click-menu.vue';
+
+const RightClickMenu = defineAsyncComponent(() => import('@/components/right-click-menu.vue'));
+
 
 interface cxttapDataType {
 	group: ElementGroup | 'blank' | ''
 	data: NodeDataDefinition | EdgeDataDefinition
 }
 
+type RightClickCommand = 'detail' | 'delete' | 'edge-to' | 'new-node' | 'reset-layout' | 'show-bfs' |
+	'show-dfs' | 'short-path' | 'all-path' | 'clear-style' | 'exchange' | 'delete-selected';
+
+const menuShow = ref(false);
+const menuData = ref<Array<MenuItem<RightClickCommand>>>([]);
+const menuPosition = ref<MenuShowPosition>({ top: 0, left: 0 });
+let cy: null | Core = null;
+
+/** 是否显示为有向图 */
+const displayDirection = ref(true);
+
+watch(displayDirection, () => {
+	if (displayDirection.value === true) {
+		cy?.edges().style({
+			'target-arrow-shape': 'triangle'
+		});
+	} else {
+		cy?.edges().style({
+			'target-arrow-shape': 'none'
+		});
+	}
+});
 const editData = ref({
 	label: ''
 });
 
-let cy: null | Core = null;
 const cxttapData = ref<cxttapDataType>({
 	group: '',
 	data: {}
@@ -125,6 +156,65 @@ const cxttapPosition = ref({ x: 0, y: 0 });
 const newEdgeSourceNodeId = ref<string>('');
 const selectedNode = ref<Record<string, NodeSingular>>({});
 const selectedEdge = ref<Record<string, EdgeSingular>>({});
+
+watch(cxttapData, () => {
+	if (cxttapData.value.group === 'blank') {
+		menuData.value = [{
+			name: '新建节点',
+			command: 'new-node'
+		}, {
+			name: '整理布局',
+			command: 'reset-layout'
+		}, {
+			name: '清除样式',
+			command: 'clear-style'
+		},
+		...Object.keys(selectedNode.value).length === 2 ? [{
+			name: '最短路径',
+			command: 'short-path' as RightClickCommand
+		}, {
+			name: '所有路径',
+			command: 'all-paths' as RightClickCommand
+		}] : [],
+		...Object.keys(selectedNode.value).length > 0 || Object.keys(selectedEdge.value).length > 0 ? [{
+			name: '删除已选',
+			command: 'delete-selected' as RightClickCommand
+		}] : []
+		];
+	} else if (cxttapData.value.group === 'edges') {
+		menuData.value = [{
+			name: '详情/编辑',
+			command: 'detail'
+		}, {
+			name: '删除',
+			command: 'delete'
+		}, {
+			name: '倒置',
+			command: 'exchange'
+		}];
+	} else if (cxttapData.value.group === 'nodes') {
+		menuData.value = [{
+			name: '详情/编辑',
+			command: 'detail'
+		}, {
+			name: '删除',
+			command: 'delete'
+		}, {
+			name: '关联到...',
+			command: 'edge-to'
+		}, {
+			name: '子节点BFS路径',
+			command: 'show-bfs'
+		}, {
+			name: '子节点DFS路径',
+			command: 'show-dfs'
+		}];
+	} else if (cxttapData.value.group !== '') {
+		const a: never = cxttapData.value.group;
+
+		alert(a);
+	}
+});
 
 watch(newEdgeSourceNodeId, () => {
 	if (newEdgeSourceNodeId.value) {
@@ -139,19 +229,19 @@ const getCxttapListData = () => {
 	return Object.keys(cxttapData.value.data).map(key => ({ label: key, value: cxttapData.value.data[key] }));
 };
 /** 处理右键菜单的显示 */
-const dealCxttap = (position?: { x: number, y: number }) => {
-	const menu = document.getElementById('cxttapMenu');
+// const dealCxttap = (position?: { x: number, y: number }) => {
+// 	const menu = document.getElementById('cxttapMenu');
 
-	if (menu) {
-		if (!cxttapData.value.group) {
-			menu.style.display = 'none';
-		} else if (position) {
-			menu.style.top = `${position.y - 10}px`;
-			menu.style.left = `${position.x + 10}px`;
-			menu.style.display = 'block';
-		}
-	}
-};
+// 	if (menu) {
+// 		if (!cxttapData.value.group) {
+// 			menu.style.display = 'none';
+// 		} else if (position) {
+// 			menu.style.top = `${position.y - 10}px`;
+// 			menu.style.left = `${position.x + 10}px`;
+// 			menu.style.display = 'block';
+// 		}
+// 	}
+// };
 const updateEditData = () => {
 	cy?.$id(cxttapData.value.data.id as string).data({
 		label: editData.value.label
@@ -204,15 +294,17 @@ const deleteEle = async (eles: Array<NodeSingular | EdgeSingular>) => {
 	}
 };
 /** 右键菜单事件处理 */
-const cxttapCommand = async (command: 'detail' | 'delete' | 'edge-to' | 'new-node' | 'reset-layout' | 'show-bfs' | 'show-dfs' | 'short-path' | 'clear-style' | 'exchange' | 'delete-selected') => {
+const cxttapCommand = async (data: { command: RightClickCommand, e: MouseEvent, parent?: string }) => {
 	if (!cy) {
 		return;
 	}
-	const menu = document.getElementById('cxttapMenu');
+	menuShow.value = false;
+	const { command } = data;
+	// const menu = document.getElementById('cxttapMenu');
 
-	if (menu) {
-		menu.style.display = 'none';
-	}
+	// if (menu) {
+	// 	menu.style.display = 'none';
+	// }
 	if (command === 'delete') {
 		deleteEle([cy.$id(cxttapData.value.data.id as string).first()]);
 	} else if (command === 'edge-to') {
@@ -251,26 +343,25 @@ const cxttapCommand = async (command: 'detail' | 'delete' | 'edge-to' | 'new-nod
 		const ids = Object.keys(selectedNode.value);
 		const source = cy.$(`#${ids[0]}`);
 		const target = cy.$(`#${ids[1]}`);
-		const getPath = (startNode: CollectionReturnValue, endNode: CollectionReturnValue) => {
-			if (!cy) {
-				return;
-			}
-			const { /*distanceTo, */pathTo } = cy.elements().dijkstra({
-				root: startNode,
+		let result = cy.elements().aStar({
+			root: source,
+			goal: target,
+			directed: true
+		});
+
+		if (!result.found) {
+			result = cy.elements().aStar({
+				root: target,
+				goal: source,
 				directed: true
 			});
-
-			return pathTo(endNode);
-		};
-		let path = getPath(source, target);
-
-		if (path && path.length <= 1) {
-			path = getPath(target, source);
 		}
 
-		if (path && path.length > 2) {
-			highlightPaths(path);
+		if (result.path.length > 2) {
+			highlightPaths(result.path);
 		}
+	} else if (command === 'all-path') {
+		clearStyle(cy);
 	} else if (command === 'clear-style') {
 		clearStyle(cy);
 	} else if (command === 'exchange') {
@@ -345,11 +436,17 @@ onMounted(() => {
 				cxttapData.value = { group: 'edges', data };
 			}
 		}
-		dealCxttap({ x: e.originalEvent.clientX, y: e.originalEvent.clientY });
+		// dealCxttap({ x: e.originalEvent.clientX, y: e.originalEvent.clientY });
+		menuPosition.value = {
+			left: e.originalEvent.clientX + 10,
+			top: e.originalEvent.clientY - 10
+		};
+		menuShow.value = true;
 	}).on('tap', (e) => { // 点击事件
 		// 清空右键行为
 		cxttapData.value = { group: '', data: {} };
-		dealCxttap();
+		// dealCxttap();
+		menuShow.value = false;
 
 		// 点击空白处
 		if (typeof e.target.size() !== 'number') {
@@ -383,7 +480,9 @@ onMounted(() => {
 			if (e.target.isEdge()) {
 				cxttapData.value = { group: 'edges', data };
 			}
-			cxttapCommand('detail');
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			cxttapCommand({ command: 'detail', e });
 		} else { // 双击空白处生成新节点
 			cy?.add({
 				group: 'nodes',
