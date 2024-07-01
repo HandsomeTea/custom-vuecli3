@@ -52,20 +52,19 @@ import { Tips } from '@/ui-frame';
 import { random } from './lib';
 import {
 	nodeStyle, edgeStyle, nodeSelectedStyle, edgeSelectedStyle,
-	clearStyle, resetLayout, highlightPaths
+	clearStyle, resetLayout, highlightPaths, LayoutType
 } from './cytoscape';
 import { MenuItem, MenuShowPosition } from '@/components/right-click-menu.vue';
 
 const RightClickMenu = defineAsyncComponent(() => import('@/components/right-click-menu.vue'));
-
 
 interface cxttapDataType {
 	group: ElementGroup | 'blank' | ''
 	data: NodeDataDefinition | EdgeDataDefinition
 }
 
-type RightClickCommand = 'detail' | 'delete' | 'edge-to' | 'new-node' | 'reset-layout' | 'show-bfs' |
-	'show-dfs' | 'short-path' | 'all-path' | 'clear-style' | 'exchange' | 'delete-selected';
+type RightClickCommand = 'detail' | 'delete' | 'edge-to' | 'new-node' | 'show-bfs' |
+	'show-dfs' | 'short-path' | 'all-path' | 'clear-style' | 'exchange' | 'delete-selected' | `${LayoutType}-layout`;
 
 const menuShow = ref(false);
 const menuData = ref<Array<MenuItem<RightClickCommand>>>([]);
@@ -74,6 +73,7 @@ let cy: null | Core = null;
 
 /** 是否显示为有向图 */
 const displayDirection = ref(true);
+const currentLayout = ref<LayoutType>('random');
 
 watch(displayDirection, () => {
 	if (displayDirection.value === true) {
@@ -84,6 +84,10 @@ watch(displayDirection, () => {
 		cy?.edges().style({
 			'target-arrow-shape': 'none'
 		});
+	}
+	if (cy) {
+		clearStyle(cy, displayDirection.value);
+		resetLayout(cy, displayDirection.value, currentLayout.value);
 	}
 });
 const editData = ref({
@@ -104,8 +108,27 @@ watch(cxttapData, () => {
 			name: '新建节点',
 			command: 'new-node'
 		}, {
-			name: '整理布局',
-			command: 'reset-layout'
+			name: '设置布局',
+			command: 'reset-layout',
+			children: [{
+				name: '随机布局',
+				command: 'random-layout'
+			}, {
+				name: '网格布局',
+				command: 'grid-layout'
+			}, {
+				name: '圆形布局',
+				command: 'circle-layout'
+			}, {
+				name: '层次布局',
+				command: 'cose-layout'
+			}, {
+				name: '同心圆布局',
+				command: 'concentric-layout'
+			}, {
+				name: '广度优先布局',
+				command: 'breadthfirst-layout'
+			}]
 		}, {
 			name: '清除样式',
 			command: 'clear-style'
@@ -148,8 +171,8 @@ watch(cxttapData, () => {
 			name: '关联到...',
 			command: 'edge-to'
 		}, {
-			name: '算法',
-			command: 'algorithm' as RightClickCommand,
+			name: '以此为根...',
+			command: 'algorithm',
 			children: [{
 				name: '子节点BFS路径',
 				command: 'show-bfs'
@@ -242,6 +265,18 @@ const cxttapCommand = async (data: { command: RightClickCommand, e: MouseEvent, 
 		deleteEle([cy.$id(cxttapData.value.data.id as string).first()]);
 	} else if (command === 'edge-to') {
 		newEdgeSourceNodeId.value = cxttapData.value.data.id as string;
+	} else if (command === 'detail') {
+		editData.value.label = cxttapData.value.data.label;
+		detailOperate.value = true;
+	} else if (command === 'clear-style') {
+		clearStyle(cy, displayDirection.value);
+	} else if (command === 'delete-selected') {
+		deleteEle([...Object.values(selectedNode.value), ...Object.values(selectedEdge.value)]);
+	} else if (command === 'exchange') {
+		cy.$id(cxttapData.value.data.id as string).move({
+			source: cxttapData.value.data.target,
+			target: cxttapData.value.data.source
+		});
 	} else if (command === 'new-node') {
 		cy?.add({
 			group: 'nodes',
@@ -254,39 +289,46 @@ const cxttapCommand = async (data: { command: RightClickCommand, e: MouseEvent, 
 				y: cxttapPosition.value.y
 			}
 		});
-	} else if (command === 'detail') {
-		editData.value.label = cxttapData.value.data.label;
-		detailOperate.value = true;
-	} else if (command === 'reset-layout') {
-		resetLayout(cy);
+	} else if (
+		command === 'random-layout' ||
+		command === 'circle-layout' ||
+		command === 'grid-layout' ||
+		command === 'cose-layout' ||
+		command === 'concentric-layout' ||
+		command === 'breadthfirst-layout'
+	) {
+		const layout = command.replace('-layout', '') as LayoutType;
+
+		currentLayout.value = layout;
+		resetLayout(cy, displayDirection.value, layout);
 	} else if (command === 'show-bfs' || command === 'show-dfs') {
 		// 该项显示的是使用深度优先和广度优先算法分别遍历目标节点的子节点的路径，已经遍历的节点不会被再次遍历，因此其它通往该节点的路径不会被图示
-		clearStyle(cy, true);
+		clearStyle(cy, displayDirection.value, true);
 		const data = command === 'show-bfs' ? cy.elements().bfs({
 			root: cy.$(`#${cxttapData.value.data.id as string}`),
-			directed: true
+			directed: displayDirection.value
 		}) : cy.elements().dfs({
 			root: cy.$(`#${cxttapData.value.data.id as string}`),
-			directed: true
+			directed: displayDirection.value
 		});
 
 		highlightPaths(data.path);
 	} else if (command === 'short-path') {
-		clearStyle(cy);
+		clearStyle(cy, displayDirection.value);
 		const ids = Object.keys(selectedNode.value);
 		const source = cy.$(`#${ids[0]}`);
 		const target = cy.$(`#${ids[1]}`);
 		let result = cy.elements().aStar({
 			root: source,
 			goal: target,
-			directed: true
+			directed: displayDirection.value
 		});
 
 		if (!result.found) {
 			result = cy.elements().aStar({
 				root: target,
 				goal: source,
-				directed: true
+				directed: displayDirection.value
 			});
 		}
 
@@ -294,19 +336,7 @@ const cxttapCommand = async (data: { command: RightClickCommand, e: MouseEvent, 
 			highlightPaths(result.path);
 		}
 	} else if (command === 'all-path') {
-		clearStyle(cy);
-	} else if (command === 'clear-style') {
-		clearStyle(cy);
-	} else if (command === 'exchange') {
-		const source = cxttapData.value.data.source;
-		const target = cxttapData.value.data.target;
-
-		cy.$id(cxttapData.value.data.id as string).move({
-			source: target,
-			target: source
-		});
-	} else if (command === 'delete-selected') {
-		deleteEle([...Object.values(selectedNode.value), ...Object.values(selectedEdge.value)]);
+		clearStyle(cy, displayDirection.value);
 	} else {
 		const a: never = command;
 
@@ -344,8 +374,11 @@ onMounted(() => {
 	cy.style().selector('node').style(nodeStyle).update();
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
-	cy.style().selector('edge').style(edgeStyle).update();
-	resetLayout(cy);
+	cy.style().selector('edge').style({
+		...edgeStyle,
+		...!displayDirection.value ? { 'target-arrow-shape': 'none' } : {}
+	}).update();
+	resetLayout(cy, displayDirection.value, currentLayout.value);
 
 	cy.on('cxttap', (e) => { // 右键事件
 		if (cy) {
@@ -383,7 +416,7 @@ onMounted(() => {
 		// 点击空白处
 		if (typeof e.target.size() !== 'number') {
 			if (cy) {
-				clearStyle(cy, true);
+				clearStyle(cy, displayDirection.value, true);
 			}
 		}
 
@@ -435,7 +468,7 @@ onMounted(() => {
 			selectedEdge.value[e.target.id()] = e.target;
 		}
 		if (cy) {
-			clearStyle(cy);
+			clearStyle(cy, displayDirection.value);
 		}
 	}).on('unselect', (e) => { // 取消选中事件
 		if (e.target.isNode()) {
@@ -443,7 +476,11 @@ onMounted(() => {
 			delete selectedNode.value[e.target.id()];
 		}
 		if (e.target.isEdge()) {
-			e.target.style({ ...edgeStyle, label: undefined });
+			e.target.style({
+				...edgeStyle,
+				label: undefined,
+				...!displayDirection.value ? { 'target-arrow-shape': 'none' } : {}
+			});
 			delete selectedEdge.value[e.target.id()];
 		}
 	});

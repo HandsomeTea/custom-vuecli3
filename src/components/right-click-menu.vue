@@ -7,7 +7,7 @@
 				<li
 					v-for="(level1, i) in data"
 					:key="`${level1.command}-${i}`"
-					class="px-[9px] leading-[26px] text-nowrap hover:bg-gray-200 hover:text-gray-600 border-0 border-solid border-white hover:border-gray-200 [&:not(:last-child)]:border-b"
+					class="px-[9px] leading-[26px] h-[26px] text-nowrap hover:bg-gray-200 hover:text-gray-600 border-0 border-solid border-white hover:border-gray-200 [&:not(:last-child)]:border-b"
 					@mouseover="(e) => setChildMenuData(level1, i, e)"
 					@click="(e) => choseMenu(level1, e)"
 				>
@@ -23,7 +23,7 @@
 				<li
 					v-for="(level2, i) in childMenuData.children"
 					:key="`${level2.command}-${i}`"
-					class="px-[9px] leading-[26px] text-nowrap hover:bg-gray-200 hover:text-gray-600 border-0 border-solid border-gray-100 [&:not(:last-child)]:border-b"
+					class="px-[9px] leading-[26px] h-[26px] text-nowrap hover:bg-gray-200 hover:text-gray-600 border-0 border-solid border-gray-100 [&:not(:last-child)]:border-b"
 					@click="(e) => choseMenu(level2, e)"
 				>
 					{{ level2.name }}
