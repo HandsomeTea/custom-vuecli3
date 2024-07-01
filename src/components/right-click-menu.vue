@@ -35,11 +35,18 @@
 <script setup lang="ts">
 import { ref, defineEmits, computed, PropType, watch } from 'vue';
 
-export interface MenuItem<T extends string> {
+export type MenuItemNoChildren<C extends string> = {
 	name: string;
-	command: T;
-	children?: Array<Omit<MenuItem<T>, 'children'>>;
-}
+	command: C;
+};
+
+export type MenuItemWithChildren<C extends string> = {
+	name: string;
+	command: string;
+	children: Array<MenuItemNoChildren<C>>;
+};
+
+export type MenuItem<T extends string> = MenuItemNoChildren<T> | MenuItemWithChildren<T>;
 
 export interface MenuShowPosition {
 	top?: number;
@@ -76,9 +83,9 @@ const data = computed(() => {
 	for (let s = 0; s < props.menuData.length; s++) {
 		const level1 = props.menuData[s];
 
-		if (level1.children && Array.isArray(level1.children) && level1.children.length > 0) {
+		if ('children' in level1 && Array.isArray(level1.children) && level1.children.length > 0) {
 			const childrenList = level1.children;
-			const children: Required<MenuItem<string>>['children'] = [];
+			const children: typeof childrenList = [];
 
 			for (let a = 0; a < childrenList.length; a++) {
 				if (childrenList[a].command) {
@@ -105,22 +112,26 @@ const data = computed(() => {
 	const repeatCommand = new Set<string>();
 	const command = new Set<string>();
 
-	result.filter(a => !a.children).map(a => {
+	result.filter(a => !('children' in a)).map(a => {
 		if (!command.has(a.command)) {
 			command.add(a.command);
 		} else {
 			repeatCommand.add(a.command);
 		}
 	});
-	result.filter(a => a.children).map(a => a.children?.map(s => {
-		const _command = `${a.command}/${s.command}`;
+	result.filter(a => 'children' in a).map(a => {
+		if ('children' in a) {
+			a.children.map(s => {
+				const _command = `${a.command}/${s.command}`;
 
-		if (!command.has(_command)) {
-			command.add(_command);
-		} else {
-			repeatCommand.add(_command);
+				if (!command.has(_command)) {
+					command.add(_command);
+				} else {
+					repeatCommand.add(_command);
+				}
+			});
 		}
-	}));
+	});
 
 	if (repeatCommand.size > 0) {
 		// eslint-disable-next-line no-console
@@ -134,7 +145,7 @@ const data = computed(() => {
 const showPositionStyle = computed(() => Object.keys(props.showPosition).reduce((p, c) => ({ ...p, [c]: `${props.showPosition[c]}px` }), {}));
 
 const emit = defineEmits<EmitEvent>();
-const childMenuData = ref<{ parentCommand: string, children: Required<MenuItem<string>>['children'] }>({
+const childMenuData = ref<{ parentCommand: string, children: MenuItemWithChildren<string>['children'] }>({
 	parentCommand: '',
 	children: []
 });
@@ -156,7 +167,7 @@ const childMenuPositionStyle = computed(() => {
 });
 
 const setChildMenuData = (level1: MenuItem<string>, menuIndex: number, e: MouseEvent) => {
-	if (level1.children && level1.children.length > 0) {
+	if ('children' in level1 && Array.isArray(level1.children) && level1.children.length > 0) {
 		childMenuData.value.parentCommand = level1.command;
 		childMenuData.value.children = level1.children;
 		const childMenu = childMenuData.value.children;
@@ -199,7 +210,7 @@ const setChildMenuData = (level1: MenuItem<string>, menuIndex: number, e: MouseE
 	}
 };
 const choseMenu = <T extends string>(menu: MenuItem<T>, e: MouseEvent) => {
-	if (menu.children && menu.children.length > 0) {
+	if ('children' in menu && Array.isArray(menu.children) && menu.children.length > 0) {
 		return;
 	}
 	const command = menu.command;
