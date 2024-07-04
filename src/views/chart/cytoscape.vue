@@ -1,9 +1,70 @@
 <template>
 	<div>
 		<h1>Cytoscape</h1>
-		<a-checkbox v-model="displayDirection">
-			显示为有向图
-		</a-checkbox>
+
+		<div class="py-[6px]">
+			<a-button
+				type="primary"
+				size="small"
+				class="mr-[10px] last:mr-0"
+				@click="setZoom(0.1)"
+			>
+				放大
+			</a-button>
+			<a-button
+				type="primary"
+				size="small"
+				class="mr-[10px] last:mr-0"
+				@click="setZoom(-0.1)"
+			>
+				缩小
+			</a-button>
+			<a-button
+				type="primary"
+				size="small"
+				class="mr-[10px] last:mr-0"
+				@click="displayDirection = !displayDirection;"
+			>
+				{{ displayDirection ? '显示为无向图' : '显示为有向图' }}
+			</a-button>
+			<a-button
+				type="primary"
+				size="small"
+				class="mr-[10px] last:mr-0"
+				@click="displayLinkLabel = !displayLinkLabel;"
+			>
+				{{ displayLinkLabel ? '隐藏连接标签' : '显示连接标签' }}
+			</a-button>
+		</div>
+
+		<div class="py-[6px]">
+			<a-button size="small" class="mr-[10px] last:mr-0">
+				当前显示为【{{ displayDirection ? '有向图' : '无向图' }}】
+			</a-button>
+			<a-select v-model="dataSet" size="small" class="max-w-[260px] mr-[10px] last:mr-0">
+				<a-option
+					v-for=" item in displayDataSet "
+					:key="item.value"
+					:value="item.value"
+					:label="item.name"
+				/>
+				<template #label>
+					当前演示数据集【{{ displayDataSet.find(a => a.value === dataSet)?.name }}】
+				</template>
+			</a-select>
+			<a-select v-model="currentLayout" size="small" class="max-w-[224px] mr-[10px] last:mr-0">
+				<a-option
+					v-for=" item in layoutList "
+					:key="item.value"
+					:value="item.value"
+					:label="item.name"
+				/>
+				<template #label>
+					当前布局【{{ layoutList.find(a => a.value === currentLayout)?.name }}】
+				</template>
+			</a-select>
+		</div>
+
 		<div id="cyContainer" class="h-[600px] border-gray-400 border border-solid rounded-[6px]" />
 
 		<a-modal v-model:visible="detailOperate" title-align="start" @ok="updateEditData">
@@ -52,9 +113,11 @@ import { Tips } from '@/ui-frame';
 import { random } from './lib';
 import {
 	nodeStyle, edgeStyle, nodeSelectedStyle, edgeSelectedStyle,
-	clearStyle, resetLayout, highlightPaths, LayoutType
+	clearStyle, resetLayout, highlightPaths, LayoutType, zoomCy,
+	highlightElements, DataSet, setDataSet, layoutList, displayDataSet,
+	showCutElements, showComponents
 } from './cytoscape';
-import { MenuItem, MenuShowPosition } from '@/components/right-click-menu.vue';
+import { MenuItem, MenuShowPosition, MenuItemWithChildren } from '@/components/right-click-menu.vue';
 
 const RightClickMenu = defineAsyncComponent(() => import('@/components/right-click-menu.vue'));
 
@@ -63,8 +126,15 @@ interface cxttapDataType {
 	data: NodeDataDefinition | EdgeDataDefinition
 }
 
+type Algorithms = 'minimum-spanning-tree' | 'minimum-cut' | 'shortest-path' | 'page-rand' | 'degree-centrality' | 'degree-centrality-use-weight' |
+	'closeness-centrality' | 'betweenness-centrality' | 'eulerian-path' |
+	'eulerian-cycle' | 'biconnected-components' | 'strongly-connected-components';
+
+type Clustering = 'markov-clustering' | 'k-means-clustering' | 'k-medoids-clustering' | 'fuzzy-c-means-clustering' |
+	'agglomerative-clustering' | 'affinity-propagation-clustering';
+
 type RightClickCommand = 'detail' | 'delete' | 'edge-to' | 'new-node' | 'show-bfs' |
-	'show-dfs' | 'short-path' | 'all-path' | 'clear-style' | 'exchange' | 'delete-selected' | `${LayoutType}-layout`;
+	'show-dfs' | 'clear-style' | 'exchange' | 'delete-selected' | Algorithms | Clustering;
 
 const menuShow = ref(false);
 const menuData = ref<Array<MenuItem<RightClickCommand>>>([]);
@@ -76,6 +146,7 @@ const displayDirection = ref(true);
 const currentLayout = ref<LayoutType>('random');
 
 watch(displayDirection, () => {
+	menuShow.value = false;
 	if (displayDirection.value === true) {
 		cy?.edges().style({
 			'target-arrow-shape': 'triangle'
@@ -90,6 +161,50 @@ watch(displayDirection, () => {
 		resetLayout(cy, displayDirection.value, currentLayout.value);
 	}
 });
+watch(currentLayout, () => {
+	if (cy) {
+		resetLayout(cy, displayDirection.value, currentLayout.value);
+	}
+});
+const displayLinkLabel = ref(true);
+
+watch(displayLinkLabel, () => {
+	if (displayLinkLabel.value) {
+		cy?.edges().style({
+			'text-opacity': 1,
+			'text-background-opacity': 1
+		});
+	} else {
+		cy?.edges().style({
+			'text-opacity': 0,
+			'text-background-opacity': 0
+		});
+	}
+});
+const dataSet = ref<DataSet>('default');
+
+watch(dataSet, () => {
+	if (cy) {
+		setDataSet(cy, dataSet.value);
+		resetLayout(cy, displayDirection.value, currentLayout.value);
+	}
+});
+const zoomLevel = ref(1);
+
+watch(zoomLevel, () => {
+	if (cy) {
+		zoomCy(cy, zoomLevel.value);
+	}
+});
+const setZoom = (offset: number) => {
+	if (cy) {
+		const targetZoom = cy.zoom() * 10 + offset * 10;
+
+		if (targetZoom > cy.minZoom() * 10) {
+			zoomLevel.value = targetZoom / 10;
+		}
+	}
+};
 const editData = ref({
 	label: ''
 });
@@ -108,47 +223,79 @@ watch(cxttapData, () => {
 			name: '新建节点',
 			command: 'new-node'
 		}, {
-			name: '设置布局',
-			command: 'reset-layout',
-			children: [{
-				name: '随机布局',
-				command: 'random-layout'
-			}, {
-				name: '网格布局',
-				command: 'grid-layout'
-			}, {
-				name: '圆形布局',
-				command: 'circle-layout'
-			}, {
-				name: '层次布局',
-				command: 'cose-layout'
-			}, {
-				name: '同心圆布局',
-				command: 'concentric-layout'
-			}, {
-				name: '广度优先布局',
-				command: 'breadthfirst-layout'
-			}]
-		}, {
 			name: '清除样式',
 			command: 'clear-style'
-		},
-		...Object.keys(selectedNode.value).length > 0 || Object.keys(selectedEdge.value).length > 0 ? [{
-			name: '删除已选',
-			command: 'delete-selected' as RightClickCommand
-		}] : [],
-		...Object.keys(selectedNode.value).length === 2 ? [{
-			name: '更多...',
-			command: 'more' as RightClickCommand,
-			children: [{
+		}];
+
+		if (Object.keys(selectedNode.value).length > 0 || Object.keys(selectedEdge.value).length > 0) {
+			menuData.value.push({
+				name: '删除已选',
+				command: 'delete-selected'
+			});
+		}
+		const algorithms: MenuItemWithChildren<RightClickCommand>['children'] = [{
+			name: '最小割',
+			command: 'minimum-cut'
+		}, {
+			name: '欧拉路径',
+			command: 'eulerian-path'
+		}, {
+			name: '欧拉回路',
+			command: 'eulerian-cycle'
+		}];
+
+		if (Object.keys(selectedNode.value).length === 2) {
+			algorithms.push({
 				name: '最短路径',
-				command: 'short-path' as RightClickCommand
+				command: 'shortest-path'
+			});
+		}
+
+		if (!displayDirection.value) {
+			algorithms.push({
+				name: '最小生成树',
+				command: 'minimum-spanning-tree'
 			}, {
-				name: '所有路径',
-				command: 'all-paths' as RightClickCommand
-			}]
-		}] : []
-		];
+				name: '双连通分量',
+				command: 'biconnected-components'
+			});
+		} else {
+			algorithms.push({
+				name: '强连通分量',
+				command: 'strongly-connected-components'
+			});
+		}
+
+		menuData.value.push({
+			name: '算法',
+			command: 'algorithms',
+			children: algorithms
+		});
+		const clustering: MenuItemWithChildren<RightClickCommand>['children'] = [{
+			name: '节点马尔可夫聚类',
+			command: 'markov-clustering'
+		}, {
+			name: '节点K-Means聚类',
+			command: 'k-means-clustering'
+		}, {
+			name: '节点K-Medoids聚类',
+			command: 'k-medoids-clustering'
+		}, {
+			name: '节点模糊c均值聚类',
+			command: 'fuzzy-c-means-clustering'
+		}, {
+			name: '节点凝聚层次聚类',
+			command: 'agglomerative-clustering'
+		}, {
+			name: '节点亲和传播聚类',
+			command: 'affinity-propagation-clustering'
+		}];
+
+		menuData.value.push({
+			name: '聚类',
+			command: 'clustering',
+			children: clustering
+		});
 	} else if (cxttapData.value.group === 'edges') {
 		menuData.value = [{
 			name: '详情/编辑',
@@ -171,14 +318,29 @@ watch(cxttapData, () => {
 			name: '关联到...',
 			command: 'edge-to'
 		}, {
-			name: '以此为根...',
+			name: '更多...',
 			command: 'algorithm',
 			children: [{
+				name: '度中心性',
+				command: 'degree-centrality'
+			}, {
+				name: '加权度中心性',
+				command: 'degree-centrality-use-weight'
+			}, {
+				name: '接近中心性',
+				command: 'closeness-centrality'
+			}, {
+				name: '中介中心性',
+				command: 'betweenness-centrality'
+			}, {
 				name: '子节点BFS路径',
 				command: 'show-bfs'
 			}, {
 				name: '子节点DFS路径',
 				command: 'show-dfs'
+			}, {
+				name: '节点Page-Rank',
+				command: 'page-rand'
 			}]
 		}];
 	} else if (cxttapData.value.group !== '') {
@@ -192,7 +354,7 @@ const newEdgeSourceNodeId = ref<string>('');
 
 watch(newEdgeSourceNodeId, () => {
 	if (newEdgeSourceNodeId.value) {
-		cy?.$(`#${newEdgeSourceNodeId.value}`).select();
+		cy?.$id(newEdgeSourceNodeId.value).select();
 	}
 });
 const detailOperate = ref(false);
@@ -289,38 +451,27 @@ const cxttapCommand = async (data: { command: RightClickCommand, e: MouseEvent, 
 				y: cxttapPosition.value.y
 			}
 		});
-	} else if (
-		command === 'random-layout' ||
-		command === 'circle-layout' ||
-		command === 'grid-layout' ||
-		command === 'cose-layout' ||
-		command === 'concentric-layout' ||
-		command === 'breadthfirst-layout'
-	) {
-		const layout = command.replace('-layout', '') as LayoutType;
-
-		currentLayout.value = layout;
-		resetLayout(cy, displayDirection.value, layout);
 	} else if (command === 'show-bfs' || command === 'show-dfs') {
 		// 该项显示的是使用深度优先和广度优先算法分别遍历目标节点的子节点的路径，已经遍历的节点不会被再次遍历，因此其它通往该节点的路径不会被图示
 		clearStyle(cy, displayDirection.value, true);
 		const data = command === 'show-bfs' ? cy.elements().bfs({
-			root: cy.$(`#${cxttapData.value.data.id as string}`),
+			root: cy.$id(cxttapData.value.data.id as string),
 			directed: displayDirection.value
 		}) : cy.elements().dfs({
-			root: cy.$(`#${cxttapData.value.data.id as string}`),
+			root: cy.$id(cxttapData.value.data.id as string),
 			directed: displayDirection.value
 		});
 
 		highlightPaths(data.path);
-	} else if (command === 'short-path') {
+	} else if (command === 'shortest-path') {
 		clearStyle(cy, displayDirection.value);
 		const ids = Object.keys(selectedNode.value);
-		const source = cy.$(`#${ids[0]}`);
-		const target = cy.$(`#${ids[1]}`);
+		const source = cy.$id(ids[0]);
+		const target = cy.$id(ids[1]);
 		let result = cy.elements().aStar({
 			root: source,
 			goal: target,
+			weight: edge => edge.data('weight'),
 			directed: displayDirection.value
 		});
 
@@ -328,6 +479,7 @@ const cxttapCommand = async (data: { command: RightClickCommand, e: MouseEvent, 
 			result = cy.elements().aStar({
 				root: target,
 				goal: source,
+				weight: edge => edge.data('weight'),
 				directed: displayDirection.value
 			});
 		}
@@ -335,8 +487,112 @@ const cxttapCommand = async (data: { command: RightClickCommand, e: MouseEvent, 
 		if (result.path.length > 2) {
 			highlightPaths(result.path);
 		}
-	} else if (command === 'all-path') {
+	} else if (command === 'minimum-spanning-tree') {
 		clearStyle(cy, displayDirection.value);
+		const result = cy.elements().kruskal(edge => edge.data('weight'));
+
+		highlightElements(result);
+	} else if (command === 'minimum-cut') {
+		clearStyle(cy, displayDirection.value);
+		// ? 无向图的，没有根据权重
+		const result = cy.elements().kargerStein();
+
+		showCutElements(result.cut);
+		showComponents(result.components);
+	} else if (command === 'strongly-connected-components') {
+		clearStyle(cy, displayDirection.value);
+		const result = cy.elements().tscc();
+
+		showCutElements(result.cut);
+		showComponents(result.components);
+	} else if (command === 'biconnected-components') {
+		clearStyle(cy, displayDirection.value);
+		const result = cy.elements().htbc();
+
+		showCutElements(result.cut);
+		showComponents(result.components);
+	} else if (command === 'page-rand') {
+		clearStyle(cy, displayDirection.value);
+		const { rank } = cy.elements().pageRank({});
+		const node = cy.$id(cxttapData.value.data.id as string);
+
+		alert(`节点${node.data('label')}的rank值为：${rank(node)}`);
+	} else if (command === 'degree-centrality' || command === 'degree-centrality-use-weight') {
+		clearStyle(cy, displayDirection.value);
+		const node = cy.$id(cxttapData.value.data.id as string);
+		const result = cy.elements().degreeCentrality({
+			root: node,
+			weight: edge => edge.data('weight'),
+			directed: displayDirection.value,
+			alpha: command === 'degree-centrality' ? 0 : 1
+		});
+
+		if (!displayDirection.value) {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			alert(`节点${node.data('label')}的度中心性为${result.degree}`);
+		} else {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			alert(`节点${node.data('label')}的入度中心性为${result.indegree}，出度中心性为${result.outdegree}`);
+		}
+	} else if (command === 'closeness-centrality') {
+		clearStyle(cy, displayDirection.value);
+		const node = cy.$id(cxttapData.value.data.id as string);
+		const result = cy.elements().closenessCentrality({
+			root: node,
+			weight: edge => edge.data('weight'),
+			directed: displayDirection.value
+		});
+
+		alert(`节点${node.data('label')}的接近中心性为${result}`);
+	} else if (command === 'betweenness-centrality') {
+		clearStyle(cy, displayDirection.value);
+		const { betweenness, betweennessNormalized } = cy.elements().betweennessCentrality({
+			weight: edge => edge.data('weight'),
+			directed: displayDirection.value
+		});
+		const node = cy.$id(cxttapData.value.data.id as string);
+
+		alert(`节点${node.data('label')}的中介中心性为${betweenness(node)}，标准化中介中心性为${betweennessNormalized(node)}`);
+	} else if (command === 'markov-clustering') {
+		clearStyle(cy, displayDirection.value);
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+		const clusters = cy.elements().markovClustering({
+			attributes: [
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				edge => edge.data('closeness') // 返回表示连接相似性的数据
+			]
+		});
+
+		showComponents(clusters);
+	} else if (command === 'k-means-clustering') {
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+		const clusters = cy.elements().kMeans({
+			k: 2, // 要形成的簇数，即将节点聚为几类
+			attributes: [
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				node => node.data('weight') // 返回表示连接相似性的数据
+			]
+		});
+
+		showComponents(clusters);
+	} else if (command === 'k-medoids-clustering') {
+
+	} else if (command === 'fuzzy-c-means-clustering') {
+
+	} else if (command === 'agglomerative-clustering') {
+
+	} else if (command === 'affinity-propagation-clustering') {
+
+	} else if (command === 'eulerian-path') {
+
+	} else if (command === 'eulerian-cycle') {
+
 	} else {
 		const a: never = command;
 
@@ -348,29 +604,13 @@ onMounted(() => {
 	cy = cytoscape({
 		container: document.getElementById('cyContainer'),
 		userZoomingEnabled: true, //是否允许用户事件（例如鼠标滚轮，捏合缩放）缩放图形
-		wheelSensitivity: 0.1, //缩放时更改滚轮灵敏度。
+		zoom: zoomLevel.value,
 		minZoom: 0.3, //图表缩放得最小界限
 		// selectionType: 'additive' // 支持多选，默认是 'single',single下按住ctrl也可多选
 		boxSelectionEnabled: true // 允许圈定选择，需要按住ctrl
 	});
 
-	cy.add([
-		{ data: { id: 'a', label: 'a' } },
-		{ data: { id: 'b', label: 'b' } },
-		{ data: { id: 'c', label: 'c' } },
-		{ data: { id: 'd', label: 'd' } },
-		{ data: { id: 'e', label: 'e' } }
-	]);
-	cy.add([
-		{ data: { id: 'ae', weight: 1, source: 'a', target: 'e', label: 'ae' } },
-		{ data: { id: 'ab', weight: 3, source: 'a', target: 'b', label: 'ab' } },
-		{ data: { id: 'be', weight: 4, source: 'b', target: 'e', label: 'be' } },
-		{ data: { id: 'bc', weight: 5, source: 'b', target: 'c', label: 'bc' } },
-		{ data: { id: 'ce', weight: 6, source: 'c', target: 'e', label: 'ce' } },
-		{ data: { id: 'cd', weight: 2, source: 'c', target: 'd', label: 'cd' } },
-		{ data: { id: 'de', weight: 7, source: 'd', target: 'e', label: 'de' } },
-		{ data: { id: 'ed', weight: 7, source: 'e', target: 'd', label: 'ed' } }
-	]);
+	setDataSet(cy, dataSet.value);
 	cy.style().selector('node').style(nodeStyle).update();
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
@@ -432,7 +672,7 @@ onMounted(() => {
 
 		// 最后清空右键点击了关联到...的source节点
 		if (newEdgeSourceNodeId.value) {
-			cy?.$(`#${newEdgeSourceNodeId.value}`).style({ ...nodeStyle, label: undefined });
+			cy?.$id(newEdgeSourceNodeId.value).style({ ...nodeStyle, label: undefined });
 			newEdgeSourceNodeId.value = '';
 		}
 	}).on('dblclick', (e) => { // 双击事件
