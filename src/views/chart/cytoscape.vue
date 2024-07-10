@@ -130,11 +130,12 @@ type Algorithms = 'minimum-spanning-tree' | 'minimum-cut' | 'shortest-path' | 'p
 	'closeness-centrality' | 'betweenness-centrality' | 'eulerian-path' |
 	'eulerian-cycle' | 'biconnected-components' | 'strongly-connected-components';
 
-type Clustering = 'markov-clustering' | 'k-means-clustering' | 'k-medoids-clustering' | 'fuzzy-c-means-clustering' |
-	'agglomerative-clustering' | 'affinity-propagation-clustering';
+// type Clustering = 'markov-clustering' | 'k-means-clustering' | 'k-medoids-clustering' | 'fuzzy-c-means-clustering' |
+// 	'agglomerative-clustering' | 'affinity-propagation-clustering';
 
 type RightClickCommand = 'detail' | 'delete' | 'edge-to' | 'new-node' | 'show-bfs' |
-	'show-dfs' | 'clear-style' | 'exchange' | 'delete-selected' | Algorithms | Clustering;
+	'show-dfs' | 'clear-style' | 'exchange' | 'delete-selected' | Algorithms;
+// | Clustering;
 
 const menuShow = ref(false);
 const menuData = ref<Array<MenuItem<RightClickCommand>>>([]);
@@ -271,31 +272,31 @@ watch(cxttapData, () => {
 			command: 'algorithms',
 			children: algorithms
 		});
-		const clustering: MenuItemWithChildren<RightClickCommand>['children'] = [{
-			name: '节点马尔可夫聚类',
-			command: 'markov-clustering'
-		}, {
-			name: '节点K-Means聚类',
-			command: 'k-means-clustering'
-		}, {
-			name: '节点K-Medoids聚类',
-			command: 'k-medoids-clustering'
-		}, {
-			name: '节点模糊c均值聚类',
-			command: 'fuzzy-c-means-clustering'
-		}, {
-			name: '节点凝聚层次聚类',
-			command: 'agglomerative-clustering'
-		}, {
-			name: '节点亲和传播聚类',
-			command: 'affinity-propagation-clustering'
-		}];
+		// const clustering: MenuItemWithChildren<RightClickCommand>['children'] = [{
+		// 	name: '节点马尔可夫聚类',
+		// 	command: 'markov-clustering'
+		// }, {
+		// 	name: '节点K-Means聚类',
+		// 	command: 'k-means-clustering'
+		// }, {
+		// 	name: '节点K-Medoids聚类',
+		// 	command: 'k-medoids-clustering'
+		// }, {
+		// 	name: '节点模糊c均值聚类',
+		// 	command: 'fuzzy-c-means-clustering'
+		// }, {
+		// 	name: '节点凝聚层次聚类',
+		// 	command: 'agglomerative-clustering'
+		// }, {
+		// 	name: '节点亲和传播聚类',
+		// 	command: 'affinity-propagation-clustering'
+		// }];
 
-		menuData.value.push({
-			name: '聚类',
-			command: 'clustering',
-			children: clustering
-		});
+		// menuData.value.push({
+		// 	name: '聚类',
+		// 	command: 'clustering',
+		// 	children: clustering
+		// });
 	} else if (cxttapData.value.group === 'edges') {
 		menuData.value = [{
 			name: '详情/编辑',
@@ -312,11 +313,11 @@ watch(cxttapData, () => {
 			name: '详情/编辑',
 			command: 'detail'
 		}, {
-			name: '删除',
-			command: 'delete'
-		}, {
 			name: '关联到...',
 			command: 'edge-to'
+		}, {
+			name: '删除',
+			command: 'delete'
 		}, {
 			name: '更多...',
 			command: 'algorithm',
@@ -555,39 +556,40 @@ const cxttapCommand = async (data: { command: RightClickCommand, e: MouseEvent, 
 		const node = cy.$id(cxttapData.value.data.id as string);
 
 		alert(`节点${node.data('label')}的中介中心性为${betweenness(node)}，标准化中介中心性为${betweennessNormalized(node)}`);
-	} else if (command === 'markov-clustering') {
-		clearStyle(cy, displayDirection.value);
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		const clusters = cy.elements().markovClustering({
-			attributes: [
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				edge => edge.data('closeness') // 返回表示连接相似性的数据
-			]
-		});
 
-		showComponents(clusters);
-	} else if (command === 'k-means-clustering') {
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		const clusters = cy.elements().kMeans({
-			k: 2, // 要形成的簇数，即将节点聚为几类
-			attributes: [
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				node => node.data('weight') // 返回表示连接相似性的数据
-			]
-		});
+		// } else if (command === 'markov-clustering') {
+		// 	clearStyle(cy, displayDirection.value);
+		// 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// 	// @ts-ignore
+		// 	const clusters = cy.elements().markovClustering({
+		// 		attributes: [
+		// 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// 			// @ts-ignore
+		// 			edge => edge.data('closeness') // 返回表示连接相似性的数据
+		// 		]
+		// 	});
 
-		showComponents(clusters);
-	} else if (command === 'k-medoids-clustering') {
+		// 	showComponents(clusters);
+		// } else if (command === 'k-means-clustering') {
+		// 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// 	// @ts-ignore
+		// 	const clusters = cy.elements().kMeans({
+		// 		k: 2, // 要形成的簇数，即将节点聚为几类
+		// 		attributes: [
+		// 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// 			// @ts-ignore
+		// 			node => node.data('weight') // 返回表示连接相似性的数据
+		// 		]
+		// 	});
 
-	} else if (command === 'fuzzy-c-means-clustering') {
+		// 	showComponents(clusters);
+		// } else if (command === 'k-medoids-clustering') {
 
-	} else if (command === 'agglomerative-clustering') {
+		// } else if (command === 'fuzzy-c-means-clustering') {
 
-	} else if (command === 'affinity-propagation-clustering') {
+		// } else if (command === 'agglomerative-clustering') {
+
+		// } else if (command === 'affinity-propagation-clustering') {
 
 	} else if (command === 'eulerian-path') {
 

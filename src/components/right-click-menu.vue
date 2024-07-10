@@ -33,7 +33,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref, defineEmits, computed, PropType, watch } from 'vue';
+import { ref, computed, PropType, watch } from 'vue';
 
 export type MenuItemNoChildren<C extends string> = {
 	name: string;

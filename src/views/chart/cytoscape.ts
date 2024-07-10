@@ -83,20 +83,20 @@ export const layoutList = [{
 	name: '随机布局',
 	value: 'random'
 }, {
+	name: 'Cose布局',
+	value: 'cose'
+}, {
 	name: '网格布局',
 	value: 'grid'
+}, {
+	name: '广度优先布局',
+	value: 'breadthfirst'
 }, {
 	name: '圆形布局',
 	value: 'circle'
 }, {
 	name: '同心圆布局',
 	value: 'concentric'
-}, {
-	name: '广度优先布局',
-	value: 'breadthfirst'
-}, {
-	name: 'Cose布局',
-	value: 'cose'
 }] as const;
 
 export type LayoutType = typeof layoutList[number]['value'];
