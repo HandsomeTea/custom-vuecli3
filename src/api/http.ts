@@ -18,13 +18,13 @@ class Exception extends Error {
 	}
 }
 
-class HTTP {
+class AxiosService {
 	private server = axios.create();
 	constructor() {
-		this._init();
+		this.init();
 	}
 
-	private _init(): void {
+	private init(): void {
 		this.server.defaults.timeout = 10000;
 		this.server.defaults.httpAgent = new Agent({
 			keepAlive: true,
@@ -145,4 +145,116 @@ class HTTP {
 	}
 }
 
-export default new HTTP();
+export const HTTP = new AxiosService();
+
+interface FetchArgument {
+	body?: Record<string, unknown>
+	query?: Record<string, unknown>
+	header?: Record<string, string>
+}
+
+class FetchBase {
+	constructor() {
+		//
+	}
+
+	getQueryString(query?: Record<string, unknown>) {
+		const _query = {
+			...query,
+			t: `${Date.now()}`
+		};
+
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+		return Object.keys(_query).map(key => `${key}=${_query[key]}`).join('&');
+	}
+
+	async fetchJsonResponseHandle(response: Response) {
+		const result: ApiResult = {};
+
+		if (response.ok) {
+			result.data = await response.json();
+		} else {
+			result.error = await response.json();
+		}
+		return result;
+	}
+}
+
+export const FetchService = new class FetchRestApi extends FetchBase {
+	constructor() {
+		super();
+	}
+
+	private async send(url: string, method: Method, options?: FetchArgument) {
+		const queryString = this.getQueryString(options?.query);
+
+		return await fetch(`http://test.adela.sensetime.com${url}?${queryString}`, {
+			method,
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			...options?.body ? { body: JSON.stringify(options.body) } : {},
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			headers: {
+				'Content-Type': 'application/json',
+				...options?.header ? options.header : {}
+			}
+		}).then(async (response) => await this.fetchJsonResponseHandle(response));
+	}
+
+	async post(url: string, options?: FetchArgument): Promise<ApiResult> {
+		return await this.send(url, 'post', options);
+	}
+
+	async delete(url: string, options?: FetchArgument): Promise<ApiResult> {
+		return await this.send(url, 'delete', options);
+	}
+
+	async put(url: string, options?: FetchArgument): Promise<ApiResult> {
+		return await this.send(url, 'put', options);
+	}
+
+	async get(url: string, options?: FetchArgument): Promise<ApiResult> {
+		return await this.send(url, 'get', options);
+	}
+};
+
+
+export const StreamService = new class FileRestApi extends FetchBase {
+	constructor() {
+		super();
+	}
+
+	async getNotice(url: string, method: Method, options?: FetchArgument): Promise<Response> {
+		const queryString = this.getQueryString(options?.query);
+
+		return await fetch(`http://test.adela.sensetime.com${url}?${queryString}`, {
+			method,
+			timeout: Infinity,
+			...options?.body ? { body: JSON.stringify(options.body) } : {},
+			headers: {
+				'Content-Type': 'application/json',
+				...options?.header ? options.header : {}
+			},
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			responseType: 'stream'
+		});
+	}
+
+	async download(url: string, query?: Record<string, unknown>, headers?: Record<string, unknown>): Promise<Response> {
+		const queryString = this.getQueryString(query);
+
+		return await fetch(`http://test.adela.sensetime.com${url}?${queryString}`, {
+			method: 'get',
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			timeout: Infinity,
+			headers: {
+				'Content-Type': 'application/json',
+				...headers ? headers : {}
+			}
+		});
+	}
+};

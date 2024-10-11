@@ -9,7 +9,7 @@
 			<!-- <div
 				v-for="(log, index) in html"
 				:key="index"
-				class="leading-[22px] text-[13px] px-[6px] tracking-[1px] whitespace-pre-wrap break-all log_box"
+				class="leading-[22px] text-[13px] px-[10px] tracking-[1px] whitespace-pre-wrap break-all log_box"
 				v-html="log"
 			/> -->
 		</div>
@@ -50,6 +50,10 @@ const getData = async () => {
 	};
 	let autoScroll = true;
 	let setScrollListener = false;
+
+	let mark = 0;
+	let count = 1;
+	let ele = document.createDocumentFragment();
 
 	source.onmessage = (result) => {
 		// 当正在获取实时日志，且已经开始自动滑动时
@@ -92,7 +96,38 @@ const getData = async () => {
 			// html.value.push(new AnsiUp().ansi_to_html(whiteLog(log)));
 			html = new AnsiUp().ansi_to_html(whiteLog(log));
 		}
-		container.innerHTML += `<div class="leading-[22px] text-[13px] px-[6px] tracking-[1px] whitespace-pre-wrap break-all log_box">${html}</div>`;
+		// 去除空白行(不应去除，应该保持日志的原始格式)
+		// const str = html;
+
+		// str.trim();
+		// if (str.length === 0) {
+		// 	return;
+		// }
+		// container.innerHTML += `<div class="leading-[26px] text-[13px] px-[10px] tracking-[0.7px] whitespace-pre-wrap break-all log_box">${html}</div>`;
+		const _ele = document.createElement('div');
+
+		_ele.setAttribute('class', 'leading-[26px] text-[13px] pl-[44px] pr-[10px] tracking-[0.7px] whitespace-pre-wrap break-all log_box');
+		_ele.innerHTML = html;
+		_ele.appendChild(document.createElement('br'));
+		const lineCountEle = document.createElement('span');
+
+		lineCountEle.setAttribute('class', 'block float-start !text-gray-500 text-right ml-[-39px] w-[32px]');
+		lineCountEle.innerText = `${count}`;
+		_ele.prepend(lineCountEle);
+		ele.appendChild(_ele);
+
+		mark++;
+		count++;
+		if (mark >= 10) {
+			container.appendChild(ele);
+			ele = document.createDocumentFragment();
+			mark = 0;
+		}
+
+		// 结束时
+		if (log.includes('[end]') && ele.childNodes.length > 0) {
+			container.appendChild(ele);
+		}
 
 		// 日志实时更新时自动滑动
 		if (!taskIsFinish) {
@@ -127,11 +162,21 @@ const getData = async () => {
 	overflow: hidden;
 }
 
+.log_box,
 .log_box span {
+	color: #fff;
 	font-family: "Menlo", "Liberation Mono", "Consolas", "DejaVu Sans Mono", "Ubuntu Mono", "Courier New", "andale mono", "lucida console";
 	font-size: 12px;
 	text-rendering: optimizeLegibility;
 	word-wrap: break-word;
+}
+
+.log_box:first-child {
+	padding-top: 4px;
+}
+
+.log_box:last-child {
+	padding-bottom: 4px
 }
 </style>
 

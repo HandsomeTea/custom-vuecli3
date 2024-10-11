@@ -13,11 +13,14 @@
 import '@xterm/xterm/css/xterm.css';
 import { ref, onMounted } from 'vue';
 import { Terminal } from '@xterm/xterm';
+import { FitAddon } from '@xterm/addon-fit';
+import { WebglAddon } from '@xterm/addon-webgl';
 import { Tips } from '@/ui-frame';
 import { blueLog, greenLog, redLog, whiteLog, yellowLog } from './lib';
 
 const term = new Terminal({
 	overviewRulerWidth: 1100,
+	cursorStyle: 'underline',
 	disableStdin: true,
 	cursorBlink: false,
 	lineHeight: 1.5,
@@ -34,8 +37,13 @@ onMounted(() => {
 	const terminalContainer = document.getElementById('xtermTerminal');
 
 	if (terminalContainer) {
+		terminalContainer.style.height = `${window.innerHeight - 184}px`;
+		const fitAddon = new FitAddon();
+
+		term.loadAddon(fitAddon);
+		term.loadAddon(new WebglAddon());
 		term.open(terminalContainer);
-		term.resize(Math.floor(parseInt(window.getComputedStyle(terminalContainer).width) / 8.85), Math.floor((window.innerHeight - 174) / 22));
+		fitAddon.fit();
 	}
 });
 

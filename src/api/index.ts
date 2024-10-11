@@ -1,5 +1,5 @@
 import { PermissionType } from '@/store/stateModel';
-import HTTP from './http';
+import { HTTP } from './http';
 
 class Base {
 	public errorHandle(error: HttpException): Promise<ApiResult> {
