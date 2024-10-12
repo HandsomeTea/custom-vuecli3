@@ -45,8 +45,14 @@ onMounted(() => {
 	}
 });
 
+let socket: null | WebSocket = null;
+
 const connectServer = async () => {
-	const socket = new WebSocket('ws://localhost:3403');
+	if (socket) {
+		socket.close();
+		term.reset();
+	}
+	socket = new WebSocket('ws://localhost:3403');
 	const attachAddon = new AttachAddon(socket);
 
 	term.loadAddon(attachAddon);
