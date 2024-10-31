@@ -166,7 +166,7 @@ class FetchBase {
 
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		// @ts-ignore
-		return Object.keys(_query).map(key => `${key}=${_query[key]}`).join('&');
+		return Object.keys(_query).map(key => `${key}=${encodeURIComponent(_query[key])}`).join('&');
 	}
 
 	async fetchJsonResponseHandle(response: Response) {
