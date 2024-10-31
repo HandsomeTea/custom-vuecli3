@@ -110,7 +110,7 @@ const connectServer = async () => {
 		Tips.error('请输入完整信息');
 		return;
 	}
-	socket = new WebSocket(`ws://localhost:3403/ws/devicemgr/v1/terminal?host=${host.value}&password=${password.value}&user=${user.value}&port=${port.value}&cols=${term.cols * 2}`);
+	socket = new WebSocket(`ws://localhost:3403/ws/devicemgr/v1/terminal?host=${host.value}&password=${password.value}&user=${user.value}&port=${port.value}&cols=${term.cols}`);
 	socket.onopen = () => {
 		Tips.success('连接成功');
 	};
