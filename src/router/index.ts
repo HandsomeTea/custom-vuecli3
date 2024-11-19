@@ -93,6 +93,20 @@ const routes: Array<RouteRecordRaw> = [{
 			path: '/chart/echarts',
 			meta: { title: 'echarts', group: '可视化', page: 'visualization-echarts' },
 			component: () => import(/* webpackChunkName: 'visualization' */ '../views/chart/echarts.vue')
+		}, {
+			path: '/other/menu3-test',
+			redirect: '/other/menu3/test1',
+			meta: { title: '三级菜单', group: '其它', page: 'menu-3-level' },
+			component: () => import(/* webpackChunkName: 'menu3' */ '../views/other/menu-3level.vue'),
+			children: [{
+				path: '/other/menu3/test1',
+				meta: { title: '三级菜单1', page: 'menu3-level-1' },
+				component: () => import(/* webpackChunkName: 'menu3-test1' */ '../views/other/menu3/test1.vue')
+			}, {
+				path: '/other/menu3/test2',
+				meta: { title: '三级菜单2', page: 'menu3-level-2' },
+				component: () => import(/* webpackChunkName: 'menu3-test2' */ '../views/other/menu3/test2.vue')
+			}]
 		}
 	]
 }];
@@ -138,7 +152,7 @@ router.beforeEach((to: RouteLocationNormalized, from: RouteLocationNormalized, n
 
 /* 后置导航守卫 */
 router.afterEach((to: RouteLocationNormalized/*, from: RouteLocationNormalized, failure?: NavigationFailure | void*/) => {
-	document.title = to.meta.title as string;
+	document.title = to.meta.title as string || 'custom-vuecli3';
 });
 
 export default router;

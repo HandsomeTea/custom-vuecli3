@@ -8,7 +8,7 @@
 			<el-header height="50px">
 				<page-header />
 			</el-header>
-			<el-main>
+			<el-main id="pageMainView">
 				<div class="root_main">
 					<router-view :key="routeKey" />
 				</div>

@@ -53,7 +53,15 @@
 		<el-button type="primary" @click="connectServer()">
 			连接
 		</el-button>
-		<div id="xtermTerminal" class="overflow-hidden rounded-[5px] mt-[10px]" />
+
+		<a-spin :loading="terminalConnecting" dot class="w-full">
+			<template v-if="showTerminalCanUse" #element>
+				<a-button type="primary" @click="terminalAlreadyConnected">
+					其实已经连上了，我要用！
+				</a-button>
+			</template>
+			<div id="xtermTerminal" class="overflow-hidden rounded-[5px] mt-[10px]" />
+		</a-spin>
 	</div>
 </template>
 
@@ -85,11 +93,14 @@ const port = ref(22);
 const user = ref('autotester');
 const password = ref('sensetime');
 
+const terminalConnecting = ref(false);
+const showTerminalCanUse = ref(false);
+
 onMounted(() => {
 	const terminalContainer = document.getElementById('xtermTerminal');
 
 	if (terminalContainer) {
-		terminalContainer.style.height = `${window.innerHeight - 184}px`;
+		terminalContainer.style.height = `${window.innerHeight - 270}px`;
 		const fitAddon = new FitAddon();
 
 		term.loadAddon(fitAddon);
@@ -110,13 +121,44 @@ const connectServer = async () => {
 		Tips.error('请输入完整信息');
 		return;
 	}
+	terminalConnecting.value = true;
+	showTerminalCanUse.value = false;
 	socket = new WebSocket(`ws://localhost:3403/ws/devicemgr/v1/terminal?host=${host.value}&password=${password.value}&user=${user.value}&port=${port.value}&cols=${term.cols}`);
-	socket.onopen = () => {
-		Tips.success('连接成功');
+	let hasLogin = false;
+
+	socket.onmessage = (event) => {
+		if (!hasLogin && event.data.includes('Last login') || event.data.includes('Welcome to')) {
+			hasLogin = true;
+		}
+		const needPassword = terminalConnecting.value &&
+			event.data.includes('Password:') ||
+			event.data.includes('password:');
+		const maybeUseful = terminalConnecting.value &&
+			event.data.includes('$') ||
+			event.data.includes('%') ||
+			event.data.includes('#');
+
+		if (hasLogin) {
+			if (needPassword) {
+				terminalConnecting.value = false;
+				Tips.success('请输入密码');
+			} else if (maybeUseful) {
+				terminalConnecting.value = false;
+				term.focus();
+				Tips.success('连接成功');
+			}
+		} else if (maybeUseful) {
+			showTerminalCanUse.value = true;
+		}
 	};
 	const attachAddon = new AttachAddon(socket);
 
 	term.loadAddon(attachAddon);
+};
+const terminalAlreadyConnected = () => {
+	terminalConnecting.value = false;
+	showTerminalCanUse.value = false;
+	term.focus();
 };
 
 </script>

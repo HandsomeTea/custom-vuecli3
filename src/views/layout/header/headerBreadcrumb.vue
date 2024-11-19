@@ -95,3 +95,11 @@ export default defineComponent({
 	margin-top: calc((@layout_head_height - 14px)/2);
 }
 </style>
+
+<style lang="less">
+.route_path{
+	.is-link{
+		color: rgb(22, 93, 255);
+	}
+}
+</style>

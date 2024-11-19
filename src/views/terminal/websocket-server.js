@@ -1,3 +1,4 @@
+// RUN echo "Host *\n\tKexAlgorithms +diffie-hellman-group1-sha1" > $HOME/.ssh/config
 const { WebSocketServer } = require('ws');
 const pty = require('node-pty');
 
