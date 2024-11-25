@@ -4,9 +4,9 @@
 		:model="roleForm"
 		size="default"
 		label-width="120px"
-		style="width: 600px;padding: 38px 0;"
 		:rules="formRules"
 		status-icon
+		class="w-[600px] py-[38px]"
 	>
 		<el-form-item label="角色名称" prop="name">
 			<el-input v-model="roleForm.name" />
@@ -23,7 +23,7 @@
 							<el-checkbox-group
 								:key="`${i}s`"
 								v-model="permissionOpt[permission.page].data"
-								style="margin-left: 28px;"
+								class="ml-[28px]"
 							>
 								<el-checkbox
 									v-for="(name, value) of permissionOpt[permission.page].permission"
@@ -42,17 +42,17 @@
 							link
 							type="primary"
 							:icon="ArrowRightBold"
-							style="margin: 10px 0;"
+							class="my-[10px]"
 						>
 							{{ permission.name }}
 						</el-button>
 
-						<div v-for="(perChild, s) in permission.list" :key="s" style="margin-left: 20px;">
-							<el-checkbox style="margin-top: 8px;" :value="perChild.page" border>
+						<div v-for="(perChild, s) in permission.list" :key="s" class="ml-[20px]">
+							<el-checkbox :value="perChild.page" border class="mt-[8px]">
 								{{ perChild.name }}
 							</el-checkbox>
 
-							<el-checkbox-group v-model="permissionOpt[perChild.page].data" style="margin-left: 28px;">
+							<el-checkbox-group v-model="permissionOpt[perChild.page].data" class="ml-[28px]">
 								<el-checkbox
 									v-for="(name, value) of permissionOpt[perChild.page].permission"
 									:key="`opt-${value}`"
@@ -62,6 +62,31 @@
 									{{ name }}
 								</el-checkbox>
 							</el-checkbox-group>
+
+							<template v-if="perChild.children">
+								<div v-for="(level3, t) in perChild.children" :key="t" class="ml-[28px] mt-[6px]">
+									<el-checkbox
+										:value="level3.page"
+										border
+										size="small"
+										:disabled="!roleForm.permission.includes(perChild.page)"
+									>
+										{{ level3.name }}
+									</el-checkbox>
+
+									<el-checkbox-group v-model="permissionOpt[level3.page].data" class="ml-[28px]">
+										<el-checkbox
+											v-for="(name, value) of permissionOpt[level3.page].permission"
+											:key="`opt-${value}`"
+											:value="value"
+											size="small"
+											:disabled="!roleForm.permission.includes(level3.page)"
+										>
+											{{ name }}
+										</el-checkbox>
+									</el-checkbox-group>
+								</div>
+							</template>
 						</div>
 					</template>
 				</template>

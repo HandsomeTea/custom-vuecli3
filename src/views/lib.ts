@@ -66,6 +66,7 @@ interface RouteData {
 	name: string
 	page: string
 	path: string
+	children?: Array<Omit<RouteData, 'children'>>
 }
 export type NavigationData = Partial<RouteData> & { list?: Array<RouteData> };
 
@@ -76,9 +77,7 @@ export const getMenuList = (): { levelList: Array<NavigationData>, flatList: Arr
 	const { options: { routes: [, , { children }] } } = router;
 	const store: Store<RootState> = useStore();
 
-	for (let s = 0; s < (children?.length || 1); s++) {
-		const menu = children && children[s];
-
+	for (const menu of children || []) {
 		if (!store.state.user.permission?.all && !store.state.user.permission?.[menu?.meta?.page as string]) {
 			continue;
 		}
@@ -97,13 +96,19 @@ export const getMenuList = (): { levelList: Array<NavigationData>, flatList: Arr
 		});
 
 		if (group) {
+			const needAuthChildrenMenu = menu?.children?.filter(a => !a.meta?.authDependParent && a.meta?.page).map(i => ({
+				name: i.meta?.title as string,
+				page: i.meta?.page as string,
+				path: i.path
+			})) || [];
 			const index = levelList.findIndex(a => a.name === group);
 
 			if (index >= 0) {
 				levelList[index].list?.push({
 					name,
 					path,
-					page: pageMark
+					page: pageMark,
+					...needAuthChildrenMenu.length > 0 ? { children: needAuthChildrenMenu } : {}
 				});
 			} else {
 				levelList.push({
@@ -111,9 +116,13 @@ export const getMenuList = (): { levelList: Array<NavigationData>, flatList: Arr
 					list: [{
 						name,
 						path,
-						page: pageMark
+						page: pageMark,
+						...needAuthChildrenMenu.length > 0 ? { children: needAuthChildrenMenu } : {}
 					}]
 				});
+			}
+			if (needAuthChildrenMenu.length > 0) {
+				flatList.push(...needAuthChildrenMenu);
 			}
 		} else {
 			levelList.push({

@@ -95,7 +95,8 @@ const routes: Array<RouteRecordRaw> = [{
 			component: () => import(/* webpackChunkName: 'visualization' */ '../views/chart/echarts.vue')
 		}, {
 			path: '/other/menu3-test',
-			redirect: '/other/menu3/test1',
+			// 不宜设置redirect，这种子菜单有权限控制，固定的redirect可能会跳转到没有权限的三级菜单页面
+			// redirect: '/other/menu3/test1',
 			meta: { title: '三级菜单', group: '其它', page: 'menu-3-level' },
 			component: () => import(/* webpackChunkName: 'menu3' */ '../views/other/menu-3level.vue'),
 			children: [{
@@ -107,6 +108,10 @@ const routes: Array<RouteRecordRaw> = [{
 				meta: { title: '三级菜单2', page: 'menu3-level-2' },
 				component: () => import(/* webpackChunkName: 'menu3-test2' */ '../views/other/menu3/test2.vue')
 			}]
+		}, {
+			path: '/other/websocket',
+			meta: { title: 'websocket测试', group: '其它', page: 'websocket' },
+			component: () => import(/* webpackChunkName: 'websocket' */ '../views/websocket/client.vue')
 		}
 	]
 }];

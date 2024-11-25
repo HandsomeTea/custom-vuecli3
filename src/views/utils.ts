@@ -42,3 +42,27 @@ export const copyText = async (text: string, bindEleId: string): Promise<boolean
 		});
 	});
 };
+
+export const downloadContentAsFile = (content: string, fileName: string) => {
+	const blob = new Blob([content], { type: 'text/plain' });
+	let element: HTMLAnchorElement | null = document.createElement('a');
+
+	element.href = URL.createObjectURL(blob);
+	element.download = fileName;
+	element.style.display = 'none';
+	element.click();
+	URL.revokeObjectURL(element.href);
+	element = null;
+};
+
+export const random = () => Math.random().toString(36).substring(2);
+
+export const getFileBase64 = async (file: File): Promise<string> => {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+
+		reader.readAsDataURL(file);
+		reader.onload = () => resolve(reader.result as string);
+		reader.onerror = error => reject(error);
+	});
+};
