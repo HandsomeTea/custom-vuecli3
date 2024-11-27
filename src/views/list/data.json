@@ -17,7 +17,7 @@
 		"custom_context": {
 			"init_cmd": "source ~/.profile ; mkdir -p /data/autotester;source /usr/local/toolchains/profile"
 		},
-		"owner": "liqiang1@sensetime.com",
+		"owner": "xxxxxxx",
 		"features": "build,test,sdk,internalsdk",
 		"server_type": "server",
 		"pod_info": {
@@ -25,170 +25,7 @@
 			"required_mem": 0,
 			"mem_per_cpu": 0
 		},
-		"users": [
-			{
-				"user": "bearssl"
-			},
-			{
-				"user": "ctx_cpu"
-			},
-			{
-				"user": "ctx_cuda"
-			},
-			{
-				"user": "ctx_ocl"
-			},
-			{
-				"user": "cvflow"
-			},
-			{
-				"user": "eigen"
-			},
-			{
-				"user": "gaorui@sensetime.com"
-			},
-			{
-				"user": "gerrit-read-only"
-			},
-			{
-				"user": "gtest"
-			},
-			{
-				"user": "hisi"
-			},
-			{
-				"user": "internal"
-			},
-			{
-				"user": "internal_nart"
-			},
-			{
-				"user": "liqiang1@sensetime.com"
-			},
-			{
-				"user": "litiezhu@sensetime.com"
-			},
-			{
-				"user": "manager"
-			},
-			{
-				"user": "minihttp_client"
-			},
-			{
-				"user": "post_release_lib"
-			},
-			{
-				"user": "ppl2"
-			},
-			{
-				"user": "ppl3"
-			},
-			{
-				"user": "ppl3_prebuilt_lib"
-			},
-			{
-				"user": "ppl3pro"
-			},
-			{
-				"user": "ppl3pro_prebuilt_lib"
-			},
-			{
-				"user": "protobuf"
-			},
-			{
-				"user": "protobuf3"
-			},
-			{
-				"user": "sdk_3d_understanding"
-			},
-			{
-				"user": "sdk_body"
-			},
-			{
-				"user": "sdk_classify"
-			},
-			{
-				"user": "sdk_clothes"
-			},
-			{
-				"user": "sdk_common"
-			},
-			{
-				"user": "sdk_cv"
-			},
-			{
-				"user": "sdk_depth"
-			},
-			{
-				"user": "sdk_detect"
-			},
-			{
-				"user": "sdk_dewatermark"
-			},
-			{
-				"user": "sdk_face"
-			},
-			{
-				"user": "sdk_face_ci_test"
-			},
-			{
-				"user": "sdk_framework"
-			},
-			{
-				"user": "sdk_hand"
-			},
-			{
-				"user": "sdk_imat"
-			},
-			{
-				"user": "sdk_license"
-			},
-			{
-				"user": "sdk_liveness"
-			},
-			{
-				"user": "sdk_matrix"
-			},
-			{
-				"user": "sdk_model"
-			},
-			{
-				"user": "sdk_ocr"
-			},
-			{
-				"user": "sdk_remote"
-			},
-			{
-				"user": "sdk_segment"
-			},
-			{
-				"user": "sdk_style"
-			},
-			{
-				"user": "sdk_utils"
-			},
-			{
-				"user": "snpe"
-			},
-			{
-				"user": "st_imagehelper"
-			},
-			{
-				"user": "st_videohelper"
-			},
-			{
-				"user": "stpu"
-			},
-			{
-				"user": "tensorrt"
-			},
-			{
-				"user": "x@x.com"
-			},
-			{
-				"user": "yangyanning@sensetime.com"
-			}
-		],
+		"users": [],
 		"enabled": true,
 		"disable": false,
 		"inUsing": false,
@@ -210,182 +47,22 @@
 		"custom_context": {
 			"init_cmd": "source /usr/local/toolchains/profile;export BUILD_JOBS={.cpu_num}"
 		},
-		"owner": "caominghui.vendor@sensetime.com",
+		"owner": "xxxxxxx",
 		"features": "build,ubuntu,internalsdk_remote",
 		"server_type": "pod",
 		"pod_info": {
 			"cpus": 4,
 			"required_mem": 8192,
 			"mem_per_cpu": 1,
-			"server_addr": "https://mordor.sensetime.com/k8s/clusters/c-jl66z",
+			"server_addr": "xxx.xxx.xxx.xx",
 			"cluster_name": "lgidc-prod-diamond",
 			"auth_name": "lgidc-prod-diamond",
-			"token": "kubeconfig-u-uzedqswapi:pczsk8czhsxpjscjrmvz5b4k9w67rtxhfmfbzzpt4fgbvjz6b2mkvt",
+			"token": "xxxxxxx",
 			"context_name": "lgidc-prod-diamond",
 			"name_space": "internalsdkonline-detect",
 			"pod_name": "ubuntu16-buildserver-77dfcb749f-cw82n"
 		},
-		"users": [
-			{
-				"user": "bearssl"
-			},
-			{
-				"user": "ctx_cpu"
-			},
-			{
-				"user": "ctx_cuda"
-			},
-			{
-				"user": "ctx_ocl"
-			},
-			{
-				"user": "cvflow"
-			},
-			{
-				"user": "eigen"
-			},
-			{
-				"user": "gaorui@sensetime.com"
-			},
-			{
-				"user": "gerrit-read-only"
-			},
-			{
-				"user": "gtest"
-			},
-			{
-				"user": "hisi"
-			},
-			{
-				"user": "internal"
-			},
-			{
-				"user": "internal_nart"
-			},
-			{
-				"user": "liqiang1@sensetime.com"
-			},
-			{
-				"user": "litiezhu@sensetime.com"
-			},
-			{
-				"user": "manager"
-			},
-			{
-				"user": "minihttp_client"
-			},
-			{
-				"user": "post_release_lib"
-			},
-			{
-				"user": "ppl2"
-			},
-			{
-				"user": "ppl3"
-			},
-			{
-				"user": "ppl3_prebuilt_lib"
-			},
-			{
-				"user": "ppl3pro"
-			},
-			{
-				"user": "ppl3pro_prebuilt_lib"
-			},
-			{
-				"user": "protobuf"
-			},
-			{
-				"user": "protobuf3"
-			},
-			{
-				"user": "sdk_3d_understanding"
-			},
-			{
-				"user": "sdk_body"
-			},
-			{
-				"user": "sdk_classify"
-			},
-			{
-				"user": "sdk_clothes"
-			},
-			{
-				"user": "sdk_common"
-			},
-			{
-				"user": "sdk_cv"
-			},
-			{
-				"user": "sdk_depth"
-			},
-			{
-				"user": "sdk_detect"
-			},
-			{
-				"user": "sdk_dewatermark"
-			},
-			{
-				"user": "sdk_face"
-			},
-			{
-				"user": "sdk_framework"
-			},
-			{
-				"user": "sdk_hand"
-			},
-			{
-				"user": "sdk_imat"
-			},
-			{
-				"user": "sdk_license"
-			},
-			{
-				"user": "sdk_liveness"
-			},
-			{
-				"user": "sdk_matrix"
-			},
-			{
-				"user": "sdk_model"
-			},
-			{
-				"user": "sdk_ocr"
-			},
-			{
-				"user": "sdk_remote"
-			},
-			{
-				"user": "sdk_segment"
-			},
-			{
-				"user": "sdk_style"
-			},
-			{
-				"user": "sdk_utils"
-			},
-			{
-				"user": "snpe"
-			},
-			{
-				"user": "st_imagehelper"
-			},
-			{
-				"user": "st_videohelper"
-			},
-			{
-				"user": "stpu"
-			},
-			{
-				"user": "tensorrt"
-			},
-			{
-				"user": "x@x.com"
-			},
-			{
-				"user": "yangyanning@sensetime.com"
-			}
-		],
+		"users": [],
 		"enabled": true,
 		"disable": false,
 		"inUsing": false,
@@ -409,7 +86,7 @@
 		"custom_context": {
 			"init_cmd": "source /etc/profile && source /usr/local/toolchains/profile"
 		},
-		"owner": "fanxuzeng@senseauto.com",
+		"owner": "xxxxxxx",
 		"features": "build,test,matrix_compile,x86_64_matrix_compile_29,IntelligentCabin",
 		"server_type": "server",
 		"pod_info": {
@@ -417,17 +94,7 @@
 			"required_mem": 0,
 			"mem_per_cpu": 0
 		},
-		"users": [
-			{
-				"user": "devcenter_full"
-			},
-			{
-				"user": "fanxuzeng@senseauto.com"
-			},
-			{
-				"user": "matrix_compile"
-			}
-		],
+		"users": [],
 		"enabled": false,
 		"disable": true,
 		"inUsing": false,
@@ -451,7 +118,7 @@
 		"custom_context": {
 			"init_cmd": "source /etc/profile && source /usr/local/toolchains/profile"
 		},
-		"owner": "fanxuzeng@senseauto.com",
+		"owner": "xxxxxxx",
 		"features": "build,test,matrix_compile,IntelligentCabin",
 		"server_type": "server",
 		"pod_info": {
@@ -459,17 +126,7 @@
 			"required_mem": 0,
 			"mem_per_cpu": 0
 		},
-		"users": [
-			{
-				"user": "devcenter_full"
-			},
-			{
-				"user": "fanxuzeng@senseauto.com"
-			},
-			{
-				"user": "matrix_compile"
-			}
-		],
+		"users": [],
 		"enabled": false,
 		"disable": true,
 		"inUsing": false,
@@ -493,7 +150,7 @@
 		"custom_context": {
 			"init_cmd": "source /etc/profile && source /usr/local/toolchains/profile"
 		},
-		"owner": "fanxuzeng@senseauto.com",
+		"owner": "xxxxxxx",
 		"features": "build,test,matrix_compile,IntelligentCabin",
 		"server_type": "server",
 		"pod_info": {
@@ -501,17 +158,7 @@
 			"required_mem": 0,
 			"mem_per_cpu": 0
 		},
-		"users": [
-			{
-				"user": "devcenter_full"
-			},
-			{
-				"user": "fanxuzeng@senseauto.com"
-			},
-			{
-				"user": "matrix_compile"
-			}
-		],
+		"users": [],
 		"enabled": false,
 		"disable": true,
 		"inUsing": false,
@@ -535,7 +182,7 @@
 		"custom_context": {
 			"init_cmd": "source ~/.bashrc && source /usr/local/toolchains/profile"
 		},
-		"owner": "fanxuzeng@senseauto.com",
+		"owner": "xxxxxxx",
 		"features": "build,test,matrix_compile,IntelligentCabin",
 		"server_type": "server",
 		"pod_info": {
@@ -543,17 +190,7 @@
 			"required_mem": 0,
 			"mem_per_cpu": 0
 		},
-		"users": [
-			{
-				"user": "devcenter_full"
-			},
-			{
-				"user": "fanxuzeng@senseauto.com"
-			},
-			{
-				"user": "matrix_compile"
-			}
-		],
+		"users": [],
 		"enabled": true,
 		"disable": false,
 		"inUsing": false,
@@ -577,7 +214,7 @@
 		"custom_context": {
 			"init_cmd": "source /etc/profile && source /usr/local/toolchains/profile"
 		},
-		"owner": "fanxuzeng@senseauto.com",
+		"owner": "xxxxxxx",
 		"features": "build,test,matrix_compile,IntelligentCabin",
 		"server_type": "server",
 		"pod_info": {
@@ -585,17 +222,7 @@
 			"required_mem": 0,
 			"mem_per_cpu": 0
 		},
-		"users": [
-			{
-				"user": "devcenter_full"
-			},
-			{
-				"user": "fanxuzeng@senseauto.com"
-			},
-			{
-				"user": "matrix_compile"
-			}
-		],
+		"users": [],
 		"enabled": false,
 		"disable": true,
 		"inUsing": false,
@@ -619,7 +246,7 @@
 		"custom_context": {
 			"init_cmd": "source /etc/profile && source /usr/local/toolchains/profile"
 		},
-		"owner": "fanxuzeng@senseauto.com",
+		"owner": "xxxxxxx",
 		"features": "build,test,matrix_compile,IntelligentCabin",
 		"server_type": "server",
 		"pod_info": {
@@ -627,17 +254,7 @@
 			"required_mem": 0,
 			"mem_per_cpu": 0
 		},
-		"users": [
-			{
-				"user": "devcenter_full"
-			},
-			{
-				"user": "fanxuzeng@senseauto.com"
-			},
-			{
-				"user": "matrix_compile"
-			}
-		],
+		"users": [],
 		"enabled": false,
 		"disable": true,
 		"inUsing": false,
@@ -661,7 +278,7 @@
 		"custom_context": {
 			"init_cmd": "source /etc/profile && source /usr/local/toolchains/profile"
 		},
-		"owner": "fanxuzeng@senseauto.com",
+		"owner": "xxxxxxx",
 		"features": "build,test,matrix_compile,IntelligentCabin",
 		"server_type": "server",
 		"pod_info": {
@@ -669,17 +286,7 @@
 			"required_mem": 0,
 			"mem_per_cpu": 0
 		},
-		"users": [
-			{
-				"user": "devcenter_full"
-			},
-			{
-				"user": "fanxuzeng@senseauto.com"
-			},
-			{
-				"user": "matrix_compile"
-			}
-		],
+		"users": [],
 		"enabled": false,
 		"disable": true,
 		"inUsing": false,
@@ -703,7 +310,7 @@
 		"custom_context": {
 			"init_cmd": "source /etc/profile && source /usr/local/toolchains/profile"
 		},
-		"owner": "fanxuzeng@senseauto.com",
+		"owner": "xxxxxxx",
 		"features": "build,test,matrix_compile,IntelligentCabin",
 		"server_type": "server",
 		"pod_info": {
@@ -711,17 +318,7 @@
 			"required_mem": 0,
 			"mem_per_cpu": 0
 		},
-		"users": [
-			{
-				"user": "devcenter_full"
-			},
-			{
-				"user": "fanxuzeng@senseauto.com"
-			},
-			{
-				"user": "matrix_compile"
-			}
-		],
+		"users": [],
 		"enabled": false,
 		"disable": true,
 		"inUsing": false,
