@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { merge } = require('webpack-merge');
-const webpack = require('webpack');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const common = require('./webpack.common');
 
@@ -8,11 +7,10 @@ module.exports = merge(common, {
 	mode: 'development',
 	cache: true,
 	devtool: 'eval-source-map',
+	watchOptions: {
+		ignored: /node_modules/,
+	},
 	plugins: [
-		new webpack.DefinePlugin({
-			__VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
-			'process.env.NODE_ENV': '"development"'
-		}),
 		new ForkTsCheckerWebpackPlugin()
 	],
 	devServer: {

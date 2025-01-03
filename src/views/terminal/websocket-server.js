@@ -29,9 +29,9 @@ wss.on('connection', (ws, req) => {
 	let term = null;
 
 	if (!query.password) {
-		term = pty.spawn('ssh', [`${query.user}@${query.host}`, '-p', query.port, '-o', 'StrictHostKeyChecking=no'], { cols: parseInt(query.cols) || 80 });
+		term = pty.spawn('ssh', [`${decodeURIComponent(query.user)}@${decodeURIComponent(query.host)}`, '-p', query.port, '-o', 'StrictHostKeyChecking=no'], { cols: parseInt(query.cols) || 80 });
 	} else {
-		term = pty.spawn('sshpass', ['-p', query.password, 'ssh', `${query.user}@${query.host}`, '-p', query.port, '-o', 'StrictHostKeyChecking=no'], { cols: parseInt(query.cols) || 80 });
+		term = pty.spawn('sshpass', ['-p', decodeURIComponent(query.password), 'ssh', `${decodeURIComponent(query.user)}@${decodeURIComponent(query.host)}`, '-p', query.port, '-o', 'StrictHostKeyChecking=no'], { cols: parseInt(query.cols) || 80 });
 	}
 
 	term.onData(data => {

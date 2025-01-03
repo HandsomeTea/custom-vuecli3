@@ -123,7 +123,7 @@ const connectServer = async () => {
 	}
 	terminalConnecting.value = true;
 	showTerminalCanUse.value = false;
-	socket = new WebSocket(`ws://localhost:3403/ws/devicemgr/v1/terminal?host=${host.value}&password=${password.value}&user=${user.value}&port=${port.value}&cols=${term.cols}`);
+	socket = new WebSocket(`ws://localhost:3403/ws/devicemgr/v1/terminal?host=${encodeURIComponent(host.value)}&password=${encodeURIComponent(password.value)}&user=${encodeURIComponent(user.value)}&port=${port.value}&cols=${term.cols}`);
 	let hasLogin = false;
 
 	socket.onmessage = (event) => {
@@ -150,6 +150,11 @@ const connectServer = async () => {
 		} else if (maybeUseful) {
 			showTerminalCanUse.value = true;
 		}
+	};
+	socket.onclose = () => {
+		Tips.error('连接已断开！');
+		socket = null;
+		term.reset();
 	};
 	const attachAddon = new AttachAddon(socket);
 

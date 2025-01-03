@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+const webpack = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const AutoImport = require('unplugin-auto-import/webpack');
 const Components = require('unplugin-vue-components/webpack');
@@ -33,6 +34,9 @@ const catchPackagesGrouped = () => {
 module.exports = {
 	target: 'web',
 	plugins: [
+		new webpack.DefinePlugin({
+			__VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false'
+		}),
 		new CleanWebpackPlugin(),
 		AutoImport({
 			resolvers: [

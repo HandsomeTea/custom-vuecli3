@@ -2,8 +2,9 @@
 const webpackConfig = require('./webpack');
 
 module.exports = {
+	transpileDependencies: true,
 	lintOnSave: false,
 	configureWebpack: () => {
-		return webpackConfig[process.env.NODE_ENV || 'development'];
+		return webpackConfig[process.env.NODE_ENV];
 	}
 };

@@ -3,7 +3,7 @@ const { merge } = require('webpack-merge');
 const common = require('./webpack.common');
 const webpack = require('webpack');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-const isTestBuild = process.argv.includes('-build-test');
+const isTestBuild = process.argv.includes('-build-view');
 
 module.exports = merge(common, {
 	mode: 'production',
@@ -13,10 +13,6 @@ module.exports = merge(common, {
 		concatenateModules: true
 	},
 	plugins: [
-		new webpack.DefinePlugin({
-			__VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
-			'process.env.NODE_ENV': '"production"'
-		}),
 		new webpack.LoaderOptionsPlugin({
 			options: {
 				productionGzip: true
