@@ -116,6 +116,29 @@
 						{{ tableData[rowIndex].servername || tableData[rowIndex].ip }}
 					</template>
 				</template>
+				<template #nameFilter>
+					<div
+						class="mt-[6px] p-[10px] shadow-xl bg-white rounded-[8px]"
+						style="box-shadow: rgb(217 217 217) 0px 0px 25px 10px;"
+					>
+						<a-input-search
+							v-model="searchParams.name"
+							placeholder="请输入分支名称"
+							search-button
+							allow-clear
+							@press-enter="getList({ toPage: 1 })"
+							@search="getList({ toPage: 1 })"
+							@clear="getList({ toPage: 1 })"
+						>
+							<template #prepend>
+								名称搜索
+							</template>
+						</a-input-search>
+					</div>
+				</template>
+				<template #commitTitle="{ column }">
+					{{ column.title }}
+				</template>
 				<template #address="{ rowIndex }">
 					<template v-if="tableData[rowIndex].inUsing || tableData[rowIndex].isOffline">
 						<a-tooltip position="bl" :content="tableData[rowIndex].inUsing ? '使用中' : '已断线'">
@@ -247,9 +270,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, h } from 'vue';
 import { Tips } from '@/ui-frame';
-import { TableRowSelection } from '@arco-design/web-vue';
+import { TableColumnData, TableRowSelection } from '@arco-design/web-vue';
+import { IconSearch } from '@arco-design/web-vue/es/icon';
 import { TableItemType, getTableList, getRandomColor, redirectToEdit } from './lib';
 
 const statusPending = ref<Array<string>>([]);
@@ -279,6 +303,9 @@ const searchKeyNameMap: Partial<Record<SearchKey, string>> = {
 	// eslint-disable-next-line camelcase
 	name_space: '命名空间'
 };
+const searchParams = ref({
+	name: ''
+});
 // const tagList = ref<Array<string>>([]);
 // const featureList = ref<Array<string>>([]);
 
@@ -429,12 +456,18 @@ const multipleChoiceOption: TableRowSelection = {
 	showCheckedAll: true,
 	onlyCurrent: false
 };
-const columnOption = [{
+const columnOption: Array<TableColumnData> = [{
 	title: '名称',
 	slotName: 'name',
 	dataIndex: 'name',
+	titleSlotName: 'nameColTitle',
 	ellipsis: true,
-	tooltip: { position: 'tl' }
+	tooltip: { position: 'tl' },
+	filterable: {
+		filter: () => true,
+		slotName: 'nameFilter',
+		icon: () => h(IconSearch)
+	}
 }, {
 	title: '地址',
 	dataIndex: 'address',

@@ -20,12 +20,12 @@ module.exports = merge(common, {
 		https: false,
 		proxy: {
 			'/api/project': {
-				target: 'http://10.4.48.13:3003',
+				target: 'http://localhost:3003',
 				changeOrigin: true,
 				ws: true
 			},
 			'/api/v1': {
-				target: 'http://10.4.48.13:3004',
+				target: 'http://localhost:3004',
 				changeOrigin: true,
 				ws: true
 			}

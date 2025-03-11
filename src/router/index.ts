@@ -94,6 +94,10 @@ const routes: Array<RouteRecordRaw> = [{
 			meta: { title: 'echarts', group: '可视化', page: 'visualization-echarts' },
 			component: () => import(/* webpackChunkName: 'visualization' */ '../views/chart/echarts.vue')
 		}, {
+			path: '/gemini',
+			meta: { title: 'AI-Gemini', group: 'AI', page: 'ai-gemini' },
+			component: () => import(/* webpackChunkName: 'login' */ '../views/ai/gemini.vue')
+		}, {
 			path: '/other/menu3-test',
 			// 不宜设置redirect，这种子菜单有权限控制，固定的redirect可能会跳转到没有权限的三级菜单页面
 			// redirect: '/other/menu3/test1',

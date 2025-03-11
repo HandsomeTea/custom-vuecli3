@@ -3,7 +3,7 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import i18n from './lang';
-import { ElementPlusComponents } from './ui-frame';
+import { ElementPlusComponents, ArcoDesignComponents } from './ui-frame';
 import './assets';
 
 const app = createApp(App)
@@ -26,5 +26,6 @@ app.config.warnHandler = (msg: string /*, instance?: ComponentPublicInstance*/) 
 };
 
 ElementPlusComponents(app);
+ArcoDesignComponents(app);
 
 app.mount('#app');
