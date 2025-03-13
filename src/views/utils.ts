@@ -66,3 +66,170 @@ export const getFileBase64 = async (file: File): Promise<string> => {
 		reader.onerror = error => reject(error);
 	});
 };
+
+export class IndexDb<TableModel extends object> {
+	private dbName: string;
+	private tableName: string;
+	private version = 1;
+
+	constructor(dbName: string, tableName: string) {
+		this.dbName = dbName;
+		this.tableName = tableName;
+	}
+
+	private async confirmTable() {
+		await new Promise((resolve, reject) => {
+			const request = window.indexedDB.open(this.dbName, this.version);
+
+			request.onsuccess = (event) => {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				const db = event.target.result as IDBDatabase;
+
+				if (!db.objectStoreNames.contains(this.tableName)) {
+					reject(`table(${this.tableName}) was not initialized when the database was created. Please upgrade the database version and consider data migration.`);
+				}
+				resolve(true);
+			};
+			request.onerror = (event) => reject(event);
+			request.onupgradeneeded = (event) => {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				const db = event.target.result as IDBDatabase;
+
+				db.createObjectStore(this.tableName, { keyPath: 'id', autoIncrement: true });
+			};
+		});
+	}
+
+	async add(data: TableModel): Promise<number> {
+		await this.confirmTable();
+		return await new Promise((resolve, reject) => {
+			const request = window.indexedDB.open(this.dbName, this.version);
+
+			request.onsuccess = (event) => {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				const db = event.target.result as IDBDatabase;
+				const transaction = db.transaction([this.tableName], 'readwrite');
+				let resultId = 0;
+
+				transaction.oncomplete = () => {
+					resolve(resultId);
+				};
+				transaction.onerror = (event) => reject(event);
+				const req = transaction.objectStore(this.tableName).add(data);
+
+				req.onsuccess = (event) => {
+					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					// @ts-ignore
+					resultId = event.target.result as number;
+				};
+			};
+			request.onerror = (event) => reject(event);
+		});
+	}
+
+	async removeById(id: number) {
+		await this.confirmTable();
+		await new Promise((resolve, reject) => {
+			const request = window.indexedDB.open(this.dbName, this.version);
+
+			request.onsuccess = (event) => {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				const db = event.target.result as IDBDatabase;
+				const req = db.transaction([this.tableName], 'readwrite')
+					.objectStore(this.tableName)
+					.delete(id);
+
+				req.onsuccess = () => resolve(true);
+				req.onerror = (event) => reject(event);
+			};
+			request.onerror = (event) => reject(event);
+		});
+	}
+
+	async updateById(id: number, update: Partial<TableModel>) {
+		await this.confirmTable();
+		await new Promise((resolve, reject) => {
+			const request = window.indexedDB.open(this.dbName, this.version);
+
+			request.onsuccess = (event) => {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				const db = event.target.result as IDBDatabase;
+				const objectStore = db.transaction([this.tableName], 'readwrite').objectStore(this.tableName);
+				const req = objectStore.get(id);
+
+				req.onerror = (event) => reject(event);
+				req.onsuccess = (event) => {
+					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					// @ts-ignore
+					const data = event.target.result as TableModel | undefined;
+
+					update = JSON.parse(JSON.stringify(update));
+					if (data) {
+						for (const key in update) {
+							// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+							// @ts-ignore
+							data[key] = update[key];
+						}
+					}
+
+					const requestUpdate = objectStore.put(data);
+
+					requestUpdate.onerror = (event) => reject(event);
+					requestUpdate.onsuccess = () => resolve(true);
+				};
+			};
+			request.onerror = (event) => reject(event);
+		});
+	}
+
+	async getById(id: number): Promise<TableModel & { id: number } | undefined> {
+		await this.confirmTable();
+		return await new Promise((resolve, reject) => {
+			const request = window.indexedDB.open(this.dbName, this.version);
+
+			request.onsuccess = (event) => {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				const db = event.target.result as IDBDatabase;
+				const data = db.transaction([this.tableName], 'readwrite').objectStore(this.tableName).get(id);
+
+				data.onsuccess = () => resolve(data.result);
+				data.onerror = (event) => reject(event);
+			};
+			request.onerror = (event) => reject(event);
+		});
+	}
+
+	async get(filter?: Partial<TableModel>): Promise<Array<TableModel & { id: number }>> {
+		return await new Promise((resolve, reject) => {
+			const request = window.indexedDB.open(this.dbName, this.version);
+
+			request.onsuccess = (event) => {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				const db = event.target.result as IDBDatabase;
+				const data = db.transaction([this.tableName], 'readwrite').objectStore(this.tableName).getAll();
+
+				data.onsuccess = () => {
+					const all = data.result as Array<TableModel & { id: number }>;
+
+					resolve(all.filter((item) => {
+						for (const key in filter) {
+							if (item[key] !== filter[key]) {
+								return false;
+							}
+						}
+						return true;
+					}));
+				};
+				data.onerror = (event) => reject(event);
+			};
+			request.onerror = (event) => reject(event);
+		});
+	}
+}
