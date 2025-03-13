@@ -9,7 +9,7 @@
 						class="h-[40px] leading-[40px] pl-[16px] pr-[10px] text-[#7B7B7B] border-0 border-b-[1px] border-solid border-[#f1f1f1]"
 					>
 						<p
-							class="overflow-hidden text-ellipsis w-[calc(100%-30px)] pr-[6px] float-left cursor-pointer"
+							:class="[{ 'text-[#165DFF]': id == currentChatId }, 'overflow-hidden text-ellipsis w-[calc(100%-30px)] pr-[6px] float-left cursor-pointer']"
 							@click="switchConversation(id)"
 						>
 							{{ chat.name }}
@@ -90,37 +90,8 @@
 			/>
 
 			<div v-if="currentChatId" class="mx-[5px] h-[38px]">
-				<template v-if="needToken">
-					<a-input-group v-if="isEditToken" class="mt-[5px]">
-						<a-input
-							v-model:model-value="token"
-							class="!w-[340px] mr-[12px]"
-							size="small"
-							placeholder="请输入token"
-							allow-clear
-						/>
-						<a-button type="outline" size="small" @click="isEditToken = false;">
-							确定
-						</a-button>
-					</a-input-group>
-					<a-button
-						v-else
-						:status="token ? 'success' : 'danger'"
-						shape="round"
-						size="small"
-						class="float-start mt-[5px]"
-						@click="isEditToken = true;"
-					>
-						<template #icon>
-							<icon-check-circle v-if="token" />
-							<icon-edit v-else />
-						</template>
-						{{ token ? 'Token' : '需要Token' }}
-					</a-button>
-				</template>
-
 				<a-button
-					v-if="(needToken && token && !isEditToken || !needToken) && ready"
+					v-if="ready"
 					size="small"
 					class="float-end mt-[5px]"
 					:disabled="answering || writingAnswer || !currentChatId"
@@ -200,20 +171,17 @@ import 'github-markdown-css/github-markdown-light.css';
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { IndexDb } from '@/views/utils';
 
-type SupportAi = 'gemini';
+type SupportAi = 'gemini' | 'deepseek';
 interface AiChatType {
-    ai: SupportAi
-    name: string
-    chat: Array<{ type: 'user' | 'model', content: string }>
+	ai: SupportAi
+	name: string
+	chat: Array<{ type: 'user' | 'model', content: string }>
 }
 
-const supportAi = ref<Array<SupportAi>>(['gemini']);
+const supportAi = ref<Array<SupportAi>>(['gemini', 'deepseek']);
 const ready = ref(false);
-const needToken = ref(false);
-const token = ref('');
 const loading = ref(false);
 const input = ref('');
-const isEditToken = ref(false);
 const chatList = ref<Record<string, AiChatType>>({});
 const currentChatId = ref('');
 const newChatInputData = ref<{ show: boolean, name: string, ai: SupportAi }>({
@@ -281,13 +249,14 @@ watch(currentChatId, () => {
 				if (!element) {
 					continue;
 				}
+				element.innerHTML = '';
 				const renderer = smd.default_renderer(element);
 				const parser = smd.parser(renderer);
 
 				smd.parser_write(parser, chat[s].content);
 				smd.parser_end(parser);
-				chatScrollToBottom();
 			}
+			chatScrollToBottom();
 		}, 100);
 	}
 });
@@ -386,18 +355,6 @@ const newConversation = () => {
 	newChatInputData.value.name = '新建会话';
 	newChatInputData.value.show = true;
 };
-const createConversation = async () => {
-	const data = {
-		ai: newChatInputData.value.ai,
-		name: newChatInputData.value.name,
-		chat: []
-	};
-	const id = await localDB.add(data);
-
-	chatList.value[`${id}`] = data;
-	currentChatId.value = `${id}`;
-	newChatInputData.value.show = false;
-};
 const switchConversation = (chatId: string) => {
 	ws.send(JSON.stringify({
 		method: 'switchChat',
@@ -415,6 +372,19 @@ const switchConversation = (chatId: string) => {
 		}
 	}));
 	currentChatId.value = chatId;
+};
+const createConversation = async () => {
+	const data = {
+		ai: newChatInputData.value.ai,
+		name: newChatInputData.value.name,
+		chat: []
+	};
+	const id = await localDB.add(data);
+
+	chatList.value[`${id}`] = data;
+	currentChatId.value = `${id}`;
+	newChatInputData.value.show = false;
+	switchConversation(`${id}`);
 };
 const deleteChat = (chatId: string) => {
 	if (chatId === currentChatId.value) {
@@ -437,16 +407,16 @@ const changeChatName = async () => {
 </script>
 <style lang="less">
 .root_main:has(.ai_chat_view) {
-    height: 100%;
+	height: 100%;
 }
 
 .ai_chat_view {
-    textarea {
-        resize: none;
-    }
+	textarea {
+		resize: none;
+	}
 }
 
 .chat_content:last-child {
-    margin-bottom: 0;
+	margin-bottom: 0;
 }
 </style>
