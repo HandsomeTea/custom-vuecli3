@@ -52,6 +52,7 @@ wss.on('connection', ws => {
 			if (params.data.ai === 'gemini') {
 				ws.chat = model.startChat({ history });
 			}
+			ws.send('&&&switch-chat-success&&&');
 		}
 	});
 });

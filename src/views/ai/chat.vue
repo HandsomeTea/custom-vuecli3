@@ -1,62 +1,65 @@
 <template>
-	<div
-		class="ai_chat_view w-[calc(100%-2px)] h-[calc(100%-2px)] rounded-[6px] border-[1px] border-solid border-[#dbdbdb]"
-	>
-		<div class="float-left w-[160px] h-full border-0 border-r-[1px] border-solid border-[#dbdbdb]">
-			<div class="max-h-[calc(100%-52px)] overflow-y-auto">
-				<template v-for="(chat, id) in chatList" :key="id">
-					<div
-						class="h-[40px] leading-[40px] pl-[16px] pr-[10px] text-[#7B7B7B] border-0 border-b-[1px] border-solid border-[#f1f1f1]"
-					>
-						<p
-							:class="[{ 'text-[#165DFF]': id == currentChatId }, 'overflow-hidden text-ellipsis w-[calc(100%-30px)] pr-[6px] float-left cursor-pointer']"
-							@click="switchConversation(id)"
+	<a-spin :loading="!ready || chatSwitching" class="ai_chat_view w-[calc(100%-2px)] h-[calc(100%-3px)]" tip="加载中...">
+		<div class="w-full h-full rounded-[6px] border-[1px] border-solid border-[#dbdbdb]">
+			<div class="float-left w-[160px] h-full border-0 border-r-[1px] border-solid border-[#dbdbdb]">
+				<div class="max-h-[calc(100%-52px)] overflow-y-auto">
+					<template v-for="(chat, id) in allChat" :key="id">
+						<div
+							class="h-[40px] leading-[40px] pl-[16px] pr-[10px] text-[#7B7B7B] border-0 border-b-[1px] border-solid border-[#f1f1f1]"
 						>
-							{{ chat.name }}
-						</p>
+							<p
+								:class="[{ 'text-[#165DFF]': id == currentChatId }, 'overflow-hidden text-ellipsis w-[calc(100%-30px)] pr-[6px] float-left cursor-pointer']"
+								@click="switchConversation(id)"
+							>
+								{{ chat.name }}
+							</p>
 
-						<a-dropdown>
-							<a-button shape="circle" size="mini">
-								<template #icon>
-									<icon-more />
+							<a-dropdown>
+								<a-button shape="circle" size="mini">
+									<template #icon>
+										<icon-more />
+									</template>
+								</a-button>
+								<template #content>
+									<a-doption @click="deleteChat(id)">
+										删除
+									</a-doption>
+									<a-doption @click="renameChat(id)">
+										重命名
+									</a-doption>
 								</template>
-							</a-button>
-							<template #content>
-								<a-doption @click="deleteChat(id)">
-									删除
-								</a-doption>
-								<a-doption @click="renameChat(id)">
-									重命名
-								</a-doption>
-							</template>
-						</a-dropdown>
-					</div>
-				</template>
+							</a-dropdown>
+						</div>
+					</template>
+				</div>
+
+				<p class="text-center py-[10px]">
+					<a-button shape="round" @click="newConversation()">
+						<template #icon>
+							<icon-plus />
+						</template>
+						新建会话
+					</a-button>
+				</p>
 			</div>
 
-			<p class="text-center py-[10px]">
-				<a-button shape="round" @click="newConversation()">
-					<template #icon>
-						<icon-plus />
-					</template>
-					新建会话
-				</a-button>
-			</p>
-		</div>
-
-		<div class="float-left w-[calc(100%-161px)] h-full">
-			<div
-				id="chatView"
-				class="h-[calc(100%-135px)] overflow-y-auto p-[10px] border-0 border-b-[1px] border-solid border-[#dbdbdb]"
-			>
-				<template v-if="currentChatId">
-					<template v-for="(chat, i) in chatList[currentChatId].chat" :key="i">
+			<div v-if="ready && currentChatId" class="float-left w-[calc(100%-161px)] h-full">
+				<div
+					id="chatView"
+					class="h-[calc(100%-135px)] overflow-y-auto p-[10px] border-0 border-b-[1px] border-solid border-[#dbdbdb]"
+				>
+					<template v-for="(chat, i) in currentChatContent" :key="i">
 						<div v-if="chat.type === 'model'" class="chat_content mb-[14px]">
-							<img
-								src="../../assets/image/gemini.svg"
-								class="float-left w-[40px] h-[40px] rounded-[6px]"
-								style="box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;"
+							<a-spin
+								:loading="waitingAnswer && i === currentChatContent.length - 1"
+								class="float-left w-[40px] h-[40px]"
 							>
+								<img
+									src="../../assets/image/gemini.svg"
+									class="w-[40px] h-[40px] rounded-[6px]"
+									style="box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;"
+								>
+							</a-spin>
 							<div
 								:id="`ai_chat_content_${i}`"
 								class="markdown-body float-left max-w-[calc(90%-70px)] min-h-[24px] !ml-[10px] rounded-[6px] !bg-[#f5f5f5] p-[10px] overflow-x-auto"
@@ -77,33 +80,30 @@
 							<div class="clear-both" />
 						</div>
 					</template>
-				</template>
-			</div>
+				</div>
 
-			<textarea
-				v-if="currentChatId"
-				v-model="input"
-				placeholder="请输入"
-				class="px-[12px] py-[4px] h-[66px] w-[calc(100%-24px)] text-[14px] leading-[22px] resize-none"
-				:disabled="!currentChatId"
-				@keydown.enter.prevent="askGemini"
-			/>
+				<textarea
+					v-model="prompt"
+					placeholder="请输入"
+					class="px-[12px] py-[4px] h-[66px] w-[calc(100%-24px)] text-[14px] leading-[22px] resize-none"
+					:disabled="!currentChatId"
+					@keydown.enter.prevent="askGemini"
+				/>
 
-			<div v-if="currentChatId" class="mx-[5px] h-[38px]">
-				<a-button
-					v-if="ready"
-					size="small"
-					class="float-end mt-[5px]"
-					:disabled="answering || writingAnswer || !currentChatId"
-					@click="askGemini"
-				>
-					发&nbsp;&nbsp;送
-				</a-button>
-				<div class="clear-both" />
+				<div class="mx-[5px] h-[38px]">
+					<a-button
+						size="small"
+						class="float-end mt-[5px]"
+						:disabled="aiIsAnswering || aiIsWritingAnswer"
+						@click="askGemini"
+					>
+						发&nbsp;&nbsp;送
+					</a-button>
+					<div class="clear-both" />
+				</div>
 			</div>
+			<div class="clear-both" />
 		</div>
-		<div class="clear-both" />
-
 		<a-modal
 			v-model:visible="newChatInputData.show"
 			title-align="start"
@@ -131,7 +131,12 @@
 			</a-input-group>
 
 			<template #footer>
-				<a-button type="primary" size="small" @click="createConversation()">
+				<a-button
+					:disabled="!newChatInputData.name"
+					type="primary"
+					size="small"
+					@click="createConversation()"
+				>
 					确定
 				</a-button>
 			</template>
@@ -157,33 +162,41 @@
 			/>
 
 			<template #footer>
-				<a-button type="primary" size="small" @click="changeChatName()">
+				<a-button
+					:disabled="!editChatInputData.name"
+					type="primary"
+					size="small"
+					@click="changeChatName()"
+				>
 					确定
 				</a-button>
 			</template>
 		</a-modal>
-	</div>
+	</a-spin>
 </template>
 
 <script lang="ts" setup>
 import * as smd from 'streaming-markdown';
 import 'github-markdown-css/github-markdown-light.css';
-import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { IndexDb } from '@/views/utils';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { IndexDb, elementScrollToBottom } from '@/views/utils';
+import { Tips } from '@/ui-frame';
 
+interface AiChatType { type: 'user' | 'model', content: string }
 type SupportAi = 'gemini' | 'deepseek';
-interface AiChatType {
-	ai: SupportAi
-	name: string
-	chat: Array<{ type: 'user' | 'model', content: string }>
-}
+
+const ready = ref(false);
+const chatSwitching = ref(false);
+const waitingAnswer = ref(false);
+const prompt = ref('');
+
+const allChat = ref<Record<string, { ai: SupportAi, name: string }>>({});
+const currentChatId = ref('');
+const currentChatContent = ref<Array<AiChatType>>([]);
+const aiIsAnswering = ref(false);
+const aiIsWritingAnswer = ref(false);
 
 const supportAi = ref<Array<SupportAi>>(['gemini', 'deepseek']);
-const ready = ref(false);
-const loading = ref(false);
-const input = ref('');
-const chatList = ref<Record<string, AiChatType>>({});
-const currentChatId = ref('');
 const newChatInputData = ref<{ show: boolean, name: string, ai: SupportAi }>({
 	show: false,
 	name: '',
@@ -195,106 +208,63 @@ const editChatInputData = ref<{ show: boolean, id: string, name: string }>({
 	name: ''
 });
 
-const answering = ref(false);
-const writingAnswer = ref(false);
-
 const ws = new WebSocket('ws://localhost:3421/ws/ai/chat');
-const localDB = new IndexDb<AiChatType>('ai-chat', 'chat-content');
 
-onMounted(async () => {
-	const storeChat = await localDB.get();
-	const data: Record<string, AiChatType> = {};
-
-	for (const item of storeChat) {
-		data[`${item.id}`] = {
-			ai: item.ai,
-			name: item.name,
-			chat: item.chat
-		};
-	}
-	chatList.value = data;
-});
-onUnmounted(() => {
-	ws.close();
-});
-
-const chatScrollToBottom = () => {
-	const mainEle = document.getElementById('chatView');
-
-	if (mainEle && mainEle.scrollHeight > mainEle.clientHeight) {
-		mainEle.scrollTo({
-			behavior: 'auto',
-			top: mainEle.scrollHeight + 10
-		});
-	}
-};
-
-watch(answering, () => {
-	if (!answering.value) {
-		localDB.updateById(parseInt(currentChatId.value), { chat: chatList.value[currentChatId.value].chat });
-	}
-});
-
-watch(currentChatId, () => {
-	if (currentChatId.value) {
-		setTimeout(() => {
-			const chat = chatList.value[currentChatId.value].chat;
-
-			for (let s = 0; s < chat.length; s++) {
-				if (chat[s].type === 'user') {
-					continue;
-				}
-				const element = document.getElementById(`ai_chat_content_${s}`);
-
-				if (!element) {
-					continue;
-				}
-				element.innerHTML = '';
-				const renderer = smd.default_renderer(element);
-				const parser = smd.parser(renderer);
-
-				smd.parser_write(parser, chat[s].content);
-				smd.parser_end(parser);
-			}
-			chatScrollToBottom();
-		}, 100);
-	}
-});
 ws.onopen = () => {
-	loading.value = false;
 	ready.value = true;
 };
 ws.onclose = () => {
 	ready.value = false;
 };
+
+const localDB = new IndexDb<{ name: string, ai: SupportAi, chat: Array<AiChatType> }>('ai-chat', 'chat-content');
+
+onMounted(async () => {
+	const storeChat = await localDB.get();
+	const data: Record<string, { name: string, ai: SupportAi }> = {};
+
+	for (const item of storeChat) {
+		data[`${item.id}`] = {
+			ai: item.ai,
+			name: item.name
+		};
+	}
+	allChat.value = data;
+});
+onUnmounted(() => {
+	ws.close();
+});
+
 const askGemini = () => {
-	if (!input.value) {
+	if (!ready.value || !currentChatId.value || !prompt.value || aiIsAnswering.value || aiIsWritingAnswer.value) {
 		return;
 	}
-	if (answering.value || writingAnswer.value || !currentChatId.value || !ready.value) {
-		return;
-	}
-	chatList.value[currentChatId.value].chat.push({
+	currentChatContent.value.push({
 		type: 'user',
-		content: input.value
+		content: prompt.value
 	});
 	ws.send(JSON.stringify({
 		method: 'askai',
 		data: {
-			ai: chatList.value[currentChatId.value].ai,
-			prompt: input.value
+			ai: allChat.value[currentChatId.value].ai,
+			prompt: prompt.value
 		}
 	}));
-	input.value = '';
+	prompt.value = '';
 
-	chatList.value[currentChatId.value].chat.push({
+	currentChatContent.value.push({
 		type: 'model',
 		content: ''
 	});
-	setTimeout(chatScrollToBottom, 100);
+	aiIsAnswering.value = true;
+	waitingAnswer.value = true;
+	setTimeout(() => elementScrollToBottom('chatView'), 100);
 };
+
+let parser: smd.Parser | null = null;
+let response = '';
 const getResponseWriter = () => {
-	const element = document.getElementById(`ai_chat_content_${chatList.value[currentChatId.value].chat.length - 1}`);
+	const element = document.getElementById(`ai_chat_content_${currentChatContent.value.length - 1}`);
 
 	if (!element) {
 		return null;
@@ -303,21 +273,18 @@ const getResponseWriter = () => {
 
 	return smd.parser(renderer);
 };
-
-let parser: smd.Parser | null = null;
-let response = '';
-const updateContent = async () => {
+const showAnswer = async () => {
 	if (!parser) {
 		parser = getResponseWriter();
 	}
-	writingAnswer.value = true;
+	aiIsWritingAnswer.value = true;
 	for (let s = 0; ; s++) {
-		if (!answering.value && !response) {
+		if (!aiIsAnswering.value && !response) {
 			if (parser) {
 				smd.parser_end(parser);
 			}
 			parser = null;
-			writingAnswer.value = false;
+			aiIsWritingAnswer.value = false;
 			return;
 		}
 		const num = Math.floor(Math.random() * -1 + 3);
@@ -326,7 +293,7 @@ const updateContent = async () => {
 		response = response.substring(num);
 		if (parser) {
 			smd.parser_write(parser, data);
-			chatScrollToBottom();
+			elementScrollToBottom('chatView');
 		}
 		await new Promise((resolve) => {
 			setTimeout(resolve, 40);
@@ -336,17 +303,18 @@ const updateContent = async () => {
 
 ws.onmessage = (result) => {
 	if (result.data === '&&&end&&&') {
-		answering.value = false;
-		return;
-	}
+		aiIsAnswering.value = false;
+		localDB.updateById(parseInt(currentChatId.value), { chat: currentChatContent.value });
+	} else if (result.data === '&&&switch-chat-success&&&') {
+		chatSwitching.value = false;
+	} else {
+		waitingAnswer.value = false;
+		response += result.data;
+		currentChatContent.value[currentChatContent.value.length - 1].content += result.data;
 
-	response += result.data;
-	const len = chatList.value[currentChatId.value].chat.length;
-
-	chatList.value[currentChatId.value].chat[len - 1].content += result.data;
-	if (!answering.value) {
-		answering.value = true;
-		updateContent();
+		if (!aiIsWritingAnswer.value) {
+			showAnswer();
+		}
 	}
 };
 
@@ -355,14 +323,21 @@ const newConversation = () => {
 	newChatInputData.value.name = '新建会话';
 	newChatInputData.value.show = true;
 };
-const switchConversation = (chatId: string) => {
+const switchConversation = async (chatId: string) => {
+	if (!chatId || aiIsAnswering.value || chatId === currentChatId.value) {
+		return;
+	}
+	chatSwitching.value = true;
+	currentChatContent.value = (await localDB.getById(parseInt(chatId)))?.chat || [];
+	currentChatId.value = chatId;
+
 	ws.send(JSON.stringify({
 		method: 'switchChat',
 		data: {
-			ai: chatList.value[chatId].ai,
+			ai: allChat.value[chatId].ai,
 			history: (() => {
-				if (chatList.value[chatId].ai === 'gemini') {
-					return chatList.value[chatId].chat.map(item => ({
+				if (allChat.value[chatId].ai === 'gemini') {
+					return currentChatContent.value.map(item => ({
 						role: item.type,
 						parts: [{ text: item.content }]
 					}));
@@ -371,35 +346,67 @@ const switchConversation = (chatId: string) => {
 			})()
 		}
 	}));
-	currentChatId.value = chatId;
+
+	setTimeout(async () => {
+		for (let s = 0; s < currentChatContent.value.length; s++) {
+			const chat = currentChatContent.value[s];
+
+			if (chat.type === 'user') {
+				continue;
+			}
+			const element = document.getElementById(`ai_chat_content_${s}`);
+
+			if (!element) {
+				continue;
+			}
+			element.innerHTML = '';
+			const renderer = smd.default_renderer(element);
+			const parser = smd.parser(renderer);
+
+			smd.parser_write(parser, chat.content);
+			smd.parser_end(parser);
+		}
+		elementScrollToBottom('chatView');
+	}, 100);
 };
 const createConversation = async () => {
-	const data = {
+	if (!newChatInputData.value.name) {
+		return;
+	}
+	const id = await localDB.add({
 		ai: newChatInputData.value.ai,
 		name: newChatInputData.value.name,
 		chat: []
-	};
-	const id = await localDB.add(data);
+	});
 
-	chatList.value[`${id}`] = data;
-	currentChatId.value = `${id}`;
+	allChat.value[`${id}`] = {
+		ai: newChatInputData.value.ai,
+		name: newChatInputData.value.name
+	};
 	newChatInputData.value.show = false;
 	switchConversation(`${id}`);
 };
-const deleteChat = (chatId: string) => {
+const deleteChat = async (chatId: string) => {
+	if (!await Tips.confirm('确定要删除该会话吗？')) {
+		return;
+	}
 	if (chatId === currentChatId.value) {
 		currentChatId.value = '';
+		currentChatContent.value = [];
 	}
-	delete chatList.value[chatId];
+	delete allChat.value[chatId];
 	localDB.removeById(parseInt(chatId));
 };
 const renameChat = (chatId: string) => {
 	editChatInputData.value.id = chatId;
-	editChatInputData.value.name = chatList.value[chatId].name;
+	editChatInputData.value.name = allChat.value[chatId].name;
 	editChatInputData.value.show = true;
 };
 const changeChatName = async () => {
-	chatList.value[editChatInputData.value.id].name = editChatInputData.value.name;
+	if (!editChatInputData.value.name) {
+		return;
+	}
+	allChat.value[editChatInputData.value.id].name = editChatInputData.value.name;
 	editChatInputData.value.show = false;
 	await localDB.updateById(parseInt(editChatInputData.value.id), { name: editChatInputData.value.name });
 };

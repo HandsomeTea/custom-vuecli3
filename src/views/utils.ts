@@ -67,6 +67,17 @@ export const getFileBase64 = async (file: File): Promise<string> => {
 	});
 };
 
+export const elementScrollToBottom = (eleId: string) => {
+	const ele = document.getElementById(eleId);
+
+	if (ele && ele.scrollHeight > ele.clientHeight) {
+		ele.scrollTo({
+			behavior: 'auto',
+			top: ele.scrollHeight + 10
+		});
+	}
+};
+
 export class IndexDb<TableModel extends object> {
 	private dbName: string;
 	private tableName: string;
