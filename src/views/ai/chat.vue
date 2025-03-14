@@ -86,7 +86,7 @@
 					v-model="prompt"
 					placeholder="请输入"
 					class="px-[12px] py-[4px] h-[66px] w-[calc(100%-24px)] text-[14px] leading-[22px] resize-none"
-					:disabled="!currentChatId"
+					:disabled="!currentChatId || chatSwitching"
 					@keydown.enter.prevent="askGemini"
 				/>
 
@@ -94,7 +94,7 @@
 					<a-button
 						size="small"
 						class="float-end mt-[5px]"
-						:disabled="aiIsAnswering || aiIsWritingAnswer"
+						:disabled="chatSwitching || waitingAnswer || aiIsAnswering || aiIsWritingAnswer"
 						@click="askGemini"
 					>
 						发&nbsp;&nbsp;送
@@ -236,18 +236,31 @@ onUnmounted(() => {
 });
 
 const askGemini = () => {
-	if (!ready.value || !currentChatId.value || !prompt.value || aiIsAnswering.value || aiIsWritingAnswer.value) {
+	if (!ready.value || !currentChatId.value || chatSwitching.value || waitingAnswer.value || !prompt.value || aiIsAnswering.value || aiIsWritingAnswer.value) {
 		return;
 	}
 	currentChatContent.value.push({
 		type: 'user',
 		content: prompt.value
 	});
+	const ai = allChat.value[currentChatId.value].ai;
+
 	ws.send(JSON.stringify({
 		method: 'askai',
 		data: {
-			ai: allChat.value[currentChatId.value].ai,
-			prompt: prompt.value
+			ai,
+			...(() => {
+				if (ai === 'gemini') {
+					return { prompt: prompt.value };
+				} else if (ai === 'deepseek') {
+					return {
+						messages: currentChatContent.value.map(a => ({
+							role: a.type === 'user' ? 'user' : 'system',
+							content: a.content
+						}))
+					};
+				}
+			})()
 		}
 	}));
 	prompt.value = '';
@@ -327,7 +340,9 @@ const switchConversation = async (chatId: string) => {
 	if (!chatId || aiIsAnswering.value || chatId === currentChatId.value) {
 		return;
 	}
-	chatSwitching.value = true;
+	if (allChat.value[chatId].ai === 'gemini') {
+		chatSwitching.value = true;
+	}
 	currentChatContent.value = (await localDB.getById(parseInt(chatId)))?.chat || [];
 	currentChatId.value = chatId;
 
