@@ -50,20 +50,38 @@
 				>
 					<template v-for="(chat, i) in currentChatContent" :key="i">
 						<div v-if="chat.type === 'model'" class="chat_content mb-[14px]">
-							<a-spin
-								:loading="waitingAnswer && i === currentChatContent.length - 1"
-								class="float-left w-[40px] h-[40px]"
+							<a-tooltip
+								:content="allChat[currentChatId].ai.replace(allChat[currentChatId].ai[0], allChat[currentChatId].ai[0].toUpperCase())"
+								position="tl"
 							>
 								<img
+									v-if="allChat[currentChatId].ai === 'gemini'"
 									src="../../assets/image/gemini.svg"
-									class="w-[40px] h-[40px] rounded-[6px]"
+									class="float-left w-[40px] h-[40px] rounded-[6px]"
 									style="box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;"
 								>
-							</a-spin>
+
+								<img
+									v-if="allChat[currentChatId].ai === 'deepseek'"
+									src="../../assets/image/deepseek.png"
+									class="float-left w-[40px] h-[40px] rounded-[6px]"
+									style="box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;"
+								>
+							</a-tooltip>
+
 							<div
+								v-show="!(waitingAnswer && i === currentChatContent.length - 1)"
 								:id="`ai_chat_content_${i}`"
 								class="markdown-body float-left max-w-[calc(90%-70px)] min-h-[24px] !ml-[10px] rounded-[6px] !bg-[#f5f5f5] p-[10px] overflow-x-auto"
 							/>
+
+							<span
+								v-if="waitingAnswer && i === currentChatContent.length - 1"
+								class="block float-left ml-[10px] p-[10px] h-[24px] rounded-[6px] bg-[#f5f5f5]"
+							>
+								<icon-loading spin class="!w-[20px] !h-[20px] leading-[24px]" />
+							</span>
+
 							<div class="clear-both" />
 						</div>
 						<div v-if="chat.type === 'user'" class="chat_content mb-[14px]">

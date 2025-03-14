@@ -7,7 +7,7 @@ const OpenAI = require('openai');
 const port = 3421;
 const wss = new WebSocketServer({ port, path: '/ws/ai/chat' });
 const gemini = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-const openai = new OpenAI({
+const deepseek = new OpenAI({
 	baseURL: 'https://api.deepseek.com',
 	apiKey: ''
 });
@@ -52,7 +52,7 @@ wss.on('connection', ws => {
 				//         "messages": [{"role":"user", "content":"你好"},{"role":"system", "content":"nihao"}]
 				//     }
 				// };
-				const stream = await openai.chat.completions.create({
+				const stream = await deepseek.chat.completions.create({
 					messages: params.data.messages,
 					model: 'deepseek-chat',
 					stream: true
