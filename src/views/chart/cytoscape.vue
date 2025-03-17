@@ -43,7 +43,7 @@
 			</a-button>
 			<a-select v-model="dataSet" size="small" class="max-w-[260px] mr-[10px] last:mr-0">
 				<a-option
-					v-for=" item in displayDataSet "
+					v-for="item in displayDataSet"
 					:key="item.value"
 					:value="item.value"
 					:label="item.name"
@@ -54,7 +54,7 @@
 			</a-select>
 			<a-select v-model="currentLayout" size="small" class="max-w-[224px] mr-[10px] last:mr-0">
 				<a-option
-					v-for=" item in layoutList "
+					v-for="item in layoutList"
 					:key="item.value"
 					:value="item.value"
 					:label="item.name"
@@ -110,7 +110,7 @@ import cytoscape, {
 } from 'cytoscape';
 import { IconEdit } from '@arco-design/web-vue/es/icon';
 import { Tips } from '@/ui-frame';
-import { random } from './lib';
+import { random } from '../utils';
 import {
 	nodeStyle, edgeStyle, nodeSelectedStyle, edgeSelectedStyle,
 	clearStyle, resetLayout, highlightPaths, LayoutType, zoomCy,
@@ -134,7 +134,7 @@ type Algorithms = 'minimum-spanning-tree' | 'minimum-cut' | 'shortest-path' | 'p
 // 	'agglomerative-clustering' | 'affinity-propagation-clustering';
 
 type RightClickCommand = 'detail' | 'delete' | 'edge-to' | 'new-node' | 'show-bfs' |
-	'show-dfs' | 'clear-style' | 'exchange' | 'delete-selected' | Algorithms;
+	'show-dfs' | 'clear-style' | 'exchange' | 'delete-selected' | 'topological-sort' | Algorithms;
 // | Clustering;
 
 const menuShow = ref(false);
@@ -243,6 +243,9 @@ watch(cxttapData, () => {
 		}, {
 			name: '欧拉回路',
 			command: 'eulerian-cycle'
+		}, {
+			name: '拓扑排序',
+			command: 'topological-sort'
 		}];
 
 		if (Object.keys(selectedNode.value).length === 2) {
@@ -594,6 +597,8 @@ const cxttapCommand = async (data: { command: RightClickCommand, e: MouseEvent, 
 	} else if (command === 'eulerian-path') {
 
 	} else if (command === 'eulerian-cycle') {
+
+	} else if (command === 'topological-sort') {
 
 	} else {
 		const a: never = command;
