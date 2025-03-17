@@ -94,9 +94,13 @@ const routes: Array<RouteRecordRaw> = [{
 			meta: { title: 'echarts', group: '可视化', page: 'visualization-echarts' },
 			component: () => import(/* webpackChunkName: 'visualization' */ '../views/chart/echarts.vue')
 		}, {
-			path: '/chat',
-			meta: { title: 'chat', group: 'AI', page: 'ai-chat' },
+			path: '/ai-chat',
+			meta: { title: '聊天', group: 'AI', page: 'ai-chat' },
 			component: () => import(/* webpackChunkName: 'login' */ '../views/ai/chat.vue')
+		}, {
+			path: '/ai-image',
+			meta: { title: '图片', group: 'AI', page: 'ai-image' },
+			component: () => import(/* webpackChunkName: 'login' */ '../views/ai/image.vue')
 		}, {
 			path: '/other/menu3-test',
 			// 不宜设置redirect，这种子菜单有权限控制，固定的redirect可能会跳转到没有权限的三级菜单页面

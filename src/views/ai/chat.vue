@@ -238,7 +238,7 @@ const editChatInputData = ref<{ show: boolean, id: string, name: string }>({
 	name: ''
 });
 
-const ws = new WebSocket('ws://localhost:3421/ws/ai/chat');
+const ws = new WebSocket('/ws/ai/chat');
 
 ws.onopen = () => {
 	ready.value = true;
@@ -247,7 +247,7 @@ ws.onclose = () => {
 	ready.value = false;
 };
 
-const localDB = new IndexDb<{ name: string, ai: SupportAi, chat: Array<AiChatType> }>('ai-chat', 'chat-content');
+const localDB = new IndexDb<{ name: string, ai: SupportAi, chat: Array<AiChatType> }>('ai-chat', 'chat-content', () => Tips.warn('会话太多了，请删除一些会话'));
 
 onMounted(async () => {
 	const storeChat = await localDB.get();
@@ -276,17 +276,19 @@ const askGemini = () => {
 	const ai = allChat.value[currentChatId.value].ai;
 
 	ws.send(JSON.stringify({
-		method: 'askai',
+		method: 'chatWithAi',
 		data: {
 			ai,
 			...(() => {
 				if (ai === 'gemini') {
 					return { prompt: prompt.value };
 				} else if (ai === 'deepseek') {
+					const content = currentChatContent.value.length > 5 ? currentChatContent.value.slice(currentChatContent.value.length - 5) : currentChatContent.value;
+
 					return {
-						messages: currentChatContent.value.map(a => ({
+						messages: content.map((a, i) => ({
 							role: a.type === 'user' ? 'user' : 'system',
-							content: a.content
+							content: i === content.length - 1 ? `不要重复上面的回答；${a.content}` : a.content
 						}))
 					};
 				}

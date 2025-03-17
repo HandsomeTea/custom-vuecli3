@@ -83,9 +83,25 @@ export class IndexDb<TableModel extends object> {
 	private tableName: string;
 	private version = 1;
 
-	constructor(dbName: string, tableName: string) {
+	constructor(dbName: string, tableName: string, fn?: () => void) {
+		this.checkStore(fn);
 		this.dbName = dbName;
 		this.tableName = tableName;
+	}
+
+	private async checkStore(warnFn?: () => void) {
+		const { usage, quota } = await navigator.storage.estimate();
+
+		if (typeof usage === 'undefined' || typeof quota === 'undefined') {
+			return;
+		}
+		if (usage / quota > 0.8) {
+			if (warnFn) {
+				return warnFn();
+			}
+			// eslint-disable-next-line no-console
+			console.warn(`您的indexdb存储空间[${this.dbName}:${this.tableName}]不足，请清理缓存`);
+		}
 	}
 
 	private async confirmTable() {
@@ -217,6 +233,7 @@ export class IndexDb<TableModel extends object> {
 	}
 
 	async get(filter?: Partial<TableModel>): Promise<Array<TableModel & { id: number }>> {
+		await this.confirmTable();
 		return await new Promise((resolve, reject) => {
 			const request = window.indexedDB.open(this.dbName, this.version);
 

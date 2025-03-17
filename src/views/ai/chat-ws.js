@@ -1,12 +1,13 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { WebSocketServer } = require('ws');
 
-const genAI = new GoogleGenerativeAI('');
+const googleAI = new GoogleGenerativeAI('');
 const OpenAI = require('openai');
 
 const port = 3421;
 const wss = new WebSocketServer({ port, path: '/ws/ai/chat' });
-const gemini = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+const gemini = googleAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 const deepseek = new OpenAI({
 	baseURL: 'https://api.deepseek.com',
 	apiKey: ''
@@ -17,18 +18,21 @@ wss.on('listening', () => {
 
 	// eslint-disable-next-line no-console
 	console.log(`websocket server is running on ws://localhost:${port}${path}`);
-});
-wss.on('connection', ws => {
+}).on('close', ws => {
+	ws.close();
+	// eslint-disable-next-line no-console
+	console.log('ws closed!');
+}).on('connection', ws => {
 	// eslint-disable-next-line no-console
 	console.log('ws connected!');
 
 	ws.on('message', async data => {
 		const params = JSON.parse(data.toString());
 
-		if (params.method === 'askai') {
+		if (params.method === 'chatWithAi') {
 			if (params.data.ai === 'gemini') {
 				// const params = {
-				//     "method": "askai",
+				//     "method": "chatWithAi",
 				//     "data": {
 				//         "ai": "gemini",
 				//         "prompt": "你好"
@@ -46,7 +50,7 @@ wss.on('connection', ws => {
 				ws.send('&&&end&&&');
 			} else if (params.data.ai === 'deepseek') {
 				// const params = {
-				//     "method": "askai",
+				//     "method": "chatWithAi",
 				//     "data": {
 				//         "ai": "gemini",
 				//         "messages": [{"role":"user", "content":"你好"},{"role":"system", "content":"nihao"}]
@@ -80,10 +84,4 @@ wss.on('connection', ws => {
 			}
 		}
 	});
-});
-
-wss.on('close', ws => {
-	ws.close();
-	// eslint-disable-next-line no-console
-	console.log('ws closed!');
 });

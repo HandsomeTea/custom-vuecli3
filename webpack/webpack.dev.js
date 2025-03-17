@@ -28,6 +28,16 @@ module.exports = merge(common, {
 				target: 'http://localhost:3004',
 				changeOrigin: true,
 				ws: true
+			},
+			'/ws/ai/chat': {
+				target: 'ws://localhost:3421',
+				changeOrigin: true,
+				ws: true
+			},
+			'/ws/ai/image': {
+				target: 'ws://localhost:3422',
+				changeOrigin: true,
+				ws: true
 			}
 		}
 	}
