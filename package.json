@@ -4,16 +4,16 @@
 	"description": "custom code with vue-cli 3",
 	"main": "index.js",
 	"scripts": {
-		"serve": "vue-cli-service serve --mode development",
+		"serve": "./node_modules/.bin/vue-cli-service serve --mode development",
 		"start": "npm run serve",
-		"build": "vue-cli-service build --mode production",
-		"build:test": "vue-cli-service build --mode testprod",
-		"build:view": "vue-cli-service build -build-view",
+		"build": "./node_modules/.bin/vue-cli-service build --mode production",
+		"build:test": "./node_modules/.bin/vue-cli-service build --mode testprod",
+		"build:view": "./node_modules/.bin/vue-cli-service build -build-view",
 		"upgrade": "./node_modules/.bin/npm-check -u",
-		"lint": "vue-cli-service lint",
+		"lint": "./node_modules/.bin/vue-cli-service lint",
 		"webpack-rules": "vue inspect --rules > webpack.default.rules.txt",
 		"webpack-plugins": "vue inspect --plugins > webpack.default.plugins.txt",
-		"husky-init": "husky init"
+		"husky-init": "./node_modules/.bin/husky init"
 	},
 	"repository": {
 		"type": "git",

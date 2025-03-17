@@ -5,10 +5,22 @@
 				<div class="max-h-[calc(100%-52px)] overflow-y-auto">
 					<template v-for="(chat, id) in allChat" :key="id">
 						<div
-							class="h-[40px] leading-[40px] pl-[16px] pr-[10px] text-[#7B7B7B] border-0 border-b-[1px] border-solid border-[#f1f1f1]"
+							class="h-[40px] leading-[40px] pl-[4px] pr-[10px] text-[#7B7B7B] border-0 border-b-[1px] border-solid border-[#f1f1f1]"
 						>
+							<img
+								v-if="chat.ai === 'gemini'"
+								src="../../assets/image/gemini.svg"
+								class="float-left w-[24px] h-[24px] mt-[8px] rounded-[12px]"
+							>
+							<img
+								v-if="chat.ai === 'deepseek'"
+								src="../../assets/image/deepseek.png"
+								class="float-left w-[20px] h-[20px] ml-[4px] mt-[10px] rounded-[12px]"
+							>
+
 							<p
-								:class="[{ 'text-[#165DFF]': id == currentChatId }, 'overflow-hidden text-ellipsis w-[calc(100%-30px)] pr-[6px] float-left cursor-pointer']"
+								:class="[{ 'text-[#165DFF]': id == currentChatId }, 'overflow-hidden text-ellipsis whitespace-nowrap h-[40px] w-[calc(100%-58px)] pl-[4px] pr-[6px] float-left cursor-pointer']"
+								:title="chat.name"
 								@click="switchConversation(id)"
 							>
 								{{ chat.name }}
