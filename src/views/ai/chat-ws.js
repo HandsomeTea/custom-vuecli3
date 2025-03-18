@@ -47,7 +47,6 @@ wss.on('listening', () => {
 					process.stdout.write(chunkText);
 					ws.send(chunkText);
 				}
-				ws.send('&&&end&&&');
 			} else if (params.data.ai === 'deepseek') {
 				// const params = {
 				//     "method": "chatWithAi",
@@ -66,8 +65,8 @@ wss.on('listening', () => {
 					ws.send(chunk.choices[0]?.delta?.content || '');
 					process.stdout.write(chunk.choices[0]?.delta?.content || '');
 				}
-				ws.send('&&&end&&&');
 			}
+			ws.send('&&&end&&&');
 		} else if (params.method === 'switchChat') {
 			if (params.data.ai === 'gemini') {
 				// const params = {
@@ -80,8 +79,8 @@ wss.on('listening', () => {
 				const history = params.data.history;
 
 				ws.chat = gemini.startChat({ history });
-				ws.send('&&&switch-chat-success&&&');
 			}
+			ws.send('&&&switch-chat-success&&&');
 		}
 	});
 });

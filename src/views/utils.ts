@@ -67,6 +67,33 @@ export const getFileBase64 = async (file: File): Promise<string> => {
 	});
 };
 
+export const base64ToBlob = (base64: string, mimeType?: string): { blob: Blob, byteNumbers: Array<number> } | undefined => {
+	const base64Data = base64.split(',')[1];
+	const byteCharacters = atob(base64Data);
+	const byteNumbers = new Array(byteCharacters.length);
+
+	for (let i = 0; i < byteCharacters.length; i++) {
+		byteNumbers[i] = byteCharacters.charCodeAt(i);
+	}
+	const byteArray = new Uint8Array(byteNumbers);
+
+	if (mimeType) {
+		return {
+			blob: new Blob([byteArray], { type: mimeType }),
+			byteNumbers
+		};
+	}
+
+	const mimeMatch = base64.match(/^data:(.*);base64,/);
+
+	if (mimeMatch) {
+		return {
+			blob: new Blob([byteArray], { type: mimeMatch[1] }),
+			byteNumbers
+		};
+	}
+};
+
 export const elementScrollToBottom = (eleId: string) => {
 	const ele = document.getElementById(eleId);
 
