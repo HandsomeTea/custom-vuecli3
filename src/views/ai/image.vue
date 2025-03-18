@@ -386,11 +386,28 @@ const showAnswer = async () => {
 ws.onmessage = async (result: { data: string }) => {
 	if (result.data === '&&&end&&&') {
 		aiIsAnswering.value = false;
+		let aiUnknown = false;
+
+		if (response.length === 0) {
+			aiUnknown = true;
+			response.push({
+				type: 'text',
+				data: '抱歉，我无法理解您的意思，请重新描述您的问题。',
+				show: '抱歉，我无法理解您的意思，请重新描述您的问题。',
+				receiveEnd: true
+			});
+			waitingAnswer.value = false;
+		}
+
 		currentChatContent.value[currentChatContent.value.length - 1].content.push(...response.map(a => ({
 			type: a.type,
 			data: a.data
 		})));
 		localDB.updateById(parseInt(currentChatId.value), { chat: currentChatContent.value });
+
+		if (aiUnknown && !aiIsWritingAnswer.value) {
+			showAnswer();
+		}
 	} else if (result.data === '&&&image-end&&&') {
 		const index = response.findIndex((item) => item.type === 'image' && !item.receiveEnd);
 

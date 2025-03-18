@@ -52,21 +52,23 @@ wss.on('listening', () => {
 							ws.send(`##text##:${part.text}`);
 							ws.send('&&&text-end&&&');
 						} else if (part.inlineData) {
-							let imageData = part.inlineData.data;
+							const imageData = part.inlineData.data;
 
-							for (let s = 0; ; s++) {
-								const data = imageData.substring(0, 30000);
+							ws.send(`##image##:${imageData}`);
+							ws.send('&&&image-end&&&');
+							// for (let s = 0; ; s++) {
+							//     const data = imageData.substring(0, 30000);
 
-								imageData = imageData.substring(30000);
-								ws.send(`##image##:${data}`);
-								await new Promise((resolve) => {
-									setTimeout(resolve, 50);
-								});
-								if (!imageData) {
-									ws.send('&&&image-end&&&');
-									break;
-								}
-							}
+							//     imageData = imageData.substring(30000);
+							//     ws.send(`##image##:${data}`);
+							//     await new Promise((resolve) => {
+							//         setTimeout(resolve, 50);
+							//     });
+							//     if (!imageData) {
+							//         ws.send('&&&image-end&&&');
+							//         break;
+							//     }
+							// }
 						}
 					}
 				} catch (error) {
