@@ -309,7 +309,7 @@ const askGemini = () => {
 	setTimeout(() => elementScrollToBottom('chatView'), 100);
 };
 
-const response: Array<{ type: 'text' | 'image', data: string | Array<number>, show: string, receiveEnd: boolean }> = [];
+let response: Array<{ type: 'text' | 'image', data: string | Array<number>, show: string, receiveEnd: boolean }> = [];
 const getResponseWriter = () => {
 	const element = document.getElementById(`ai_chat_content_${currentChatContent.value.length - 1}`);
 
@@ -324,46 +324,66 @@ const showAnswer = async () => {
 	if (!parser) {
 		parser = getResponseWriter();
 	}
+	if (!parser) {
+		return;
+	}
 	aiIsWritingAnswer.value = true;
-	for (let s = 0; s < response.length; s++) {
-		if (!parser) {
-			return;
-		}
-		const chat = response[s];
+	let index = 0;
 
-		for (let b = 0; ; b++) {
-			if (chat.type === 'text') {
-				const num = Math.floor(Math.random() * -1 + 3);
-				const data = chat.show.substring(0, num);
+	for (let s = 0; ; s++) {
+		const chat = response[index];
 
-				chat.show = chat.show.substring(num);
-				smd.parser_write(parser, data);
-				elementScrollToBottom('chatView');
-				if (chat.receiveEnd && !chat.show) {
-					break;
-				}
-			} else if (chat.type === 'image') {
-				smd.parser_write(parser, `![Gemini-图片](${chat.show})`);
-				elementScrollToBottom('chatView');
-				break;
-			}
-
+		if (!chat) {
 			await new Promise((resolve) => {
 				setTimeout(resolve, 40);
 			});
+			continue;
 		}
 
-		if (!aiIsAnswering.value && s === response.length - 1 && response[s].receiveEnd) {
+		if (chat.type === 'image') {
+			for (let a = 0; ; a++) {
+				if (response[index].receiveEnd) {
+					smd.parser_write(parser, `![Gemini-图片](${response[index].show})`);
+					elementScrollToBottom('chatView');
+					break;
+				}
+				await new Promise((resolve) => {
+					setTimeout(resolve, 40);
+				});
+			}
+		} else if (chat.type === 'text') {
+			for (let b = 0; ; b++) {
+				const num = Math.floor(Math.random() * -1 + 3);
+				const data = response[index].show.substring(0, num);
+
+				response[index].show = response[index].show.substring(num);
+				smd.parser_write(parser, data);
+				elementScrollToBottom('chatView');
+
+				if (response[index].receiveEnd && !response[index].show) {
+					break;
+				}
+				await new Promise((resolve) => {
+					setTimeout(resolve, 40);
+				});
+			}
+		}
+		index++;
+
+		if (!aiIsAnswering.value && !response[index]) {
 			if (parser) {
 				smd.parser_end(parser);
 			}
 			parser = null;
 			aiIsWritingAnswer.value = false;
+			response = [];
+			elementScrollToBottom('chatView');
+			return;
 		}
 	}
 };
 
-ws.onmessage = (result: { data: string }) => {
+ws.onmessage = async (result: { data: string }) => {
 	if (result.data === '&&&end&&&') {
 		aiIsAnswering.value = false;
 		currentChatContent.value[currentChatContent.value.length - 1].content.push(...response.map(a => ({
@@ -407,6 +427,9 @@ ws.onmessage = (result: { data: string }) => {
 				});
 			}
 			response[response.length - 1].data += result.data.replace('##image##:', '');
+			await new Promise((resolve) => {
+				setTimeout(resolve, 40);
+			});
 		} else if (result.data.startsWith('##text##:')) {
 			if (response.length === 0 || response[response.length - 1].type !== 'text') {
 				response.push({
@@ -447,6 +470,8 @@ const switchConversation = async (chatId: string) => {
 	if (allChat.value[chatId].ai === 'gemini') {
 		chatSwitching.value = true;
 	}
+	currentChatContent.value = [];
+
 	currentChatContent.value = (await localDB.getById(parseInt(chatId)))?.chat || [];
 	currentChatId.value = chatId;
 

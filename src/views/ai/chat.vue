@@ -129,6 +129,15 @@
 					>
 						发&nbsp;&nbsp;送
 					</a-button>
+					<a-button
+						v-if="aiIsWritingAnswer && !aiIsAnswering && !waitingAnswer"
+						size="small"
+						type="outline"
+						class="float-start mt-[5px]"
+						@click="stopWritingAnswer = true;"
+					>
+						停止回答
+					</a-button>
 					<div class="clear-both" />
 				</div>
 			</div>
@@ -225,6 +234,7 @@ const currentChatId = ref('');
 const currentChatContent = ref<Array<AiChatType>>([]);
 const aiIsAnswering = ref(false);
 const aiIsWritingAnswer = ref(false);
+const stopWritingAnswer = ref(false);
 
 const supportAi = ref<Array<SupportAi>>(['gemini', 'deepseek']);
 const newChatInputData = ref<{ show: boolean, name: string, ai: SupportAi }>({
@@ -283,7 +293,7 @@ const askGemini = () => {
 				if (ai === 'gemini') {
 					return { prompt: prompt.value };
 				} else if (ai === 'deepseek') {
-					const content = currentChatContent.value.length > 5 ? currentChatContent.value.slice(currentChatContent.value.length - 5) : currentChatContent.value;
+					const content = currentChatContent.value.length > 3 ? currentChatContent.value.slice(currentChatContent.value.length - 3) : currentChatContent.value;
 
 					return {
 						messages: content.map((a, i) => ({
@@ -319,12 +329,13 @@ const getResponseWriter = () => {
 	return smd.parser(renderer);
 };
 const showAnswer = async () => {
+	stopWritingAnswer.value = false;
 	if (!parser) {
 		parser = getResponseWriter();
 	}
 	aiIsWritingAnswer.value = true;
 	for (let s = 0; ; s++) {
-		if (!aiIsAnswering.value && !response) {
+		if (!aiIsAnswering.value && !response || stopWritingAnswer.value) {
 			if (parser) {
 				smd.parser_end(parser);
 			}

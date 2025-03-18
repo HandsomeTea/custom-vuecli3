@@ -55,10 +55,13 @@ wss.on('listening', () => {
 							let imageData = part.inlineData.data;
 
 							for (let s = 0; ; s++) {
-								const data = imageData.substring(0, 30);
+								const data = imageData.substring(0, 30000);
 
-								imageData = imageData.substring(30);
+								imageData = imageData.substring(30000);
 								ws.send(`##image##:${data}`);
+								await new Promise((resolve) => {
+									setTimeout(resolve, 50);
+								});
 								if (!imageData) {
 									ws.send('&&&image-end&&&');
 									break;
