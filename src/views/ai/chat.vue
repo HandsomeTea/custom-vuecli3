@@ -293,12 +293,12 @@ const askGemini = () => {
 				if (ai === 'gemini') {
 					return { prompt: prompt.value };
 				} else if (ai === 'deepseek') {
-					const content = currentChatContent.value.length > 3 ? currentChatContent.value.slice(currentChatContent.value.length - 3) : currentChatContent.value;
+					const content = currentChatContent.value.length > 5 ? currentChatContent.value.slice(currentChatContent.value.length - 5) : currentChatContent.value;
 
 					return {
-						messages: content.map((a, i) => ({
-							role: a.type === 'user' ? 'user' : 'system',
-							content: i === content.length - 1 ? `不要重复上面的回答；${a.content}` : a.content
+						messages: content.map(a => ({
+							role: a.type === 'user' ? 'user' : 'assistant',
+							content: a.content
 						}))
 					};
 				}
@@ -336,6 +336,11 @@ const showAnswer = async () => {
 	aiIsWritingAnswer.value = true;
 	for (let s = 0; ; s++) {
 		if (!aiIsAnswering.value && !response || stopWritingAnswer.value) {
+			if (response && parser) {
+				smd.parser_write(parser, response);
+				response = '';
+				elementScrollToBottom('chatView');
+			}
 			if (parser) {
 				smd.parser_end(parser);
 			}
