@@ -36,7 +36,7 @@
 									<a-doption @click="deleteChat(id)">
 										删除
 									</a-doption>
-									<a-doption @click="renameChat(id)">
+									<a-doption @click="showChatRenameView(id)">
 										重命名
 									</a-doption>
 								</template>
@@ -46,7 +46,7 @@
 				</div>
 
 				<p class="text-center py-[10px]">
-					<a-button shape="round" @click="newConversation()">
+					<a-button shape="round" @click="showNewConversationView()">
 						<template #icon>
 							<icon-plus />
 						</template>
@@ -55,7 +55,7 @@
 				</p>
 			</div>
 
-			<div v-if="ready && currentChatId" class="float-left w-[calc(100%-161px)] h-full">
+			<div v-if="ready && currentChatId" class="relative float-left w-[calc(100%-161px)] h-full">
 				<div
 					id="chatView"
 					class="h-[calc(100%-135px)] overflow-y-auto p-[10px] border-0 border-b-[1px] border-solid border-[#dbdbdb]"
@@ -103,15 +103,22 @@
 								src="../../assets/image/user.jpg"
 							>
 
-							<template v-for="(userChat, s) in chat.content" :key="s">
-								<div
-									v-if="userChat.type === 'text'"
-									class="user_chat_content float-right max-w-[calc(90%-70px)] min-h-[24px] mr-[10px] rounded-[6px] bg-[#f5f5f5] p-[10px] leading-[24px] text-[16px] text-[#1f2328]"
-								>
-									{{ userChat.data }}
-								</div>
-								<img v-if="userChat.type === 'image'" :src="getImageUrl(userChat.data)">
-							</template>
+							<div
+								class="user_chat_content float-right max-w-[calc(90%-70px)] min-h-[24px] mr-[10px] rounded-[6px] bg-[#f5f5f5] p-[10px] leading-[24px] text-[16px] text-[#1f2328]"
+							>
+								<template v-for="(userChat, s) in chat.content" :key="s">
+									<p v-if="userChat.type === 'text'" class="float-end mb-[6px]">
+										{{ userChat.data }}
+									</p>
+
+									<img
+										v-if="userChat.type === 'image'"
+										class="float-end w-[100%] h-[auto] rounded-[6px]"
+										:src="getImageUrl(userChat.data)"
+									>
+								</template>
+								<div class="clear-both" />
+							</div>
 
 							<div class="clear-both" />
 						</div>
@@ -135,8 +142,33 @@
 					>
 						发&nbsp;&nbsp;送
 					</a-button>
+					<a-button
+						size="small"
+						class="float-start mt-[5px]"
+						type="outline"
+						:disabled="chatSwitching || waitingAnswer || aiIsAnswering || aiIsWritingAnswer"
+						@click="showApplyImageView()"
+					>
+						引入图片
+					</a-button>
 					<div class="clear-both" />
 				</div>
+
+				<a-tooltip v-if="applyImageList.length > 0" content="点击图片删除引入">
+					<div
+						class="absolute max-w-[calc(100%-100px)] max-h-[246px] overflow-auto bottom-[126px] left-[50px] bg-white bg-opacity-60 rounded-[6px]"
+						style="box-shadow: rgba(100, 100, 111, 0.4) 0px 7px 29px 0px;"
+					>
+						<img
+							v-for="(image, i) in applyImageList"
+							:key="i"
+							style="box-shadow: rgba(100, 100, 111, 0.3) 0px 7px 29px 0px;"
+							:src="image.url"
+							class="h-[100px] m-[10px] cursor-pointer"
+							@click="deleteApplyImage(i)"
+						>
+					</div>
+				</a-tooltip>
 			</div>
 			<div class="clear-both" />
 		</div>
@@ -208,13 +240,54 @@
 				</a-button>
 			</template>
 		</a-modal>
+
+		<a-modal
+			v-model:visible="applyImageData.show"
+			title-align="start"
+			width="620px"
+			:align-center="false"
+			:top="100"
+		>
+			<template #title>
+				引入图片
+			</template>
+
+			<a-input-group class="w-full">
+				<a-select v-model:model-value="applyImageData.type" class="!w-[200px]">
+					<a-option v-for="ai of ['url', 'upload']" :key="ai" :value="ai">
+						{{ ai === 'url' ? '当前对话中的图片链接' : '本地上传' }}
+					</a-option>
+				</a-select>
+				<a-tooltip v-if="applyImageData.type === 'url'" content="在当前对话中的图片上右键，选择“复制图片地址”，然后粘贴到这里就可以了。">
+					<a-input
+						v-model:model-value="applyImageData.link"
+						allow-clear
+						class="!w-[380px]"
+						placeholder="请输入当前对话中的图片链接"
+					/>
+				</a-tooltip>
+			</a-input-group>
+
+			<img v-if="applyImageData.objUrl" :src="applyImageData.objUrl" class="h-[300px] m-[10px]">
+
+			<template #footer>
+				<a-button
+					:disabled="!applyImageData.base64"
+					type="primary"
+					size="small"
+					@click="useImageToChat()"
+				>
+					确定
+				</a-button>
+			</template>
+		</a-modal>
 	</a-spin>
 </template>
 
 <script lang="ts" setup>
 import * as smd from 'streaming-markdown';
 import 'github-markdown-css/github-markdown-light.css';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { IndexDb, elementScrollToBottom, base64ToBlob } from '@/views/utils';
 import { Tips } from '@/ui-frame';
 
@@ -243,6 +316,45 @@ const editChatInputData = ref<{ show: boolean, id: string, name: string }>({
 	show: false,
 	id: '',
 	name: ''
+});
+const applyImageData = ref<{ show: boolean, type: 'url' | 'upload', link: string, objUrl: string, base64: string, data: Array<number> }>({
+	show: false,
+	type: 'url',
+	link: '',
+	objUrl: '',
+	base64: '',
+	data: []
+});
+
+const applyImageList = ref<Array<{ url: string, base64: string, data: Array<number> }>>([]);
+
+watch(() => applyImageData.value.type, async () => {
+	applyImageData.value.link = '';
+	applyImageData.value.objUrl = '';
+	applyImageData.value.base64 = '';
+	applyImageData.value.data = [];
+});
+watch(() => applyImageData.value.link, async () => {
+	if (!applyImageData.value.link) {
+		return;
+	}
+	const res = await fetch(applyImageData.value.link, { mode: 'no-cors' });
+
+	if (!res.ok) {
+		return Tips.error('图片加载失败');
+	}
+	const blob = await res.blob();
+	const arrayBuffer = await blob.arrayBuffer();
+	const uint8Array = new Uint8Array(arrayBuffer);
+
+	applyImageData.value.data = Array.from(uint8Array);
+	applyImageData.value.base64 = await new Promise<string>((resolve) => {
+		const reader = new FileReader();
+
+		reader.readAsDataURL(blob);
+		reader.onload = () => resolve((reader.result as string).split(',')[1]);
+	});
+	applyImageData.value.objUrl = URL.createObjectURL(blob);
 });
 
 const ws = new WebSocket('/ws/ai/image');
@@ -290,7 +402,28 @@ const askGemini = () => {
 			ai,
 			...(() => {
 				if (ai === 'gemini') {
-					return { content: [{ text: prompt.value }] };
+					return {
+						content: [
+							{ text: prompt.value },
+							...(() => {
+								const result = applyImageList.value.map(a => {
+									return {
+										inlineData: {
+											mimeType: 'image/png',
+											data: a.base64
+										}
+									};
+								});
+
+								currentChatContent.value[currentChatContent.value.length - 1].content.push(...applyImageList.value.map(s => ({
+									type: 'image' as 'text' | 'image',
+									data: s.data
+								})));
+								applyImageList.value = [];
+								return result;
+							})()
+						]
+					};
 				} else if (ai === 'deepseek') {
 					return {};
 				}
@@ -466,7 +599,7 @@ ws.onmessage = async (result: { data: string }) => {
 	}
 };
 
-const newConversation = () => {
+const showNewConversationView = () => {
 	newChatInputData.value.ai = supportAi.value[0];
 	newChatInputData.value.name = '新建会话';
 	newChatInputData.value.show = true;
@@ -565,7 +698,7 @@ const deleteChat = async (chatId: string) => {
 	delete allChat.value[chatId];
 	localDB.removeById(parseInt(chatId));
 };
-const renameChat = (chatId: string) => {
+const showChatRenameView = (chatId: string) => {
 	editChatInputData.value.id = chatId;
 	editChatInputData.value.name = allChat.value[chatId].name;
 	editChatInputData.value.show = true;
@@ -578,20 +711,42 @@ const changeChatName = async () => {
 	editChatInputData.value.show = false;
 	await localDB.updateById(parseInt(editChatInputData.value.id), { name: editChatInputData.value.name });
 };
+const showApplyImageView = () => {
+	applyImageData.value.show = true;
+	applyImageData.value.type = 'url';
+	applyImageData.value.link = '';
+	applyImageData.value.objUrl = '';
+	applyImageData.value.base64 = '';
+};
+const useImageToChat = async () => {
+	if (!applyImageData.value.base64) {
+		applyImageData.value.show = false;
+		return;
+	}
+	applyImageList.value.push({
+		url: applyImageData.value.objUrl,
+		base64: applyImageData.value.base64,
+		data: applyImageData.value.data
+	});
+	applyImageData.value.show = false;
+};
+const deleteApplyImage = (index: number) => {
+	applyImageList.value.splice(index, 1);
+};
 
 </script>
 <style lang="less">
 .root_main:has(.ai_chat_view) {
-    height: 100%;
+	height: 100%;
 }
 
 .ai_chat_view {
-    textarea {
-        resize: none;
-    }
+	textarea {
+		resize: none;
+	}
 }
 
 .chat_content:last-child {
-    margin-bottom: 0;
+	margin-bottom: 0;
 }
 </style>
