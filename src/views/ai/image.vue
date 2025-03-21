@@ -107,13 +107,13 @@
 								class="user_chat_content float-right max-w-[calc(90%-70px)] min-h-[24px] mr-[10px] rounded-[6px] bg-[#f5f5f5] p-[10px] leading-[24px] text-[16px] text-[#1f2328]"
 							>
 								<template v-for="(userChat, s) in chat.content" :key="s">
-									<p v-if="userChat.type === 'text'" class="float-end mb-[6px]">
+									<p v-if="userChat.type === 'text'" class="float-end">
 										{{ userChat.data }}
 									</p>
 
 									<img
 										v-if="userChat.type === 'image'"
-										class="float-end w-[100%] h-[auto] rounded-[6px]"
+										class="float-end w-[100%] h-[auto] rounded-[6px] mt-[6px]"
 										:src="getImageUrl(userChat.data)"
 									>
 								</template>

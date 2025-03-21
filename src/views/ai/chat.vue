@@ -290,18 +290,14 @@ const askGemini = () => {
 		data: {
 			ai,
 			...(() => {
-				if (ai === 'gemini') {
-					return { prompt: prompt.value };
-				} else if (ai === 'deepseek') {
-					const content = currentChatContent.value.length > 5 ? currentChatContent.value.slice(currentChatContent.value.length - 5) : currentChatContent.value;
+				const content = currentChatContent.value.length > 5 ? currentChatContent.value.slice(currentChatContent.value.length - 5) : currentChatContent.value;
 
-					return {
-						messages: content.map(a => ({
-							role: a.type === 'user' ? 'user' : 'assistant',
-							content: a.content
-						}))
-					};
-				}
+				return {
+					messages: content.map(a => ({
+						role: a.type === 'user' ? 'user' : 'assistant',
+						content: a.content
+					}))
+				};
 			})()
 		}
 	}));
@@ -397,16 +393,7 @@ const switchConversation = async (chatId: string) => {
 	ws.send(JSON.stringify({
 		method: 'switchChat',
 		data: {
-			ai: allChat.value[chatId].ai,
-			history: (() => {
-				if (allChat.value[chatId].ai === 'gemini') {
-					return currentChatContent.value.map(item => ({
-						role: item.type,
-						parts: [{ text: item.content }]
-					}));
-				}
-				return [];
-			})()
+			ai: allChat.value[chatId].ai
 		}
 	}));
 
