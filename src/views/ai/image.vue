@@ -1,5 +1,9 @@
 <template>
-	<a-spin :loading="!ready || chatSwitching" class="ai_chat_view w-[calc(100%-2px)] h-[calc(100%-3px)]" tip="加载中...">
+	<a-spin
+		:loading="!ready || chatSwitching || chatDisplaying || showHistory"
+		class="ai_chat_view w-[calc(100%-2px)] h-[calc(100%-3px)]"
+		tip="加载中..."
+	>
 		<div class="w-full h-full rounded-[6px] border-[1px] border-solid border-[#dbdbdb]">
 			<div class="float-left w-[160px] h-full border-0 border-r-[1px] border-solid border-[#dbdbdb]">
 				<div class="max-h-[calc(100%-52px)] overflow-y-auto">
@@ -295,7 +299,9 @@ interface AiChatType { type: 'user' | 'model', content: Array<{ type: 'text' | '
 type SupportAi = 'gemini';
 
 const ready = ref(false);
+const showHistory = ref(false);
 const chatSwitching = ref(false);
+const chatDisplaying = ref(false);
 const waitingAnswer = ref(false);
 const prompt = ref('');
 const promptImage = ref('');
@@ -369,6 +375,7 @@ ws.onclose = () => {
 const localDB = new IndexDb<{ name: string, ai: SupportAi, chat: Array<AiChatType> }>('ai-image', 'image-chat', () => Tips.warn('会话太多了，请删除一些会话'));
 
 onMounted(async () => {
+	showHistory.value = true;
 	const storeChat = await localDB.get();
 	const data: Record<string, { name: string, ai: SupportAi }> = {};
 
@@ -379,6 +386,7 @@ onMounted(async () => {
 		};
 	}
 	allChat.value = data;
+	showHistory.value = false;
 });
 onUnmounted(() => {
 	ws.close();
@@ -617,9 +625,8 @@ const switchConversation = async (chatId: string) => {
 	if (!chatId || aiIsAnswering.value || chatId === currentChatId.value) {
 		return;
 	}
-	if (allChat.value[chatId].ai === 'gemini') {
-		chatSwitching.value = true;
-	}
+	chatSwitching.value = true;
+	chatDisplaying.value = true;
 	currentChatContent.value = [];
 
 	currentChatContent.value = (await localDB.getById(parseInt(chatId)))?.chat || [];
@@ -667,6 +674,7 @@ const switchConversation = async (chatId: string) => {
 		}
 		setTimeout(() => {
 			elementScrollToBottom('chatView');
+			chatDisplaying.value = false;
 		}, 200);
 	}, 100);
 };

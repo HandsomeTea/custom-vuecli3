@@ -1,5 +1,9 @@
 <template>
-	<a-spin :loading="!ready || chatSwitching" class="ai_chat_view w-[calc(100%-2px)] h-[calc(100%-3px)]" tip="加载中...">
+	<a-spin
+		:loading="!ready || chatSwitching || chatDisplaying"
+		class="ai_chat_view w-[calc(100%-2px)] h-[calc(100%-3px)]"
+		tip="加载中..."
+	>
 		<div class="w-full h-full rounded-[6px] border-[1px] border-solid border-[#dbdbdb]">
 			<div class="float-left w-[160px] h-full border-0 border-r-[1px] border-solid border-[#dbdbdb]">
 				<div class="max-h-[calc(100%-52px)] overflow-y-auto">
@@ -226,6 +230,7 @@ type SupportAi = 'gemini' | 'deepseek' | 'chatgpt';
 
 const ready = ref(false);
 const chatSwitching = ref(false);
+const chatDisplaying = ref(false);
 const waitingAnswer = ref(false);
 const prompt = ref('');
 
@@ -385,6 +390,7 @@ const switchConversation = async (chatId: string) => {
 		return;
 	}
 	chatSwitching.value = true;
+	chatDisplaying.value = true;
 	currentChatContent.value = (await localDB.getById(parseInt(chatId)))?.chat || [];
 	currentChatId.value = chatId;
 
@@ -415,6 +421,7 @@ const switchConversation = async (chatId: string) => {
 			smd.parser_end(parser);
 		}
 		elementScrollToBottom('chatView');
+		chatDisplaying.value = false;
 	}, 100);
 };
 const createConversation = async () => {
