@@ -130,7 +130,7 @@
 					placeholder="请输入"
 					class="px-[12px] py-[4px] h-[66px] w-[calc(100%-24px)] text-[14px] leading-[22px] resize-none"
 					:disabled="!currentChatId || chatSwitching"
-					@keydown.enter.prevent="askGemini"
+					@keydown.enter.prevent="askAi()"
 				/>
 
 				<div class="mx-[5px] h-[38px]">
@@ -138,7 +138,7 @@
 						size="small"
 						class="float-end mt-[5px]"
 						:disabled="chatSwitching || waitingAnswer || aiIsAnswering || aiIsWritingAnswer"
-						@click="askGemini"
+						@click="askAi()"
 					>
 						发&nbsp;&nbsp;送
 					</a-button>
@@ -255,15 +255,15 @@
 			<a-input-group class="w-full">
 				<a-select v-model:model-value="applyImageData.type" class="!w-[200px]">
 					<a-option v-for="ai of ['url', 'upload']" :key="ai" :value="ai">
-						{{ ai === 'url' ? '当前对话中的图片链接' : '本地上传' }}
+						{{ ai === 'url' ? '当前页面中的图片链接' : '本地上传' }}
 					</a-option>
 				</a-select>
-				<a-tooltip v-if="applyImageData.type === 'url'" content="在当前对话中的图片上右键，选择“复制图片地址”，然后粘贴到这里就可以了。">
+				<a-tooltip v-if="applyImageData.type === 'url'" content="在当前页面中的图片上右键，选择“复制图片地址”，然后粘贴到这里就可以了。">
 					<a-input
 						v-model:model-value="applyImageData.link"
 						allow-clear
 						class="!w-[380px]"
-						placeholder="请输入当前对话中的图片链接"
+						placeholder="请输入当前页面中的图片链接"
 					/>
 				</a-tooltip>
 			</a-input-group>
@@ -386,7 +386,7 @@ onUnmounted(() => {
 
 let parser: smd.Parser | null = null;
 
-const askGemini = () => {
+const askAi = () => {
 	if (!ready.value || !currentChatId.value || chatSwitching.value || waitingAnswer.value || !prompt.value || aiIsAnswering.value || aiIsWritingAnswer.value) {
 		return;
 	}

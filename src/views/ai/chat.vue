@@ -117,7 +117,7 @@
 					placeholder="请输入"
 					class="px-[12px] py-[4px] h-[66px] w-[calc(100%-24px)] text-[14px] leading-[22px] resize-none"
 					:disabled="!currentChatId || chatSwitching"
-					@keydown.enter.prevent="askGemini"
+					@keydown.enter.prevent="askAi()"
 				/>
 
 				<div class="mx-[5px] h-[38px]">
@@ -125,7 +125,7 @@
 						size="small"
 						class="float-end mt-[5px]"
 						:disabled="chatSwitching || waitingAnswer || aiIsAnswering || aiIsWritingAnswer"
-						@click="askGemini"
+						@click="askAi()"
 					>
 						发&nbsp;&nbsp;送
 					</a-button>
@@ -222,7 +222,7 @@ import { IndexDb, elementScrollToBottom } from '@/views/utils';
 import { Tips } from '@/ui-frame';
 
 interface AiChatType { type: 'user' | 'model', content: string }
-type SupportAi = 'gemini' | 'deepseek';
+type SupportAi = 'gemini' | 'deepseek' | 'chatgpt';
 
 const ready = ref(false);
 const chatSwitching = ref(false);
@@ -236,7 +236,7 @@ const aiIsAnswering = ref(false);
 const aiIsWritingAnswer = ref(false);
 const stopWritingAnswer = ref(false);
 
-const supportAi = ref<Array<SupportAi>>(['gemini', 'deepseek']);
+const supportAi = ref<Array<SupportAi>>(['gemini', 'deepseek', 'chatgpt']);
 const newChatInputData = ref<{ show: boolean, name: string, ai: SupportAi }>({
 	show: false,
 	name: '',
@@ -275,7 +275,7 @@ onUnmounted(() => {
 	ws.close();
 });
 
-const askGemini = () => {
+const askAi = () => {
 	if (!ready.value || !currentChatId.value || chatSwitching.value || waitingAnswer.value || !prompt.value || aiIsAnswering.value || aiIsWritingAnswer.value) {
 		return;
 	}
@@ -384,9 +384,7 @@ const switchConversation = async (chatId: string) => {
 	if (!chatId || aiIsAnswering.value || chatId === currentChatId.value) {
 		return;
 	}
-	if (allChat.value[chatId].ai === 'gemini') {
-		chatSwitching.value = true;
-	}
+	chatSwitching.value = true;
 	currentChatContent.value = (await localDB.getById(parseInt(chatId)))?.chat || [];
 	currentChatId.value = chatId;
 
