@@ -117,7 +117,7 @@
 
 									<img
 										v-if="userChat.type === 'image'"
-										class="float-end w-[100%] h-[auto] rounded-[6px] mt-[6px]"
+										:class="['float-end w-[100%] h-[auto] rounded-[6px]', { 'mt-[6px]': s > 0 && chat.content[s - 1].data.toString().length > 0 }]"
 										:src="getImageUrl(userChat.data)"
 									>
 								</template>
@@ -186,6 +186,13 @@
 			<template #title>
 				新建会话
 			</template>
+
+			<a-alert type="warning" class="mb-[10px]">
+				<template #title>
+					提示
+				</template>
+				输入和输出均支持文字和图片；支持文生图，图文生图，图文生文，图生文。
+			</a-alert>
 
 			<a-input-group class="w-full">
 				<a-select v-model:model-value="newChatInputData.ai" class="!w-[120px]">
@@ -272,7 +279,11 @@
 				</a-tooltip>
 			</a-input-group>
 
-			<img v-if="applyImageData.objUrl" :src="applyImageData.objUrl" class="h-[300px] m-[10px]">
+			<img
+				v-if="applyImageData.objUrl"
+				:src="applyImageData.objUrl"
+				class="max-w-[560px] max-h-[400px] mx-auto mt-[30px]"
+			>
 
 			<template #footer>
 				<a-button
@@ -395,7 +406,7 @@ onUnmounted(() => {
 let parser: smd.Parser | null = null;
 
 const askAi = () => {
-	if (!ready.value || !currentChatId.value || chatSwitching.value || waitingAnswer.value || !prompt.value || aiIsAnswering.value || aiIsWritingAnswer.value) {
+	if (!ready.value || !currentChatId.value || chatSwitching.value || waitingAnswer.value || !prompt.value && applyImageList.value.length === 0 || aiIsAnswering.value || aiIsWritingAnswer.value) {
 		return;
 	}
 	currentChatContent.value.push({

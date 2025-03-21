@@ -158,6 +158,13 @@
 				新建会话
 			</template>
 
+			<a-alert type="warning" class="mb-[10px]">
+				<template #title>
+					提示
+				</template>
+				文字对话，输入和输出均为文字。
+			</a-alert>
+
 			<a-input-group class="w-full">
 				<a-select v-model:model-value="newChatInputData.ai" class="!w-[120px]">
 					<a-option v-for="ai of supportAi" :key="ai" :value="ai">

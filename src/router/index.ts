@@ -96,11 +96,19 @@ const routes: Array<RouteRecordRaw> = [{
 		}, {
 			path: '/ai-chat',
 			meta: { title: '聊天', group: 'AI', page: 'ai-chat' },
-			component: () => import(/* webpackChunkName: 'login' */ '../views/ai/chat.vue')
+			component: () => import(/* webpackChunkName: 'ai' */ '../views/ai/chat.vue')
 		}, {
 			path: '/ai-image',
 			meta: { title: '图片', group: 'AI', page: 'ai-image' },
-			component: () => import(/* webpackChunkName: 'login' */ '../views/ai/image.vue')
+			component: () => import(/* webpackChunkName: 'ai' */ '../views/ai/image.vue')
+		}, {
+			path: '/ai-audio',
+			meta: { title: '音频', group: 'AI', page: 'ai-audio' },
+			component: () => import(/* webpackChunkName: 'ai' */ '../views/ai/audio.vue')
+		}, {
+			path: '/ai-video',
+			meta: { title: '视频', group: 'AI', page: 'ai-video' },
+			component: () => import(/* webpackChunkName: 'ai' */ '../views/ai/video.vue')
 		}, {
 			path: '/other/menu3-test',
 			// 不宜设置redirect，这种子菜单有权限控制，固定的redirect可能会跳转到没有权限的三级菜单页面
