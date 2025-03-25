@@ -279,6 +279,18 @@
 				</a-tooltip>
 			</a-input-group>
 
+			<a-upload
+				v-if="applyImageData.type === 'upload'"
+				:default-file-list="uploadApplyImages"
+				:show-remove-button="false"
+				:show-preview-button="false"
+				:show-file-list="false"
+				:auto-upload="true"
+				:limit="1"
+				class="mt-[24px]"
+				:custom-request="setApplyImageByUploadFile"
+			/>
+
 			<img
 				v-if="applyImageData.objUrl"
 				:src="applyImageData.objUrl"
@@ -305,6 +317,7 @@ import 'github-markdown-css/github-markdown-light.css';
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { IndexDb, elementScrollToBottom, base64ToBlob } from '@/views/utils';
 import { Tips } from '@/ui-frame';
+import { FileItem, RequestOption, UploadRequest } from '@arco-design/web-vue';
 
 interface AiChatType { type: 'user' | 'model', content: Array<{ type: 'text' | 'image', data: string | Array<number> }> }
 type SupportAi = 'gemini';
@@ -342,6 +355,7 @@ const applyImageData = ref<{ show: boolean, type: 'url' | 'upload', link: string
 	base64: '',
 	data: []
 });
+const uploadApplyImages = ref<Array<FileItem>>([]);
 
 const applyImageList = ref<Array<{ url: string, base64: string, data: Array<number> }>>([]);
 
@@ -350,6 +364,9 @@ watch(() => applyImageData.value.type, async () => {
 	applyImageData.value.objUrl = '';
 	applyImageData.value.base64 = '';
 	applyImageData.value.data = [];
+	if (applyImageData.value.type === 'url') {
+		uploadApplyImages.value = [];
+	}
 });
 watch(() => applyImageData.value.link, async () => {
 	if (!applyImageData.value.link) {
@@ -631,6 +648,33 @@ const getImageUrl = (data: Array<number> | string) => {
 	const blob = new Blob([byteArray], { type: 'image/png' });
 
 	return URL.createObjectURL(blob);
+};
+const setApplyImageByUploadFile = (option: RequestOption): UploadRequest => {
+	const { onSuccess, fileItem } = option;
+
+	(async () => {
+		const arrayBuffer = await fileItem.file?.arrayBuffer();
+
+		if (!arrayBuffer) {
+			return;
+		}
+		const blob = new Blob([arrayBuffer], { type: fileItem.file?.type });
+		const uint8Array = new Uint8Array(arrayBuffer);
+
+		applyImageData.value.data = Array.from(uint8Array);
+		applyImageData.value.base64 = await new Promise<string>((resolve) => {
+			const reader = new FileReader();
+
+			reader.readAsDataURL(blob);
+			reader.onload = () => resolve((reader.result as string).split(',')[1]);
+		});
+		applyImageData.value.objUrl = URL.createObjectURL(blob);
+	})();
+
+	onSuccess();
+	return {
+		abort: () => { }
+	};
 };
 const switchConversation = async (chatId: string) => {
 	if (!chatId || aiIsAnswering.value || chatId === currentChatId.value) {

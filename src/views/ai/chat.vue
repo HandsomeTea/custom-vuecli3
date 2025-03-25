@@ -22,6 +22,12 @@
 								class="float-left w-[20px] h-[20px] ml-[4px] mt-[10px] rounded-[12px]"
 							>
 
+							<img
+								v-if="chat.ai === 'chatgpt'"
+								src="../../assets/image/chatgpt.webp"
+								class="float-left w-[18px] h-[18px] ml-[4px] mt-[11px] rounded-[12px]"
+							>
+
 							<p
 								:class="[{ 'text-[#165DFF]': id == currentChatId }, 'overflow-hidden text-ellipsis whitespace-nowrap h-[40px] w-[calc(100%-58px)] pl-[4px] pr-[6px] float-left cursor-pointer']"
 								:title="chat.name"
@@ -80,6 +86,13 @@
 								<img
 									v-if="allChat[currentChatId].ai === 'deepseek'"
 									src="../../assets/image/deepseek.png"
+									class="float-left w-[40px] h-[40px] rounded-[6px]"
+									style="box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;"
+								>
+
+								<img
+									v-if="allChat[currentChatId].ai === 'chatgpt'"
+									src="../../assets/image/chatgpt.webp"
 									class="float-left w-[40px] h-[40px] rounded-[6px]"
 									style="box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;"
 								>
