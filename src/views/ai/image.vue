@@ -328,7 +328,6 @@ const chatSwitching = ref(false);
 const chatDisplaying = ref(false);
 const waitingAnswer = ref(false);
 const prompt = ref('');
-const promptImage = ref('');
 
 const allChat = ref<Record<string, { ai: SupportAi, name: string }>>({});
 const currentChatId = ref('');
@@ -467,7 +466,6 @@ const askAi = () => {
 		}
 	}));
 	prompt.value = '';
-	promptImage.value = '';
 
 	currentChatContent.value.push({
 		type: 'model',
