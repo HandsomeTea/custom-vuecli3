@@ -67,20 +67,20 @@ export const getFileBase64 = async (file: File): Promise<string> => {
 	});
 };
 
-export const base64ToBlob = (base64: string, mimeType?: string): { blob: Blob, byteNumbers: Array<number> } | undefined => {
+export const base64ToBlob = (base64: string, mimeType?: string): { blob: Blob, byteNumber: Array<number> } | undefined => {
 	const base64Data = base64.split(',')[1];
 	const byteCharacters = atob(base64Data);
-	const byteNumbers = new Array(byteCharacters.length);
+	const byteNumber = new Array(byteCharacters.length);
 
 	for (let i = 0; i < byteCharacters.length; i++) {
-		byteNumbers[i] = byteCharacters.charCodeAt(i);
+		byteNumber[i] = byteCharacters.charCodeAt(i);
 	}
-	const byteArray = new Uint8Array(byteNumbers);
+	const byteArray = new Uint8Array(byteNumber);
 
 	if (mimeType) {
 		return {
 			blob: new Blob([byteArray], { type: mimeType }),
-			byteNumbers
+			byteNumber
 		};
 	}
 
@@ -89,9 +89,26 @@ export const base64ToBlob = (base64: string, mimeType?: string): { blob: Blob, b
 	if (mimeMatch) {
 		return {
 			blob: new Blob([byteArray], { type: mimeMatch[1] }),
-			byteNumbers
+			byteNumber
 		};
 	}
+};
+
+export const byteNumberToBase64 = async (byteNumber: Array<number>, mimeType: string) => {
+	const byteArray = new Uint8Array(byteNumber);
+	const blob = new Blob([byteArray], { type: mimeType });
+	const base64 = await new Promise<string>((resolve) => {
+		const reader = new FileReader();
+
+		reader.readAsDataURL(blob);
+		reader.onload = () => resolve((reader.result as string));
+	});
+
+	return {
+		blob,
+		/**完整的base64 */
+		base64
+	};
 };
 
 export const elementScrollToBottom = (eleId: string) => {

@@ -1,6 +1,6 @@
 <template>
 	<a-spin
-		:loading="!ready || chatSwitching || chatDisplaying || showHistory || isAsking"
+		:loading="!ready || chatSwitching || chatDisplaying || showHistory || isAsking || applyingStorageFile"
 		class="ai_chat_view w-[calc(100%-2px)] h-[calc(100%-3px)]"
 		tip="加载中..."
 	>
@@ -117,11 +117,33 @@
 
 									<div
 										v-if="userChat.type === 'audio'"
-										:class="[{ 'mt-[6px]': s > 0 && chat.content[s - 1].data.toString().length > 0 }]"
+										:class="['relative', { 'mt-[6px]': s > 0 && chat.content[s - 1].data.toString().length > 0 }]"
 									>
 										<p class="px-[8px] text-[12px] text-[#7B7B7B]">
 											{{ allHistoryAudio[userChat.data].name }}
 										</p>
+
+										<span
+											style="box-shadow: rgba(100, 100, 111, 0.4) 0px 1px 7px 0px;"
+											class="absolute !w-[22px] !h-[22px] text-center rounded-[50%] top-0 right-0 cursor-pointer bg-white"
+										>
+											<a-tooltip
+												v-if="!applyFileList.find(a => a.id === userChat.data)"
+												content="引入"
+											>
+												<icon-subscribe
+													class="text-[16px]"
+													@click="triggerApplyStoragedFile(userChat.data as number)"
+												/>
+											</a-tooltip>
+
+											<a-tooltip v-else content="取消引入">
+												<icon-subscribed
+													class="text-[16px] !text-[#165DFF]"
+													@click="triggerApplyStoragedFile(userChat.data as number)"
+												/>
+											</a-tooltip>
+										</span>
 
 										<audio controls class="h-[44px]" :src="getFileUrl(userChat.data)" />
 									</div>
@@ -158,7 +180,7 @@
 						:disabled="chatSwitching || waitingAnswer || aiIsAnswering || aiIsWritingAnswer"
 						@click="showApplyFileView()"
 					>
-						引入音频
+						上传音频
 					</a-button>
 					<div class="clear-both" />
 				</div>
@@ -275,33 +297,17 @@
 
 		<a-modal
 			v-model:visible="applyFileData.show"
+			unmount-on-close
 			title-align="start"
 			width="620px"
 			:align-center="false"
 			:top="100"
 		>
 			<template #title>
-				引入音频
+				上传音频
 			</template>
 
-			<a-input-group class="w-full">
-				<a-select v-model:model-value="applyFileData.type" class="!w-[200px]">
-					<a-option v-for="ai of ['url', 'upload']" :key="ai" :value="ai">
-						{{ ai === 'url' ? '当前页面中的音频链接' : '本地上传' }}
-					</a-option>
-				</a-select>
-				<a-tooltip v-if="applyFileData.type === 'url'" content="在当前页面中的音频文件上点击对应的复制按钮，然后粘贴到这里就可以了。">
-					<a-input
-						v-model:model-value="applyFileData.link"
-						allow-clear
-						class="!w-[380px]"
-						placeholder="请输入当前页面中的音频链接"
-					/>
-				</a-tooltip>
-			</a-input-group>
-
 			<a-upload
-				v-if="applyFileData.type === 'upload'"
 				accept="audio/wav,audio/mp3,audio/aiff,audio/aac,audio/ogg,audio/flac"
 				:default-file-list="uploadApplyFiles"
 				:show-remove-button="false"
@@ -313,7 +319,7 @@
 				:custom-request="setApplyFileByUploadFile"
 			/>
 
-			<div v-if="applyFileData.objUrl" class="mt-[16px]">
+			<div v-if="applyFileData.objUrl">
 				<p class="px-[16px] leading-[38px] text-[14px] font-semibold text-blue-600">
 					{{ applyFileData.name || applyFileData.objUrl }}
 				</p>
@@ -338,7 +344,7 @@
 import * as smd from 'streaming-markdown';
 import 'github-markdown-css/github-markdown-light.css';
 import { ref, onMounted, onUnmounted, watch } from 'vue';
-import { IndexDb, elementScrollToBottom } from '@/views/utils';
+import { IndexDb, byteNumberToBase64, elementScrollToBottom } from '@/views/utils';
 import { Tips } from '@/ui-frame';
 import { FileItem, RequestOption, UploadRequest } from '@arco-design/web-vue';
 
@@ -359,6 +365,7 @@ const chatDisplaying = ref(false);
 const isAsking = ref(false);
 const waitingAnswer = ref(false);
 const stopWritingAnswer = ref(false);
+const applyingStorageFile = ref(false);
 const prompt = ref('');
 
 const allChat = ref<Record<string, { ai: SupportAi, name: string }>>({});
@@ -379,9 +386,9 @@ const editChatInputData = ref<{ show: boolean, id: string, name: string }>({
 	id: '',
 	name: ''
 });
-const applyFileData = ref<{ show: boolean, type: 'url' | 'upload', link: string, objUrl: string, base64: string, name: string, data: Array<number> }>({
+const applyFileData = ref<{ show: boolean, type: 'upload', link: string, objUrl: string, base64: string, name: string, data: Array<number> }>({
 	show: false,
-	type: 'url',
+	type: 'upload',
 	link: '',
 	objUrl: '',
 	base64: '',
@@ -389,7 +396,7 @@ const applyFileData = ref<{ show: boolean, type: 'url' | 'upload', link: string,
 	data: []
 });
 const uploadApplyFiles = ref<Array<FileItem>>([]);
-const applyFileList = ref<Array<{ url: string, base64: string, name: string, data: Array<number> }>>([]);
+const applyFileList = ref<Array<{ url: string, base64: string, name: string, data: Array<number>, id?: number }>>([]);
 
 watch(() => applyFileData.value.type, async () => {
 	applyFileData.value.link = '';
@@ -397,9 +404,6 @@ watch(() => applyFileData.value.type, async () => {
 	applyFileData.value.base64 = '';
 	applyFileData.value.name = '';
 	applyFileData.value.data = [];
-	if (applyFileData.value.type === 'url') {
-		uploadApplyFiles.value = [];
-	}
 });
 watch(() => applyFileData.value.link, async () => {
 	if (!applyFileData.value.link) {
@@ -669,6 +673,7 @@ const setApplyFileByUploadFile = (option: RequestOption): UploadRequest => {
 		if (!arrayBuffer) {
 			return;
 		}
+
 		const blob = new Blob([arrayBuffer], { type: fileItem.file?.type });
 		const uint8Array = new Uint8Array(arrayBuffer);
 
@@ -796,7 +801,7 @@ const changeChatName = async () => {
 const showApplyFileView = () => {
 	uploadApplyFiles.value = [];
 	applyFileData.value.show = true;
-	applyFileData.value.type = 'url';
+	applyFileData.value.type = 'upload';
 	applyFileData.value.link = '';
 	applyFileData.value.objUrl = '';
 	applyFileData.value.base64 = '';
@@ -815,6 +820,30 @@ const useFileToChat = async () => {
 		data: applyFileData.value.data
 	});
 	applyFileData.value.show = false;
+};
+const triggerApplyStoragedFile = async (fileId: number) => {
+	const index = applyFileList.value.findIndex(a => a.id === fileId);
+
+	if (index >= 0) {
+		applyFileList.value.splice(index, 1);
+	} else {
+		applyingStorageFile.value = true;
+		const file = await localDB.getById('chat-audio-file', fileId);
+
+		if (!file) {
+			return;
+		}
+		const { base64, blob } = await byteNumberToBase64(file.byteNumber, 'audio/mpeg');
+
+		applyFileList.value.push({
+			url: URL.createObjectURL(blob),
+			base64,
+			name: file.name,
+			data: file.byteNumber,
+			id: file.id
+		});
+		applyingStorageFile.value = false;
+	}
 };
 const deleteApplyFile = (index: number) => {
 	applyFileList.value.splice(index, 1);

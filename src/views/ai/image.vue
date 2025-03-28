@@ -588,7 +588,7 @@ ws.onmessage = async (result: { data: string }) => {
 			const blob = base64ToBlob(`data:image/png;base64,${response[index].data}`);
 
 			if (blob) {
-				response[index].data = blob.byteNumbers;
+				response[index].data = blob.byteNumber;
 				response[index].show = URL.createObjectURL(blob.blob);
 			} else {
 				response[index].data = `data:image/png;base64,${response[index].data}`;
