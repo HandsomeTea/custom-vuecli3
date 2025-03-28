@@ -1,6 +1,6 @@
 <template>
 	<a-spin
-		:loading="!ready || chatSwitching || chatDisplaying || showHistory"
+		:loading="!ready || chatSwitching || chatDisplaying || showHistory || isAsking"
 		class="ai_chat_view w-[calc(100%-2px)] h-[calc(100%-3px)]"
 		tip="加载中..."
 	>
@@ -111,17 +111,20 @@
 								class="user_chat_content float-right max-w-[calc(90%-70px)] min-h-[24px] mr-[10px] rounded-[6px] bg-[#ebebeb] p-[10px] leading-[24px] text-[16px] text-[#1f2328]"
 							>
 								<template v-for="(userChat, s) in chat.content" :key="s">
-									<p v-if="userChat.type === 'text'" class="float-end">
+									<p v-if="userChat.type === 'text'">
 										{{ userChat.data }}
 									</p>
 
-									<!-- <audio controls :src="file.url" class="h-[44px] w-[280px] m-[8px] mt-0" /> -->
-									<audio
+									<div
 										v-if="userChat.type === 'audio'"
-										controls
-										:class="['float-end h-[44px]', { 'mt-[6px]': s > 0 && chat.content[s - 1].data.toString().length > 0 }]"
-										:src="getFileUrl(userChat.data)"
-									/>
+										:class="[{ 'mt-[6px]': s > 0 && chat.content[s - 1].data.toString().length > 0 }]"
+									>
+										<p class="px-[8px] text-[12px] text-[#7B7B7B]">
+											{{ allHistoryAudio[userChat.data].name }}
+										</p>
+
+										<audio controls class="h-[44px]" :src="getFileUrl(userChat.data)" />
+									</div>
 								</template>
 								<div class="clear-both" />
 							</div>
@@ -167,7 +170,7 @@
 					<div
 						v-for="(file, i) in applyFileList"
 						:key="i"
-						class="h-[90px] m-[10px] float-left"
+						class="h-[90px] m-[10px] float-left bg-white"
 						style="box-shadow: rgba(100, 100, 111, 0.3) 0px 7px 29px 0px;"
 					>
 						<div class="w-[280px] pl-[14px]">
@@ -339,18 +342,27 @@ import { IndexDb, elementScrollToBottom } from '@/views/utils';
 import { Tips } from '@/ui-frame';
 import { FileItem, RequestOption, UploadRequest } from '@arco-design/web-vue';
 
-interface AiChatType { type: 'user' | 'model', content: Array<{ type: 'text' | 'audio', data: string | Array<number> }> }
+type AiChatType = {
+	type: 'model' | 'user'
+	content: Array<{
+		type: 'text' | 'audio'
+		/** number类型时为file id */
+		data: string | number
+	}>
+};
 type SupportAi = 'gemini';
 
 const ready = ref(false);
 const showHistory = ref(false);
 const chatSwitching = ref(false);
 const chatDisplaying = ref(false);
+const isAsking = ref(false);
 const waitingAnswer = ref(false);
 const stopWritingAnswer = ref(false);
 const prompt = ref('');
 
 const allChat = ref<Record<string, { ai: SupportAi, name: string }>>({});
+const allHistoryAudio = ref<Record<string, { name: string, data: Array<number> }>>({});
 const currentChatId = ref('');
 const currentChatContent = ref<Array<AiChatType>>([]);
 const aiIsAnswering = ref(false);
@@ -422,20 +434,41 @@ ws.onclose = () => {
 	ready.value = false;
 };
 
-const localDB = new IndexDb<{ name: string, ai: SupportAi, chat: Array<AiChatType> }>('ai-audio', 'audio-chat', () => Tips.warn('会话太多了，请删除一些会话'));
+const localDB = new IndexDb<{
+	'audio-chat': {
+		name: string
+		ai: SupportAi
+		chat: Array<AiChatType>
+	}
+	'chat-audio-file': {
+		name: string
+		byteNumber: Array<number>
+	}
+}>('ai-audio', ['audio-chat', 'chat-audio-file'], () => Tips.warn('会话太多了，请删除一些会话'));
 
 onMounted(async () => {
 	showHistory.value = true;
-	const storeChat = await localDB.get();
-	const data: Record<string, { name: string, ai: SupportAi }> = {};
+	const storeChat = await localDB.get('audio-chat');
+	const chats: Record<string, { name: string, ai: SupportAi }> = {};
 
-	for (const item of storeChat) {
-		data[`${item.id}`] = {
-			ai: item.ai,
-			name: item.name
+	for (const chat of storeChat) {
+		chats[`${chat.id}`] = {
+			ai: chat.ai,
+			name: chat.name
 		};
 	}
-	allChat.value = data;
+	allChat.value = chats;
+
+	const storeAudio = await localDB.get('chat-audio-file');
+	const audios: Record<string, { name: string, data: Array<number> }> = {};
+
+	for (const audio of storeAudio) {
+		audios[`${audio.id}`] = {
+			name: audio.name,
+			data: audio.byteNumber
+		};
+	}
+	allHistoryAudio.value = audios;
 	showHistory.value = false;
 });
 onUnmounted(() => {
@@ -444,10 +477,11 @@ onUnmounted(() => {
 
 let parser: smd.Parser | null = null;
 
-const askAi = () => {
-	if (!ready.value || !currentChatId.value || chatSwitching.value || waitingAnswer.value || !prompt.value && applyFileList.value.length === 0 || aiIsAnswering.value || aiIsWritingAnswer.value) {
+const askAi = async () => {
+	if (!ready.value || isAsking.value || !currentChatId.value || chatSwitching.value || waitingAnswer.value || !prompt.value && applyFileList.value.length === 0 || aiIsAnswering.value || aiIsWritingAnswer.value) {
 		return;
 	}
+	isAsking.value = true;
 	currentChatContent.value.push({
 		type: 'user',
 		content: [{ type: 'text', data: prompt.value }]
@@ -458,30 +492,50 @@ const askAi = () => {
 		method: 'analysisAudioWithAi',
 		data: {
 			ai,
-			...(() => {
+			...await (async () => {
 				if (ai === 'gemini') {
 					return {
 						messages: [{
 							role: 'user',
 							content: [
 								...prompt.value ? [{ type: 'text', text: prompt.value }] : [],
-								...(() => {
-									const result = applyFileList.value.map(a => {
-										const arr = a.name.split('.');
+								...await (async () => {
+									const chatFile: Array<{ type: 'audio', data: number }> = [];
+									const result: Array<{
+										type: string
+										input_audio: {
+											format: string
+											data: string
+										}
+									}> = [];
 
-										return {
+									for (const file of applyFileList.value) {
+										const fileId = await localDB.add('chat-audio-file', {
+											name: file.name,
+											byteNumber: file.data
+										});
+
+										allHistoryAudio.value[`${fileId}`] = {
+											name: file.name,
+											data: file.data
+										};
+
+										chatFile.push({
+											type: 'audio',
+											data: fileId
+										});
+										const arr = file.name.split('.');
+
+										result.push({
 											type: 'input_audio',
 											'input_audio': {
 												format: arr[arr.length - 1],
-												data: a.base64
+												data: file.base64
 											}
-										};
-									});
+										});
+									}
 
-									currentChatContent.value[currentChatContent.value.length - 1].content.push(...applyFileList.value.map(s => ({
-										type: 'audio' as 'text' | 'audio',
-										data: s.data
-									})));
+									currentChatContent.value[currentChatContent.value.length - 1].content.push(...chatFile);
 									applyFileList.value = [];
 									return result;
 								})()
@@ -503,6 +557,7 @@ const askAi = () => {
 	});
 	aiIsAnswering.value = true;
 	waitingAnswer.value = true;
+	isAsking.value = false;
 	setTimeout(() => elementScrollToBottom('chatView'), 100);
 };
 
@@ -530,13 +585,13 @@ const showAnswer = async () => {
 		if (!aiIsAnswering.value && !response.show || stopWritingAnswer.value) {
 			if (response.show && parser) {
 				smd.parser_write(parser, response.show);
-				response.show = '';
-				response.data = '';
 				elementScrollToBottom('chatView');
 			}
 			if (parser) {
 				smd.parser_end(parser);
 			}
+			response.show = '';
+			response.data = '';
 			parser = null;
 			aiIsWritingAnswer.value = false;
 			return;
@@ -573,7 +628,7 @@ ws.onmessage = async (result: { data: string }) => {
 				data: response.data
 			});
 		}
-		localDB.updateById(parseInt(currentChatId.value), { chat: currentChatContent.value });
+		localDB.updateById('audio-chat', parseInt(currentChatId.value), { chat: currentChatContent.value });
 
 		if (aiUnknown && !aiIsWritingAnswer.value) {
 			showAnswer();
@@ -596,12 +651,12 @@ const showNewConversationView = () => {
 	newChatInputData.value.name = '新建会话';
 	newChatInputData.value.show = true;
 };
-const getFileUrl = (data: Array<number> | string) => {
+const getFileUrl = (data: number | string) => {
 	if (typeof data === 'string') {
 		return data;
 	}
-	const byteArray = new Uint8Array(data);
-	const blob = new Blob([byteArray], { type: 'image/png' });
+	const byteArray = new Uint8Array(allHistoryAudio.value[`${data}`].data);
+	const blob = new Blob([byteArray], { type: 'audio/mpeg' });
 
 	return URL.createObjectURL(blob);
 };
@@ -642,7 +697,7 @@ const switchConversation = async (chatId: string) => {
 	chatDisplaying.value = true;
 	currentChatContent.value = [];
 
-	currentChatContent.value = (await localDB.getById(parseInt(chatId)))?.chat || [];
+	currentChatContent.value = (await localDB.getById('audio-chat', parseInt(chatId)))?.chat || [];
 	currentChatId.value = chatId;
 
 	ws.send(JSON.stringify({
@@ -679,8 +734,6 @@ const switchConversation = async (chatId: string) => {
 					if (typeof data.data === 'string') {
 						smd.parser_write(parser, data.data);
 					}
-				} else if (data.type === 'audio') {
-					smd.parser_write(parser, `![Gemini-图片](${getFileUrl(data.data)})`);
 				}
 			}
 			smd.parser_end(parser);
@@ -695,7 +748,7 @@ const createConversation = async () => {
 	if (!newChatInputData.value.name) {
 		return;
 	}
-	const id = await localDB.add({
+	const id = await localDB.add('audio-chat', {
 		ai: newChatInputData.value.ai,
 		name: newChatInputData.value.name,
 		chat: []
@@ -717,7 +770,15 @@ const deleteChat = async (chatId: string) => {
 		currentChatContent.value = [];
 	}
 	delete allChat.value[chatId];
-	localDB.removeById(parseInt(chatId));
+
+	(await localDB.getById('audio-chat', parseInt(chatId)))?.chat.map(a => {
+		a.content.map(async s => {
+			if (s.type === 'audio') {
+				await localDB.removeById('chat-audio-file', s.data as number);
+			}
+		});
+	});
+	localDB.removeById('audio-chat', parseInt(chatId));
 };
 const showChatRenameView = (chatId: string) => {
 	editChatInputData.value.id = chatId;
@@ -730,7 +791,7 @@ const changeChatName = async () => {
 	}
 	allChat.value[editChatInputData.value.id].name = editChatInputData.value.name;
 	editChatInputData.value.show = false;
-	await localDB.updateById(parseInt(editChatInputData.value.id), { name: editChatInputData.value.name });
+	await localDB.updateById('audio-chat', parseInt(editChatInputData.value.id), { name: editChatInputData.value.name });
 };
 const showApplyFileView = () => {
 	uploadApplyFiles.value = [];

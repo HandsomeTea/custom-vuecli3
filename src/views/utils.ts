@@ -105,15 +105,21 @@ export const elementScrollToBottom = (eleId: string) => {
 	}
 };
 
-export class IndexDb<TableModel extends object> {
+export class IndexDb<TableModel extends Record<string, object>> {
 	private dbName: string;
-	private tableName: string;
+	private tableName: Array<keyof TableModel & string>;
 	private version = 1;
 
-	constructor(dbName: string, tableName: string, fn?: () => void) {
-		this.checkStore(fn);
+	/**
+	 * indexdb操作
+	 * @param dbName 数据库名称
+	 * @param tableNames 表名称数组，该数组的长度应该和TableModel定义的表的数量保持一致
+	 * @param storageSpaceAlarmFn 当indexdb存储空间不足时，会调用该函数，默认会打印警告信息
+	 */
+	constructor(dbName: string, tableNames: Array<keyof TableModel & string>, storageSpaceAlarmFn?: () => void) {
+		this.checkStore(storageSpaceAlarmFn);
 		this.dbName = dbName;
-		this.tableName = tableName;
+		this.tableName = tableNames;
 	}
 
 	private async checkStore(warnFn?: () => void) {
@@ -127,7 +133,7 @@ export class IndexDb<TableModel extends object> {
 				return warnFn();
 			}
 			// eslint-disable-next-line no-console
-			console.warn(`您的indexdb存储空间[${this.dbName}:${this.tableName}]不足，请清理缓存`);
+			console.warn(`您的indexdb存储空间[${this.dbName}]不足，请清理缓存`);
 		}
 	}
 
@@ -139,9 +145,10 @@ export class IndexDb<TableModel extends object> {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-ignore
 				const db = event.target.result as IDBDatabase;
+				const unkonwnTable = this.tableName.find(a => !db.objectStoreNames.contains(a));
 
-				if (!db.objectStoreNames.contains(this.tableName)) {
-					reject(`table(${this.tableName}) was not initialized when the database was created. Please upgrade the database version and consider data migration.`);
+				if (unkonwnTable) {
+					reject(`table(${unkonwnTable}) was not initialized when the database was created. Please upgrade the database version and consider data migration.`);
 				}
 				resolve(true);
 			};
@@ -151,12 +158,14 @@ export class IndexDb<TableModel extends object> {
 				// @ts-ignore
 				const db = event.target.result as IDBDatabase;
 
-				db.createObjectStore(this.tableName, { keyPath: 'id', autoIncrement: true });
+				for (const tableName of this.tableName) {
+					db.createObjectStore(tableName, { keyPath: 'id', autoIncrement: true });
+				}
 			};
 		});
 	}
 
-	async add(data: TableModel): Promise<number> {
+	async add<T extends keyof TableModel & string>(tableName: T, data: TableModel[T]): Promise<number> {
 		await this.confirmTable();
 		return await new Promise((resolve, reject) => {
 			const request = window.indexedDB.open(this.dbName, this.version);
@@ -165,14 +174,15 @@ export class IndexDb<TableModel extends object> {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-ignore
 				const db = event.target.result as IDBDatabase;
-				const transaction = db.transaction([this.tableName], 'readwrite');
+				const table = tableName || this.tableName[0];
+				const transaction = db.transaction([table], 'readwrite');
 				let resultId = 0;
 
 				transaction.oncomplete = () => {
 					resolve(resultId);
 				};
 				transaction.onerror = (event) => reject(event);
-				const req = transaction.objectStore(this.tableName).add(data);
+				const req = transaction.objectStore(table).add(JSON.parse(JSON.stringify(data)));
 
 				req.onsuccess = (event) => {
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -184,7 +194,7 @@ export class IndexDb<TableModel extends object> {
 		});
 	}
 
-	async removeById(id: number) {
+	async removeById<T extends keyof TableModel & string>(tableName: T, id: number) {
 		await this.confirmTable();
 		await new Promise((resolve, reject) => {
 			const request = window.indexedDB.open(this.dbName, this.version);
@@ -193,8 +203,9 @@ export class IndexDb<TableModel extends object> {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-ignore
 				const db = event.target.result as IDBDatabase;
-				const req = db.transaction([this.tableName], 'readwrite')
-					.objectStore(this.tableName)
+				const table = tableName || this.tableName[0];
+				const req = db.transaction([table], 'readwrite')
+					.objectStore(table)
 					.delete(id);
 
 				req.onsuccess = () => resolve(true);
@@ -204,7 +215,7 @@ export class IndexDb<TableModel extends object> {
 		});
 	}
 
-	async updateById(id: number, update: Partial<TableModel>) {
+	async updateById<T extends keyof TableModel & string>(tableName: T, id: number, update: Partial<TableModel[T]>) {
 		await this.confirmTable();
 		await new Promise((resolve, reject) => {
 			const request = window.indexedDB.open(this.dbName, this.version);
@@ -213,7 +224,8 @@ export class IndexDb<TableModel extends object> {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-ignore
 				const db = event.target.result as IDBDatabase;
-				const objectStore = db.transaction([this.tableName], 'readwrite').objectStore(this.tableName);
+				const table = tableName || this.tableName[0];
+				const objectStore = db.transaction([table], 'readwrite').objectStore(table);
 				const req = objectStore.get(id);
 
 				req.onerror = (event) => reject(event);
@@ -241,7 +253,7 @@ export class IndexDb<TableModel extends object> {
 		});
 	}
 
-	async getById(id: number): Promise<TableModel & { id: number } | undefined> {
+	async getById<T extends keyof TableModel & string>(tableName: T, id: number): Promise<TableModel[T] & { id: number } | undefined> {
 		await this.confirmTable();
 		return await new Promise((resolve, reject) => {
 			const request = window.indexedDB.open(this.dbName, this.version);
@@ -250,7 +262,8 @@ export class IndexDb<TableModel extends object> {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-ignore
 				const db = event.target.result as IDBDatabase;
-				const data = db.transaction([this.tableName], 'readwrite').objectStore(this.tableName).get(id);
+				const table = tableName || this.tableName[0];
+				const data = db.transaction([table], 'readwrite').objectStore(table).get(id);
 
 				data.onsuccess = () => resolve(data.result);
 				data.onerror = (event) => reject(event);
@@ -259,7 +272,7 @@ export class IndexDb<TableModel extends object> {
 		});
 	}
 
-	async get(filter?: Partial<TableModel>): Promise<Array<TableModel & { id: number }>> {
+	async get<T extends keyof TableModel & string>(tableName: T, filter?: Partial<TableModel[T]>): Promise<Array<TableModel[T] & { id: number }>> {
 		await this.confirmTable();
 		return await new Promise((resolve, reject) => {
 			const request = window.indexedDB.open(this.dbName, this.version);
@@ -268,10 +281,11 @@ export class IndexDb<TableModel extends object> {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-ignore
 				const db = event.target.result as IDBDatabase;
-				const data = db.transaction([this.tableName], 'readwrite').objectStore(this.tableName).getAll();
+				const table = tableName || this.tableName[0];
+				const data = db.transaction([table], 'readwrite').objectStore(table).getAll();
 
 				data.onsuccess = () => {
-					const all = data.result as Array<TableModel & { id: number }>;
+					const all = data.result as Array<TableModel[T] & { id: number }>;
 
 					resolve(all.filter((item) => {
 						for (const key in filter) {

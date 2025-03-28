@@ -399,11 +399,17 @@ ws.onclose = () => {
 	ready.value = false;
 };
 
-const localDB = new IndexDb<{ name: string, ai: SupportAi, chat: Array<AiChatType> }>('ai-image', 'image-chat', () => Tips.warn('会话太多了，请删除一些会话'));
+const localDB = new IndexDb<{
+	'image-chat': {
+		name: string
+		ai: SupportAi
+		chat: Array<AiChatType>
+	}
+}>('ai-image', ['image-chat'], () => Tips.warn('会话太多了，请删除一些会话'));
 
 onMounted(async () => {
 	showHistory.value = true;
-	const storeChat = await localDB.get();
+	const storeChat = await localDB.get('image-chat');
 	const data: Record<string, { name: string, ai: SupportAi }> = {};
 
 	for (const item of storeChat) {
@@ -570,7 +576,7 @@ ws.onmessage = async (result: { data: string }) => {
 			type: a.type,
 			data: a.data
 		})));
-		localDB.updateById(parseInt(currentChatId.value), { chat: currentChatContent.value });
+		localDB.updateById('image-chat', parseInt(currentChatId.value), { chat: currentChatContent.value });
 
 		if (aiUnknown && !aiIsWritingAnswer.value) {
 			showAnswer();
@@ -682,7 +688,7 @@ const switchConversation = async (chatId: string) => {
 	chatDisplaying.value = true;
 	currentChatContent.value = [];
 
-	currentChatContent.value = (await localDB.getById(parseInt(chatId)))?.chat || [];
+	currentChatContent.value = (await localDB.getById('image-chat', parseInt(chatId)))?.chat || [];
 	currentChatId.value = chatId;
 
 	ws.send(JSON.stringify({
@@ -735,7 +741,7 @@ const createConversation = async () => {
 	if (!newChatInputData.value.name) {
 		return;
 	}
-	const id = await localDB.add({
+	const id = await localDB.add('image-chat', {
 		ai: newChatInputData.value.ai,
 		name: newChatInputData.value.name,
 		chat: []
@@ -757,7 +763,7 @@ const deleteChat = async (chatId: string) => {
 		currentChatContent.value = [];
 	}
 	delete allChat.value[chatId];
-	localDB.removeById(parseInt(chatId));
+	localDB.removeById('image-chat', parseInt(chatId));
 };
 const showChatRenameView = (chatId: string) => {
 	editChatInputData.value.id = chatId;
@@ -770,7 +776,7 @@ const changeChatName = async () => {
 	}
 	allChat.value[editChatInputData.value.id].name = editChatInputData.value.name;
 	editChatInputData.value.show = false;
-	await localDB.updateById(parseInt(editChatInputData.value.id), { name: editChatInputData.value.name });
+	await localDB.updateById('image-chat', parseInt(editChatInputData.value.id), { name: editChatInputData.value.name });
 };
 const showApplyImageView = () => {
 	applyImageData.value.show = true;

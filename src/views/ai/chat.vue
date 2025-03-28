@@ -282,10 +282,16 @@ ws.onclose = () => {
 	ready.value = false;
 };
 
-const localDB = new IndexDb<{ name: string, ai: SupportAi, chat: Array<AiChatType> }>('ai-chat', 'chat-content', () => Tips.warn('会话太多了，请删除一些会话'));
+const localDB = new IndexDb<{
+	'chat-content': {
+		name: string
+		ai: SupportAi
+		chat: Array<AiChatType>
+	}
+}>('ai-chat', ['chat-content'], () => Tips.warn('会话太多了，请删除一些会话'));
 
 onMounted(async () => {
-	const storeChat = await localDB.get();
+	const storeChat = await localDB.get('chat-content');
 	const data: Record<string, { name: string, ai: SupportAi }> = {};
 
 	for (const item of storeChat) {
@@ -386,7 +392,7 @@ const showAnswer = async () => {
 ws.onmessage = (result) => {
 	if (result.data === '&&&end&&&') {
 		aiIsAnswering.value = false;
-		localDB.updateById(parseInt(currentChatId.value), { chat: currentChatContent.value });
+		localDB.updateById('chat-content', parseInt(currentChatId.value), { chat: currentChatContent.value });
 	} else if (result.data === '&&&switch-chat-success&&&') {
 		chatSwitching.value = false;
 	} else {
@@ -411,7 +417,7 @@ const switchConversation = async (chatId: string) => {
 	}
 	chatSwitching.value = true;
 	chatDisplaying.value = true;
-	currentChatContent.value = (await localDB.getById(parseInt(chatId)))?.chat || [];
+	currentChatContent.value = (await localDB.getById('chat-content', parseInt(chatId)))?.chat || [];
 	currentChatId.value = chatId;
 
 	ws.send(JSON.stringify({
@@ -448,7 +454,7 @@ const createConversation = async () => {
 	if (!newChatInputData.value.name) {
 		return;
 	}
-	const id = await localDB.add({
+	const id = await localDB.add('chat-content', {
 		ai: newChatInputData.value.ai,
 		name: newChatInputData.value.name,
 		chat: []
@@ -470,7 +476,7 @@ const deleteChat = async (chatId: string) => {
 		currentChatContent.value = [];
 	}
 	delete allChat.value[chatId];
-	localDB.removeById(parseInt(chatId));
+	localDB.removeById('chat-content', parseInt(chatId));
 };
 const renameChat = (chatId: string) => {
 	editChatInputData.value.id = chatId;
@@ -483,7 +489,7 @@ const changeChatName = async () => {
 	}
 	allChat.value[editChatInputData.value.id].name = editChatInputData.value.name;
 	editChatInputData.value.show = false;
-	await localDB.updateById(parseInt(editChatInputData.value.id), { name: editChatInputData.value.name });
+	await localDB.updateById('chat-content', parseInt(editChatInputData.value.id), { name: editChatInputData.value.name });
 };
 
 </script>
