@@ -18,12 +18,18 @@ wss.on('listening', () => {
 	// eslint-disable-next-line no-console
 	console.log(`websocket server is running on ws://localhost:${port}${path}`);
 }).on('close', ws => {
-	ws.close();
 	// eslint-disable-next-line no-console
-	console.log('ws closed!');
+	console.log('wss server closed!');
+	ws.close();
 }).on('connection', ws => {
 	// eslint-disable-next-line no-console
 	console.log('ws connected!');
+
+	ws.on('close', () => {
+		// eslint-disable-next-line no-console
+		console.log('ws closed!');
+	});
+
 	ws.on('message', async data => {
 		const params = JSON.parse(data.toString());
 

@@ -140,7 +140,8 @@ export class IndexDb<TableModel extends Record<string, object>> {
 	}
 
 	private async checkStore(warnFn?: () => void) {
-		const { usage, quota } = await navigator.storage.estimate();
+		const storage = await navigator.storage?.estimate();
+		const { usage, quota } = storage || {};
 
 		if (typeof usage === 'undefined' || typeof quota === 'undefined') {
 			return;

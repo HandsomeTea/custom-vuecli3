@@ -241,7 +241,7 @@
 <script lang="ts" setup>
 import * as smd from 'streaming-markdown';
 import 'github-markdown-css/github-markdown-light.css';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { IndexDb, elementScrollToBottom } from '@/views/utils';
 import { Tips } from '@/ui-frame';
 
@@ -302,7 +302,7 @@ onMounted(async () => {
 	}
 	allChat.value = data;
 });
-onUnmounted(() => {
+onBeforeUnmount(() => {
 	ws.close();
 });
 

@@ -343,7 +343,7 @@
 <script lang="ts" setup>
 import * as smd from 'streaming-markdown';
 import 'github-markdown-css/github-markdown-light.css';
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { IndexDb, byteNumberToBase64, elementScrollToBottom } from '@/views/utils';
 import { Tips } from '@/ui-frame';
 import { FileItem, RequestOption, UploadRequest } from '@arco-design/web-vue';
@@ -475,7 +475,7 @@ onMounted(async () => {
 	allHistoryAudio.value = audios;
 	showHistory.value = false;
 });
-onUnmounted(() => {
+onBeforeUnmount(() => {
 	ws.close();
 });
 

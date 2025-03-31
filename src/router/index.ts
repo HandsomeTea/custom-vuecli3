@@ -102,6 +102,10 @@ const routes: Array<RouteRecordRaw> = [{
 			meta: { title: '图片', group: 'AI', page: 'ai-image' },
 			component: () => import(/* webpackChunkName: 'ai' */ '../views/ai/image.vue')
 		}, {
+			path: '/ai-document',
+			meta: { title: '文档', group: 'AI', page: 'ai-document' },
+			component: () => import(/* webpackChunkName: 'ai' */ '../views/ai/doc.vue')
+		}, {
 			path: '/ai-audio',
 			meta: { title: '音频', group: 'AI', page: 'ai-audio' },
 			component: () => import(/* webpackChunkName: 'ai' */ '../views/ai/audio.vue')
