@@ -39,6 +39,11 @@ module.exports = merge(common, {
 				changeOrigin: true,
 				ws: true
 			},
+			'/ws/ai/doc': {
+				target: 'ws://localhost:3424',
+				changeOrigin: true,
+				ws: true
+			},
 			'/ws/ai/audio': {
 				target: 'ws://localhost:3423',
 				changeOrigin: true,

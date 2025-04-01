@@ -1,7 +1,8 @@
 import { App } from 'vue';
 import {
 	IconCheckCircle, IconEdit, IconMore, IconPlus,
-	IconLoading, IconCloseCircle, IconSubscribe, IconSubscribed
+	IconLoading, IconCloseCircle, IconSubscribe, IconSubscribed,
+	IconFile, IconFilePdf
 } from '@arco-design/web-vue/es/icon';
 
 
@@ -14,4 +15,6 @@ export const ArcoDesignComponents = (app: App<Element>): void => {
 	app.use(IconCloseCircle);
 	app.use(IconSubscribe);
 	app.use(IconSubscribed);
+	app.use(IconFile);
+	app.use(IconFilePdf);
 };

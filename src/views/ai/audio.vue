@@ -120,7 +120,7 @@
 										:class="['relative', { 'mt-[6px]': s > 0 && chat.content[s - 1].data.toString().length > 0 }]"
 									>
 										<p class="px-[8px] text-[12px] text-[#7B7B7B]">
-											{{ allHistoryAudio[userChat.data].name }}
+											{{ allHistoryFile[userChat.data].name }}
 										</p>
 
 										<span
@@ -234,7 +234,10 @@
 				<template #title>
 					提示
 				</template>
-				输入支持音频和文字；输出只支持文字。
+				输入支持音频和文字；输出只支持文字。<br>
+				描述、总结或回答与音频内容相关的问题。<br>
+				提供音频转写内容。<br>
+				提供有关音频特定片段的答案或转写内容。<br>
 			</a-alert>
 
 			<a-input-group class="w-full">
@@ -369,7 +372,7 @@ const applyingStorageFile = ref(false);
 const prompt = ref('');
 
 const allChat = ref<Record<string, { ai: SupportAi, name: string }>>({});
-const allHistoryAudio = ref<Record<string, { name: string, data: Array<number> }>>({});
+const allHistoryFile = ref<Record<string, { name: string, data: Array<number> }>>({});
 const currentChatId = ref('');
 const currentChatContent = ref<Array<AiChatType>>([]);
 const aiIsAnswering = ref(false);
@@ -472,7 +475,7 @@ onMounted(async () => {
 			data: audio.byteNumber
 		};
 	}
-	allHistoryAudio.value = audios;
+	allHistoryFile.value = audios;
 	showHistory.value = false;
 });
 onBeforeUnmount(() => {
@@ -519,7 +522,7 @@ const askAi = async () => {
 											byteNumber: file.data
 										});
 
-										allHistoryAudio.value[`${fileId}`] = {
+										allHistoryFile.value[`${fileId}`] = {
 											name: file.name,
 											data: file.data
 										};
@@ -659,7 +662,7 @@ const getFileUrl = (data: number | string) => {
 	if (typeof data === 'string') {
 		return data;
 	}
-	const byteArray = new Uint8Array(allHistoryAudio.value[`${data}`].data);
+	const byteArray = new Uint8Array(allHistoryFile.value[`${data}`].data);
 	const blob = new Blob([byteArray], { type: 'audio/mpeg' });
 
 	return URL.createObjectURL(blob);
