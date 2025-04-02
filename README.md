@@ -8,6 +8,7 @@
 - 复杂websocket演示在`websocket-rpc`项目中。
   - `websocket-rpc`项目是一个在`npm`上发布的包，可以直接在项目中使用。
   - `websocket-rpc`致力于将websocket服务器和客户端中基础的业务代码封装，使得ws应用的开发更多的关注业务逻辑，而不是底层的通信细节。
+- 后端需要数据库、redis缓存等的情况，所需的工具均提供了docker-compose配置，在`docker-compose-for-develop`项目中。
 
 # 涉及模块
 - 登录
@@ -29,7 +30,7 @@
 - 终端显示日志
   - 模拟终端显示日志，保留日志格式和颜色。
 - 前端实现终端功能
-  - 支持远程连接终端，执行执行指令。
+  - 支持远程连接终端，执行指令。
 - 前端代码预览展示
   - 演示不同的代码显示插件在前端显示代码的效果。
 - 数据列表
@@ -37,25 +38,25 @@
   - 可折叠数据列表。
 - 数据可视化
   - echarts使用演示。
-  - 关系图可视化(相关算法演示)。
+  - 关系图可视化及相关算法演示。
 - AI
-  - 流式传输markdown到前端显示。
-  - ai聊天(谷歌Gemini，deepseek)。
-  - ai图片生成(谷歌Gemini)。
-  - ai文档理解(谷歌Gemini)。
-  - ai音频理解(谷歌Gemini)。
-  - ai视频理解(谷歌Gemini)。
-  - 兼容openai标准，ws传输数据。
+  - 流式传输markdown格式的数据到前端显示。
+  - AI聊天(谷歌Gemini，deepseek)。
+  - AI图片生成(谷歌Gemini)。
+  - AI文档理解(谷歌Gemini)。
+  - AI音频理解(谷歌Gemini)。
+  - AI视频理解(谷歌Gemini)。
+  - 兼容OpenAI标准，ws传输数据。
 - 三级菜单
   - 三级菜单路由配置演示。
   - 三级菜单切换和不同实现方式。
 - websocket
-  - 使用json-rpc2.0数据传输。
-  - 使用async/await发送/接受消息。
+  - 使用`json-rpc2.0`协议传输数据。
+  - 客户端使用`async/await`发送/接受消息。
 - 其它：
   - 右键菜单组件。
   - 多语言支持(vue-i18n)，vue-store等。
-  - 常用ui组件库集成，tailwind集成。
+  - 常用ui组件库集成示例，tailwind集成。
   - 常用工具类封装。
     - 前端加解密封装。
     - 前端文字复制封装。
