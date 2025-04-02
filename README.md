@@ -3,21 +3,53 @@
 - npm 10.2.4
 - vue3
 
-# 功能
-- 登录。
-- 接口鉴权，接口调用封装。
-- 角色/用户管理。
-- 根据router配置生成菜单。
-- 前端路由鉴权。
-- SSE实现消息推送。
-- 终端显示日志。
-- 远程连接终端并执行指令(前端实现终端功能)。
-- 前端代码预览展示。
-- 普通数据列表/可折叠数据列表。
-- 数据可视化(echarts)，关系图(相关算法演示)。
-- ai相关，ai聊天(流式传输markdown到前端显示)，ai图片生成。
-- 前端三级菜单展示和界面切换。
-- websocket使用json-rpc2.0数据传输，使用async/await发送/接受消息。
+# 说明
+- 项目中需要后端的支持的演示模块，简单的后端代码都在相应模块的文件夹下的js文件中，复杂的后端支持均在`http_server`和`nestjs-server`项目中。
+- 复杂websocket演示在`websocket-rpc`项目中。
+
+# 涉及模块
+- 登录
+  - 密码登录。
+  - token登录。
+- 接口鉴权
+  - 接口调用封装。
+  - 前端路由鉴权。
+- 角色/用户管理
+  - 标准RBAC角色和用户权限设计。
+  - 权限与前端路由联动。
+- 根据router配置生成菜单
+  - 根据vue-router的meta信息，自动生成二级菜单。
+  - 三级菜单给出使用样例。
+- 前端路由鉴权
+  - 根据用户角色权限，对前端路由进行鉴权。
+- SSE实现消息推送
+  - 演示SSE实现后端终端执行命令的结果显示。
+- 终端显示日志
+  - 模拟终端显示日志，保留日志格式和颜色。
+- 前端实现终端功能
+  - 支持远程连接终端，执行执行指令。
+- 前端代码预览展示
+  - 演示不同的代码显示插件在前端显示代码的效果。
+- 数据列表
+  - 普通数据列表。
+  - 可折叠数据列表。
+- 数据可视化
+  - echarts使用演示。
+  - 关系图(相关算法演示)。
+- AI
+  - 流式传输markdown到前端显示。
+  - ai聊天(谷歌Gemini，deepseek)。
+  - ai图片生成(谷歌Gemini)。
+  - ai文档理解(谷歌Gemini)。
+  - ai音频理解(谷歌Gemini)。
+  - ai视频理解(谷歌Gemini)。
+  - 兼容openai标准，ws传输数据。
+- 三级菜单
+  - 三级菜单路由配置演示。
+  - 三级菜单切换和不同实现方式。
+- websocket
+  - 使用json-rpc2.0数据传输。
+  - 使用async/await发送/接受消息。
 - 其它：
   - 右键菜单组件。
   - 多语言支持(vue-i18n)，vue-store等。
@@ -26,15 +58,3 @@
   - 生产/开发/测试环境配置设计。
   - webpack配置，eslint配置。
   - docker及docker-compose配置。
-
-# docker-compose
-- 启动项目：在项目根目录执行`sudo docker-compose -f docker-compose.yaml up -d`。
-- 查看容器启动状态：`sudo docker ps -a --filter name=custom-vuecli3`。
-- 停止容器：`sudo docker stop custom-vuecli3`。
-- 重启容器：`sudo docker restart custom-vuecli3`。
-- 删除容器：`sudo docker rm custom-vuecli3`。
-- 查看容器日志：`sudo docker logs -f custom-vuecli3`。
-- 进入容器：`sudo docker exec -it custom-vuecli3 /bin/bash`，进入容器可执行项目的build，lint等指令。
-  - 退出:`exit`。
-- 开发环境webpack-dev-server接口代理
-  - 接口域名可直接用`http://ip:port`，不用映射，如：接口地址在本机`http://localhost:8080`，本机ip为`1.2.3.4`，则webpack的接口代理地址应设为`http://1.2.3.4:8080`。
