@@ -37,7 +37,7 @@
   - 可折叠数据列表。
 - 数据可视化
   - echarts使用演示。
-  - 关系图(相关算法演示)。
+  - 关系图可视化(相关算法演示)。
 - AI
   - 流式传输markdown到前端显示。
   - ai聊天(谷歌Gemini，deepseek)。
@@ -56,7 +56,13 @@
   - 右键菜单组件。
   - 多语言支持(vue-i18n)，vue-store等。
   - 常用ui组件库集成，tailwind集成。
-  - 常用工具函数封装。
+  - 常用工具类封装。
+    - 前端加解密封装。
+    - 前端文字复制封装。
+    - 前端文件下载封装。
+    - File，base64，blob，ArrayBuffer互转封装。
+    - IndexDB封装(ts强支持)。
+    - 常用工具函数封装。
   - 生产/开发/测试环境配置设计。
   - webpack配置，eslint配置。
   - docker及docker-compose配置。
