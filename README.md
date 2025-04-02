@@ -6,6 +6,8 @@
 # 说明
 - 项目中需要后端的支持的演示模块，简单的后端代码都在相应模块的文件夹下的js文件中，复杂的后端支持均在`http_server`和`nestjs-server`项目中。
 - 复杂websocket演示在`websocket-rpc`项目中。
+  - `websocket-rpc`项目是一个在`npm`上发布的包，可以直接在项目中使用。
+  - `websocket-rpc`致力于将websocket服务器和客户端中基础的业务代码封装，使得ws应用的开发更多的关注业务逻辑，而不是底层的通信细节。
 
 # 涉及模块
 - 登录
