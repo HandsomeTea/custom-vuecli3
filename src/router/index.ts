@@ -131,7 +131,11 @@ const routes: Array<RouteRecordRaw> = [{
 		}, {
 			path: '/other/websocket',
 			meta: { title: 'websocket测试', group: '其它', page: 'websocket' },
-			component: () => import(/* webpackChunkName: 'websocket' */ '../views/websocket/client.vue')
+			component: () => import(/* webpackChunkName: 'websocket' */ '../views/other/client.vue')
+		}, {
+			path: '/other/card',
+			meta: { title: '卡片', group: '其它', page: 'card' },
+			component: () => import(/* webpackChunkName: 'card' */ '../views/other/card.vue')
 		}
 	]
 }];
