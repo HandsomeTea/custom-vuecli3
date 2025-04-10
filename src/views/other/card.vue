@@ -372,6 +372,15 @@ const getTaskResourceSetting = async () => {
 		'shared_work_space': 'gerrit',
 		'created_at': '2025-04-09T15:25:04.166+08:00',
 		'updated_at': '2025-04-09T15:25:11.539+08:00'
+	}, {
+		'id': 6,
+		'work_type': 'aaa',
+		't_milli_cpu': 100,
+		't_mem': 100,
+		'default_cpu': 1,
+		'shared_work_space': '',
+		'created_at': '2025-04-10T14:45:33.008+08:00',
+		'updated_at': '2025-04-10T14:45:33.008+08:00'
 	}] as Array<TaskResourceSetting>;
 	const description: typeof descriptionData.value = [];
 	const data: Array<TaskResourceSetting> = [];
