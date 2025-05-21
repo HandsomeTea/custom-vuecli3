@@ -50,7 +50,10 @@
 		"echarts": "^5.5.1",
 		"element-plus": "^2.8.8",
 		"github-markdown-css": "^5.8.1",
-		"highlight.js": "^11.10.0",
+		"highlight.js": "^11.11.1",
+		"marked": "^15.0.12",
+		"marked-highlight": "^2.2.1",
+		"mermaid": "^11.6.0",
 		"streaming-markdown": "^0.1.0",
 		"vant": "^4.9.9",
 		"vue": "^3.5.13",
@@ -59,6 +62,7 @@
 		"vuex": "^4.1.0"
 	},
 	"devDependencies": {
+		"@babel/plugin-transform-class-static-block": "^7.27.1",
 		"@types/crypto-js": "^4.2.2",
 		"@types/cytoscape": "^3.21.8",
 		"@vue/cli-plugin-babel": "^5.0.8",

@@ -242,7 +242,12 @@
 import * as smd from 'streaming-markdown';
 import 'github-markdown-css/github-markdown-light.css';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { IndexDb, elementScrollToBottom } from '@/views/utils';
+import { Marked } from 'marked';
+import { markedHighlight } from 'marked-highlight';
+import hljs from 'highlight.js';
+import mermaid from 'mermaid';
+import 'highlight.js/styles/an-old-hope.min.css';
+import { IndexDb, elementScrollToBottom, random } from '@/views/utils';
 import { Tips } from '@/ui-frame';
 
 interface AiChatType { type: 'user' | 'model', content: string }
@@ -301,11 +306,50 @@ onMounted(async () => {
 		};
 	}
 	allChat.value = data;
+	mermaid.initialize({
+		theme: 'null',
+		look: 'handDrawn'
+	});
 });
 onBeforeUnmount(() => {
 	ws.close();
 });
 
+const marked = new Marked(
+	markedHighlight({
+		async: true,
+		emptyLangClass: 'hljs',
+		langPrefix: 'hljs language-',
+		async highlight(code, lang) {
+			const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+
+			if (language === 'plaintext') {
+				try {
+					const { svg } = await mermaid.render(random(), code);
+
+					return svg;
+				} catch (e) {
+					return hljs.highlight(code, { language }).value;
+				}
+			} else {
+				return hljs.highlight(code, { language }).value;
+			}
+		}
+	})
+);
+const prettifyMarkdown = async (markdown: string, element: HTMLElement | string) => {
+	const html = await marked.parse(markdown);
+
+	if (typeof element === 'string') {
+		const ele = document.getElementById(element);
+
+		if (ele) {
+			ele.innerHTML = html;
+		}
+	} else {
+		element.innerHTML = html;
+	}
+};
 const askAi = () => {
 	if (!ready.value || !currentChatId.value || chatSwitching.value || waitingAnswer.value || !prompt.value || aiIsAnswering.value || aiIsWritingAnswer.value) {
 		return;
@@ -373,6 +417,12 @@ const showAnswer = async () => {
 			}
 			parser = null;
 			aiIsWritingAnswer.value = false;
+			const element = document.getElementById(`ai_chat_content_${currentChatContent.value.length - 1}`);
+
+			if (!element) {
+				return;
+			}
+			prettifyMarkdown(currentChatContent.value[currentChatContent.value.length - 1].content, element);
 			return;
 		}
 		const num = Math.floor(Math.random() * -1 + 3);
@@ -439,15 +489,17 @@ const switchConversation = async (chatId: string) => {
 			if (!element) {
 				continue;
 			}
-			element.innerHTML = '';
-			const renderer = smd.default_renderer(element);
-			const parser = smd.parser(renderer);
+			// element.innerHTML = '';
+			// const renderer = smd.default_renderer(element);
+			// const parser = smd.parser(renderer);
 
-			smd.parser_write(parser, chat.content);
-			smd.parser_end(parser);
+			// smd.parser_write(parser, chat.content);
+			// smd.parser_end(parser);
+			prettifyMarkdown(chat.content, element);
 		}
-		elementScrollToBottom('chatView');
 		chatDisplaying.value = false;
+
+		setTimeout(() => elementScrollToBottom('chatView'), 100);
 	}, 100);
 };
 const createConversation = async () => {
@@ -506,5 +558,9 @@ const changeChatName = async () => {
 
 .chat_content:last-child {
 	margin-bottom: 0;
+}
+
+.hljs:not(.language-mermaid) {
+	background: #1c1d21 !important;
 }
 </style>

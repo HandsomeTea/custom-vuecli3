@@ -3,12 +3,12 @@
 		<div class="w-full h-[calc(100%-3px)] overflow-y-auto">
 			<div
 				id="taskResourceSettingContainer"
-				class="flex flex-wrap gap-[50px] my-[30px] px-[30px] mx-auto justify-center"
+				class="flex flex-wrap gap-[40px] mt-[20px] mb-[50px] px-[20px] mx-auto justify-center"
 			>
 				<a-card v-for="(setting, i) of descriptionData" :key="i" class="w-[350px] shadow-lg hover:shadow-2xl">
 					<template #cover>
 						<div
-							class="p-[16px] w-[calc(100%-32px)] max-h-[125px] overflow-y-auto border-0 border-b border-solid border-[#e0e0e0]"
+							class="p-[16px] !w-[calc(100%-32px)] max-h-[156px] overflow-y-auto border-0 border-b border-solid border-[#e0e0e0]"
 							style="box-shadow: rgba(0, 0, 0, 0.05) 0px -8px 12px 0px inset;"
 						>
 							<a-descriptions
@@ -49,13 +49,16 @@
 												v-if="item.meta.type === 'number' && typeof item.value === 'number'"
 												:id="`task_resource_setting_${item.meta.key}`"
 												v-model="item.value"
+												mode="button"
+												:step="resourceAreaMap[item.meta.key]?.step || 1"
+												:min="resourceAreaMap[item.meta.key]?.min"
+												:max="resourceAreaMap[item.meta.key]?.max"
 												size="mini"
-												allow-clear
 												class="w-[150px]"
 												@blur.stop="item.meta.isEdit = false; changeTaskResourceSetting(item)"
 												@keydown.enter.prevent="(e: Event) => (e.target as HTMLInputElement | null)?.blur()"
 											>
-												<template v-if="item.meta.unit" #append>
+												<template v-if="item.meta.unit" #suffix>
 													{{ item.meta.unit }}
 												</template>
 											</a-input-number>
@@ -129,7 +132,7 @@
 			title="新建任务资源配置"
 			ok-text="确定"
 			:align-center="false"
-			top="80px"
+			top="50px"
 			draggable
 			unmount-on-close
 			@before-ok="newTaskResourceSetting"
@@ -143,47 +146,27 @@
 				<a-form-item
 					field="workType"
 					:label="dataLabelMap['work_type']"
-					:tooltip="`${dataLabelMap['work_type']}是该配置的唯一标识，可用于业务配置文件中代指当前资源配置数据`"
+					:tooltip="`${dataLabelMap['work_type']}是该配置的唯一标识，可用于业务配置文件中代指当前资源配置数据。`"
 					:rules="[{ required: true, message: `请输入${dataLabelMap['work_type']}` }]"
+					class="mb-[10px]"
 				>
 					<a-input v-model="addSettingData.workType" :placeholder="`请输入${dataLabelMap['work_type']}`" />
 				</a-form-item>
 
 				<a-form-item
-					field="memory"
-					:label="dataLabelMap['t_mem']"
-					:tooltip="`${dataLabelMap['t_mem']}是指`"
-					:rules="[{ required: true, message: `请设置${dataLabelMap['t_mem']}` }, typeof resourceAreaMap.t_mem?.min !== 'undefined' ? { type: 'number', min: resourceAreaMap.t_mem.min, message: `最小值${resourceAreaMap.t_mem.min}` } : null as unknown as FieldRule]"
-				>
-					<a-input-number
-						v-model="addSettingData.memory"
-						:placeholder="`请设置${dataLabelMap['t_mem']}`"
-						:min="100"
-						allow-clear
-						hide-button
-					>
-						<template #suffix>
-							{{ unitMap['t_mem'] }}
-						</template>
-					</a-input-number>
-					<template #extra>
-						{{ `最小值${resourceAreaMap['t_mem']?.min}` }}
-					</template>
-				</a-form-item>
-
-				<a-form-item
 					field="milliCpu"
 					:label="dataLabelMap['t_milli_cpu']"
-					:tooltip="`${dataLabelMap['t_milli_cpu']}是指`"
+					:tooltip="`${dataLabelMap['t_milli_cpu']}是指每个线程占单核资源的比例，1000Milli表示每个线程占满1个CPU核的资源，500Milli代表每个线程仅占用0.5个核的CPU资源。`"
 					:rules="[{ required: true, message: `请设置${dataLabelMap['t_milli_cpu']}` }, typeof resourceAreaMap.t_milli_cpu?.min !== 'undefined' ? { type: 'number', min: resourceAreaMap.t_milli_cpu.min, message: `最小值${resourceAreaMap.t_milli_cpu.min}` } : null as unknown as FieldRule, typeof resourceAreaMap.t_milli_cpu?.max !== 'undefined' ? { type: 'number', max: resourceAreaMap.t_milli_cpu.max, message: `最大值${resourceAreaMap.t_milli_cpu.min}` } : null as unknown as FieldRule]"
+					class="mb-[10px]"
 				>
 					<a-input-number
 						v-model="addSettingData.milliCpu"
+						mode="button"
 						:placeholder="`请设置${dataLabelMap['t_milli_cpu']}`"
-						:min="100"
-						:max="1000"
-						allow-clear
-						hide-button
+						:min="resourceAreaMap.t_milli_cpu?.min"
+						:max="resourceAreaMap.t_milli_cpu?.max"
+						:step="resourceAreaMap.t_milli_cpu?.step"
 					>
 						<template #suffix>
 							{{ unitMap['t_milli_cpu'] }}
@@ -197,15 +180,15 @@
 				<a-form-item
 					field="defaultCpuThread"
 					:label="dataLabelMap['default_cpu_thread']"
-					:tooltip="`${dataLabelMap['default_cpu_thread']}是指`"
+					:tooltip="`${dataLabelMap['default_cpu_thread']}是指该任务需要分配多少个线程来执行。只有在用户未指定任务线程数时生效。`"
 					:rules="[{ required: true, message: `请设置${dataLabelMap['default_cpu_thread']}` }, typeof resourceAreaMap.default_cpu_thread?.min !== 'undefined' ? { type: 'number', min: resourceAreaMap.default_cpu_thread.min, message: `最小值${resourceAreaMap.default_cpu_thread.min}` } : null as unknown as FieldRule]"
+					class="mb-[10px]"
 				>
 					<a-input-number
 						v-model="addSettingData.defaultCpuThread"
+						mode="button"
 						:placeholder="`请设置${dataLabelMap['default_cpu_thread']}`"
-						:min="1"
-						allow-clear
-						hide-button
+						:min="resourceAreaMap.default_cpu_thread?.min"
 					>
 						<template #suffix>
 							{{ unitMap['default_cpu_thread'] }}
@@ -217,10 +200,57 @@
 				</a-form-item>
 
 				<a-form-item
+					field="memory"
+					:label="dataLabelMap['t_mem']"
+					:tooltip="`${dataLabelMap['t_mem']}是指任务中每个线程所需要分配的内存量。`"
+					:rules="[{ required: true, message: `请设置${dataLabelMap['t_mem']}` }, typeof resourceAreaMap.t_mem?.min !== 'undefined' ? { type: 'number', min: resourceAreaMap.t_mem.min, message: `最小值${resourceAreaMap.t_mem.min}` } : null as unknown as FieldRule]"
+					class="mb-[10px]"
+				>
+					<a-input-number
+						v-model="addSettingData.memory"
+						mode="button"
+						:placeholder="`请设置${dataLabelMap['t_mem']}`"
+						:min="resourceAreaMap.t_mem?.min"
+						:step="resourceAreaMap.t_mem?.step"
+					>
+						<template #suffix>
+							{{ unitMap['t_mem'] }}
+						</template>
+					</a-input-number>
+					<template #extra>
+						{{ `最小值${resourceAreaMap['t_mem']?.min}` }}
+					</template>
+				</a-form-item>
+
+				<a-form-item
+					field="keepMemory"
+					:label="dataLabelMap['keep_mem']"
+					:tooltip="`${dataLabelMap['keep_mem']}是指除每个线程分配的内存外，额外分配给该任务的保底内存量，用户可根据实际情况进行设置。任务总内存占用量=单线程内存量*执行任务的线程数+保底内存量。`"
+					:rules="[{ required: true, message: `请设置${dataLabelMap['keep_mem']}` }, typeof resourceAreaMap.keep_mem?.min !== 'undefined' ? { type: 'number', min: resourceAreaMap.keep_mem.min, message: `最小值${resourceAreaMap.keep_mem.min}` } : null as unknown as FieldRule]"
+					class="mb-[10px]"
+				>
+					<a-input-number
+						v-model="addSettingData.keepMemory"
+						mode="button"
+						:placeholder="`请设置${dataLabelMap['keep_mem']}`"
+						:min="resourceAreaMap.keep_mem?.min"
+						:step="resourceAreaMap.keep_mem?.step"
+					>
+						<template #suffix>
+							{{ unitMap['keep_mem'] }}
+						</template>
+					</a-input-number>
+					<template #extra>
+						{{ `最小值${resourceAreaMap['keep_mem']?.min}` }}
+					</template>
+				</a-form-item>
+
+				<a-form-item
 					field="sharedWorkspace"
 					:label="dataLabelMap['shared_work_space']"
-					:tooltip="`${dataLabelMap['shared_work_space']}是指`"
+					:tooltip="`${dataLabelMap['shared_work_space']}是可选项，设定共享空间后，共享空间内的执行任务的代码仓库、模型文件等文件会全量缓存，任务结束后不删除，供后续用户使用。`"
 					:rules="[{ validator: TaskSettingSharedWorkspaceValidator }]"
+					class="mb-[10px]"
 				>
 					<a-input
 						v-model="addSettingData.sharedWorkspace"
@@ -246,25 +276,33 @@ interface TaskResourceSetting {
 	id: number
 	work_type: string
 	t_mem: number
+	keep_mem: number
 	t_milli_cpu: number
 	default_cpu_thread: number
 	shared_work_space: string
 	created_at: string
 	updated_at: string
 }
-const displayKey: Array<keyof Omit<TaskResourceSetting, 'id' | 'created_at' | 'updated_at'>> = ['work_type', 't_mem', 't_milli_cpu', 'default_cpu_thread', 'shared_work_space'];
+const displayKey: Array<keyof Omit<TaskResourceSetting, 'id' | 'created_at' | 'updated_at'>> = ['work_type', 't_milli_cpu', 'default_cpu_thread', 't_mem', 'keep_mem', 'shared_work_space'];
 const unitMap: Partial<Record<typeof displayKey[number], string>> = {
 	't_mem': 'MB',
+	'keep_mem': 'MB',
 	't_milli_cpu': 'Milli',
 	'default_cpu_thread': 'Thread'
 };
-const resourceAreaMap: Partial<Record<typeof displayKey[number], { min?: number, max?: number, message?: string }>> = {
+const resourceAreaMap: Partial<Record<typeof displayKey[number], { min?: number, max?: number, step?: number, message?: string }>> = {
 	't_milli_cpu': {
 		min: 100,
-		max: 1000
+		max: 1000,
+		step: 100
 	},
 	't_mem': {
-		min: 100
+		min: 100,
+		step: 100
+	},
+	'keep_mem': {
+		min: 100,
+		step: 100
 	},
 	'default_cpu_thread': {
 		min: 1
@@ -274,11 +312,12 @@ const resourceAreaMap: Partial<Record<typeof displayKey[number], { min?: number,
 	}
 };
 const dataLabelMap: Record<typeof displayKey[number], string> = {
-	'work_type': '任务名称(标识)',
+	'work_type': '任务标识(名称)',
 	't_mem': '单线程内存',
-	't_milli_cpu': '单线程CPU',
-	'default_cpu_thread': '默认CPU线程数',
-	'shared_work_space': '共享工作目录'
+	'keep_mem': '保底内存',
+	't_milli_cpu': '单线程核资源占比',
+	'default_cpu_thread': '默认任务线程数',
+	'shared_work_space': '共享工作空间'
 };
 const loading = ref(false);
 const formRef = ref();
@@ -287,6 +326,7 @@ const addSettingData = reactive({
 	workType: '',
 	milliCpu: resourceAreaMap.t_milli_cpu?.min || 100,
 	memory: resourceAreaMap.t_mem?.min || 100,
+	keepMemory: resourceAreaMap.keep_mem?.min || 100,
 	defaultCpuThread: resourceAreaMap.default_cpu_thread?.min || 1,
 	sharedWorkspace: ''
 });
@@ -304,8 +344,8 @@ const setPlaceholderCardCount = (dataCount: number) => {
 		return;
 	}
 	const cardWidth = 352;
-	const cardGap = 50;
-	const containerWidth = taskResourceSettingCard.clientWidth - cardGap * 2;
+	const cardGap = 40;
+	const containerWidth = taskResourceSettingCard.clientWidth - cardGap;
 
 	const cardRowCount = Math.floor((containerWidth + cardGap) / (cardWidth + cardGap));
 	const rest = (dataCount + 1) % cardRowCount;
@@ -449,6 +489,7 @@ const newTaskResourceSetting = async (done: (close: boolean) => void) => {
 	// 	'work_type': addSettingData.workType,
 	// 	't_milli_cpu': addSettingData.milliCpu,
 	// 	't_mem': addSettingData.memory,
+	// 	'keep_mem': addSettingData.keepMemory,
 	// 	'default_cpu_thread': addSettingData.defaultCpuThread,
 	// 	'shared_work_space': addSettingData.sharedWorkspace
 	// });
@@ -465,6 +506,7 @@ const newTaskResourceSetting = async (done: (close: boolean) => void) => {
 	addSettingData.workType = '';
 	addSettingData.milliCpu = resourceAreaMap.t_milli_cpu?.min || 100;
 	addSettingData.memory = resourceAreaMap.t_mem?.min || 100;
+	addSettingData.keepMemory = resourceAreaMap.keep_mem?.min || 100;
 	addSettingData.defaultCpuThread = resourceAreaMap.default_cpu_thread?.min || 1;
 	addSettingData.sharedWorkspace = '';
 	await getTaskResourceSetting();
@@ -476,7 +518,7 @@ const changeTaskResourceSetting = async (setting: typeof descriptionData.value[n
 		return;
 	}
 
-	if (['work_type', 't_mem', 't_milli_cpu', 'default_cpu_thread'].includes(setting.meta.key) && !setting.value) {
+	if (['work_type', 't_mem', 'keep_mem', 't_milli_cpu', 'default_cpu_thread'].includes(setting.meta.key) && !setting.value) {
 		await getTaskResourceSetting();
 		return Tips.error(`修改失败：${dataLabelMap[setting.meta.key]}为必填项！`);
 	}
@@ -507,6 +549,7 @@ const changeTaskResourceSetting = async (setting: typeof descriptionData.value[n
 	// 	'work_type': data.work_type,
 	// 	't_milli_cpu': data.t_milli_cpu,
 	// 	't_mem': data.t_mem,
+	// 	'keep_mem': data.keep_mem,
 	// 	'default_cpu_thread': data.default_cpu_thread,
 	// 	'shared_work_space': data.shared_work_space,
 	// 	[setting.meta.key]: setting.value
