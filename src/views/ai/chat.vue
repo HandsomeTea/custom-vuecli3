@@ -246,7 +246,7 @@ import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js';
 import mermaid from 'mermaid';
-import 'highlight.js/styles/an-old-hope.min.css';
+import 'highlight.js/styles/vs2015.min.css';
 import { IndexDb, elementScrollToBottom, random } from '@/views/utils';
 import { Tips } from '@/ui-frame';
 
@@ -306,10 +306,6 @@ onMounted(async () => {
 		};
 	}
 	allChat.value = data;
-	mermaid.initialize({
-		theme: 'null',
-		look: 'handDrawn'
-	});
 });
 onBeforeUnmount(() => {
 	ws.close();
@@ -324,12 +320,19 @@ const marked = new Marked(
 			const language = hljs.getLanguage(lang) ? lang : 'plaintext';
 
 			if (language === 'plaintext') {
+				mermaid.initialize({
+					theme: 'null',
+					look: 'handDrawn'
+				});
 				try {
 					const { svg } = await mermaid.render(random(), code);
 
 					return svg;
 				} catch (e) {
-					return hljs.highlight(code, { language }).value;
+					const randomId = random();
+					const _code = hljs.highlight(code, { language }).value;
+
+					return `<pre id="${randomId}" onClick="drawnMermaidChart('${randomId}')">${_code}</pre>`;
 				}
 			} else {
 				return hljs.highlight(code, { language }).value;
@@ -337,6 +340,26 @@ const marked = new Marked(
 		}
 	})
 );
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+window.drawnMermaidChart = async (eleId: string) => {
+	const ele = document.getElementById(eleId);
+
+	if (!ele) {
+		return;
+	}
+	const code = ele.innerText;
+
+	try {
+		const { svg } = await mermaid.render(random(), code);
+
+		ele.innerHTML = svg;
+		ele.onclick = null;
+	} catch (e) {
+		//
+	}
+};
 const prettifyMarkdown = async (markdown: string, element: HTMLElement | string) => {
 	const html = await marked.parse(markdown);
 
@@ -422,7 +445,7 @@ const showAnswer = async () => {
 			if (!element) {
 				return;
 			}
-			prettifyMarkdown(currentChatContent.value[currentChatContent.value.length - 1].content, element);
+			await prettifyMarkdown(currentChatContent.value[currentChatContent.value.length - 1].content, element);
 			return;
 		}
 		const num = Math.floor(Math.random() * -1 + 3);
@@ -495,7 +518,7 @@ const switchConversation = async (chatId: string) => {
 
 			// smd.parser_write(parser, chat.content);
 			// smd.parser_end(parser);
-			prettifyMarkdown(chat.content, element);
+			await prettifyMarkdown(chat.content, element);
 		}
 		chatDisplaying.value = false;
 
@@ -561,6 +584,6 @@ const changeChatName = async () => {
 }
 
 .hljs:not(.language-mermaid) {
-	background: #1c1d21 !important;
+	background: #1e1e1e !important;
 }
 </style>
