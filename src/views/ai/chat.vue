@@ -329,10 +329,19 @@ const marked = new Marked(
 
 					return svg;
 				} catch (e) {
-					const randomId = random();
-					const _code = hljs.highlight(code, { language }).value;
+					const chartMark = ['graph LR', 'graph TD', 'flowchart LR', 'flowchart TD'];
 
-					return `<pre id="${randomId}" onClick="drawnMermaidChart('${randomId}')">${_code}</pre>`;
+					if (chartMark.some(a => code.includes(a))) {
+						// 可能是 mermaid 代码
+						const randomId = random();
+						const _code = hljs.highlight(code, { language }).value;
+
+						return `<pre id="${randomId}" onClick="drawnMermaidChart('${randomId}')">${_code}</pre>`;
+					} else {
+						// eslint-disable-next-line no-console
+						console.log(code.split('\n')[0]);
+						return hljs.highlight(code, { language }).value;
+					}
 				}
 			} else {
 				return hljs.highlight(code, { language }).value;
