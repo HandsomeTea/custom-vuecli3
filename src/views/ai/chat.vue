@@ -333,10 +333,7 @@ const marked = new Marked(
 
 					if (chartMark.some(a => code.includes(a))) {
 						// 可能是 mermaid 代码
-						const randomId = random();
-						const _code = hljs.highlight(code, { language }).value;
-
-						return `<pre id="${randomId}" onClick="drawnMermaidChart('${randomId}')">${_code}</pre>`;
+						return `<pre onclick="drawnMermaidChart()">${code}</pre>`;
 					} else {
 						// eslint-disable-next-line no-console
 						console.log(code.split('\n')[0]);
@@ -352,8 +349,8 @@ const marked = new Marked(
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-window.drawnMermaidChart = async (eleId: string) => {
-	const ele = document.getElementById(eleId);
+window.drawnMermaidChart = async () => {
+	const ele = event?.currentTarget as HTMLElement | null | undefined;
 
 	if (!ele) {
 		return;
@@ -363,8 +360,12 @@ window.drawnMermaidChart = async (eleId: string) => {
 	try {
 		const { svg } = await mermaid.render(random(), code);
 
-		ele.innerHTML = svg;
-		ele.onclick = null;
+		if (ele.parentElement) {
+			ele.parentElement.innerHTML = svg;
+		} else {
+			ele.innerHTML = svg;
+			ele.onclick = null;
+		}
 	} catch (e) {
 		//
 	}
@@ -594,5 +595,11 @@ const changeChatName = async () => {
 
 .hljs:not(.language-mermaid) {
 	background: #1e1e1e !important;
+	font-size: 15px;
+	line-height: 24px;
+	word-break: break-all;
+	word-wrap: break-word;
+	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+	letter-spacing: 0.2px;
 }
 </style>
