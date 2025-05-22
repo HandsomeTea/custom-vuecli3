@@ -306,6 +306,10 @@ onMounted(async () => {
 		};
 	}
 	allChat.value = data;
+	mermaid.initialize({
+		theme: 'null',
+		look: 'handDrawn'
+	});
 });
 onBeforeUnmount(() => {
 	ws.close();
@@ -320,10 +324,6 @@ const marked = new Marked(
 			const language = hljs.getLanguage(lang) ? lang : 'plaintext';
 
 			if (language === 'plaintext') {
-				mermaid.initialize({
-					theme: 'null',
-					look: 'handDrawn'
-				});
 				try {
 					const { svg } = await mermaid.render(random(), code);
 
