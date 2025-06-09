@@ -88,7 +88,7 @@
 			</div>
 
 			<a-table
-				v-model:selectedKeys="chosedIds"
+				v-model:selected-keys="chosedIds"
 				:columns="columnOption"
 				:data="tableData"
 				:row-selection="multipleChoiceOption"

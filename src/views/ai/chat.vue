@@ -239,13 +239,20 @@
 </template>
 
 <script lang="ts" setup>
-import * as smd from 'streaming-markdown';
 import 'github-markdown-css/github-markdown-light.css';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js';
 import mermaid from 'mermaid';
+import { unified } from 'unified';
+// import { visit } from 'unist-util-visit';
+import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
+import remarkRehype from 'remark-rehype';
+import rehypeHighlight from 'rehype-highlight';
+import rehypeStringify from 'rehype-stringify';
+import { DiffDOM } from 'diff-dom';
 import 'highlight.js/styles/vs2015.min.css';
 import { IndexDb, elementScrollToBottom, random } from '@/views/utils';
 import { Tips } from '@/ui-frame';
@@ -329,7 +336,7 @@ const marked = new Marked(
 
 					return svg;
 				} catch (e) {
-					const chartMark = ['graph LR', 'graph TD', 'flowchart LR', 'flowchart TD'];
+					const chartMark = ['graph LR', 'graph TD', 'graph TB', 'flowchart LR', 'flowchart TD', 'flowchart TB', 'sequenceDiagram', 'classDiagram', 'stateDiagram-v2', 'erDiagram', 'pie', 'gitGraph', 'journey'];
 
 					if (chartMark.some(a => code.includes(a))) {
 						// 可能是 mermaid 代码
@@ -383,6 +390,37 @@ const prettifyMarkdown = async (markdown: string, element: HTMLElement | string)
 		element.innerHTML = html;
 	}
 };
+// const rehypeCustomMermaid = () => {
+// 	return async (tree: any) => {
+// 		const promises: Promise<void>[] = [];
+
+// 		visit(tree, 'element', (node, index, parent) => {
+// 			if (
+// 				node.tagName === 'pre' &&
+// 				node.children?.[0]?.tagName === 'code' &&
+// 				node.children[0].properties?.className?.includes('language-mermaid')
+// 			) {
+// 				const code = node.children[0].children[0]?.value || '';
+
+// 				promises.push((async () => {
+// 					try {
+// 						const { svg } = await mermaid.render(random(), code);
+
+// 						console.log('parent', parent);
+// 						// parent.children.splice(index, 1, {
+// 						// 	type: 'html',
+// 						// 	value: svg
+// 						// });
+// 					} catch (e) {
+// 						//
+// 					}
+// 				})());
+// 			}
+// 		});
+
+// 		await Promise.all(promises); // 等待所有图表渲染完成
+// 	};
+// };
 const askAi = () => {
 	if (!ready.value || !currentChatId.value || chatSwitching.value || waitingAnswer.value || !prompt.value || aiIsAnswering.value || aiIsWritingAnswer.value) {
 		return;
@@ -420,35 +458,52 @@ const askAi = () => {
 	setTimeout(() => elementScrollToBottom('chatView'), 100);
 };
 
-let parser: smd.Parser | null = null;
-let response = '';
-const getResponseWriter = () => {
+let markdownCache = '';
+let responseCache = '';
+const renderMarkdown = async (markdown: string) => {
 	const element = document.getElementById(`ai_chat_content_${currentChatContent.value.length - 1}`);
 
 	if (!element) {
-		return null;
+		return;
 	}
-	const renderer = smd.default_renderer(element);
+	markdownCache += markdown;
+	const markdownProcessor = unified()
+		.use(remarkParse)
+		.use(remarkGfm)
+		.use(remarkRehype)
+		.use(rehypeHighlight)
+		// .use(rehypeCustomMermaid)
+		.use(rehypeStringify);
+	const newHtml = (await markdownProcessor.process(markdownCache)).value.toString().trim();
+	const oldHtml = element.innerHTML.trim();
 
-	return smd.parser(renderer);
+	if (oldHtml === newHtml) {
+		return;
+	}
+	const container = document.createElement(element.nodeName);
+
+	container.className = element.className;
+	container.innerHTML = newHtml;
+	container.id = element.id;
+
+	const dd = new DiffDOM();
+	const diff = dd.diff(element, container);
+
+	if (diff.length > 0) {
+		dd.apply(element, diff);
+	}
 };
 const showAnswer = async () => {
 	stopWritingAnswer.value = false;
-	if (!parser) {
-		parser = getResponseWriter();
-	}
 	aiIsWritingAnswer.value = true;
 	for (let s = 0; ; s++) {
-		if (!aiIsAnswering.value && !response || stopWritingAnswer.value) {
-			if (response && parser) {
-				smd.parser_write(parser, response);
-				response = '';
+		if (!aiIsAnswering.value && !responseCache || stopWritingAnswer.value) {
+			if (responseCache) {
+				await renderMarkdown(responseCache);
+				responseCache = '';
 				elementScrollToBottom('chatView');
 			}
-			if (parser) {
-				smd.parser_end(parser);
-			}
-			parser = null;
+			markdownCache = '';
 			aiIsWritingAnswer.value = false;
 			const element = document.getElementById(`ai_chat_content_${currentChatContent.value.length - 1}`);
 
@@ -458,14 +513,13 @@ const showAnswer = async () => {
 			await prettifyMarkdown(currentChatContent.value[currentChatContent.value.length - 1].content, element);
 			return;
 		}
-		const num = Math.floor(Math.random() * -1 + 3);
-		const data = response.substring(0, num);
+		const num = Math.floor(Math.random() * -1 + 5);
+		const data = responseCache.substring(0, num);
 
-		response = response.substring(num);
-		if (parser) {
-			smd.parser_write(parser, data);
-			elementScrollToBottom('chatView');
-		}
+		responseCache = responseCache.substring(num);
+		await renderMarkdown(data);
+		elementScrollToBottom('chatView');
+
 		await new Promise((resolve) => {
 			setTimeout(resolve, 40);
 		});
@@ -480,7 +534,7 @@ ws.onmessage = (result) => {
 		chatSwitching.value = false;
 	} else {
 		waitingAnswer.value = false;
-		response += result.data;
+		responseCache += result.data;
 		currentChatContent.value[currentChatContent.value.length - 1].content += result.data;
 
 		if (!aiIsWritingAnswer.value) {
@@ -522,12 +576,6 @@ const switchConversation = async (chatId: string) => {
 			if (!element) {
 				continue;
 			}
-			// element.innerHTML = '';
-			// const renderer = smd.default_renderer(element);
-			// const parser = smd.parser(renderer);
-
-			// smd.parser_write(parser, chat.content);
-			// smd.parser_end(parser);
 			await prettifyMarkdown(chat.content, element);
 		}
 		chatDisplaying.value = false;
