@@ -51,12 +51,24 @@ wss.on('listening', () => {
 			const stream = await ws.aiClient.chat.completions.create({
 				messages: params.data.messages,
 				model: modelMap[params.data.ai],
-				stream: true
+				stream: true,
+				...params.data.ai === 'deepseek' ? {
+					thinking: { type: 'disabled' }, // enabled
+					// reasoning_effort: 'high',  // 思考关闭时，不能设置reasoning_effort属性
+					'extra_body': {
+						'enable_search': true
+					}
+				} : {}
 			});
 
 			for await (const chunk of stream) {
-				ws.send(chunk.choices[0]?.delta?.content || '');
-				process.stdout.write(chunk.choices[0]?.delta?.content || '');
+				const result = {
+					content: chunk.choices[0]?.delta?.content || '',
+					reasoning: chunk.choices[0]?.delta?.reasoning_content || ''
+				};
+
+				ws.send(result.reasoning || result.content);
+				process.stdout.write(result.reasoning || result.content);
 			}
 			ws.send('&&&end&&&');
 		} else if (params.method === 'switchChat') {

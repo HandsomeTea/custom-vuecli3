@@ -164,9 +164,7 @@ class FetchBase {
 			t: `${Date.now()}`
 		};
 
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		return Object.keys(_query).map(key => `${key}=${encodeURIComponent(_query[key])}`).join('&');
+		return new URLSearchParams(_query).toString();
 	}
 
 	async fetchJsonResponseHandle(response: Response) {
@@ -217,6 +215,38 @@ export const FetchService = new class FetchRestApi extends FetchBase {
 
 	async get(url: string, options?: FetchArgument): Promise<ApiResult> {
 		return await this.send(url, 'get', options);
+	}
+
+	public async download(url: string, method: Method, query?: Record<string, string>) {
+		const queryString = this.getQueryString(query);
+
+		return await fetch(`${process.env.VUE_APP_DEPLOY_DOMAIN}${url}?${queryString}`, {
+			method,
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			timeout: Infinity,
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			headers: {
+
+			}
+		});
+
+		// async getPackageResult(pkgId: string) {
+		// 	return await StreamService.download(`/api/cppbuild/v1/package/${pkgId}/file?result=1`, 'get');
+		// }
+
+		// const res = await Package.getPackageResult(this.packageInfo.id);
+		// const saveFileName = `pkg-${this.packageInfo.id}.tar.gz`;
+
+		// // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// // @ts-ignore
+		// res.body?.pipeTo(window.streamSaver.createWriteStream(saveFileName, {
+		// 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// 	// @ts-ignore
+		// 	size: res.headers.get('content-length')
+		// }));
+		// 如果是get请求，可直接window.open('/api/cppbuild/v1/package/${pkgId}/file?result=1')
 	}
 };
 

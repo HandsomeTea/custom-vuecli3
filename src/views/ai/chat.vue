@@ -253,7 +253,8 @@ import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
 import { DiffDOM } from 'diff-dom';
-import 'highlight.js/styles/vs2015.min.css';
+import 'highlight.js/styles/atom-one-dark.min.css';
+// import 'highlight.js/styles/github-dark.min.css';
 import { IndexDb, elementScrollToBottom, random } from '@/views/utils';
 import { Tips } from '@/ui-frame';
 
@@ -374,7 +375,21 @@ window.drawnMermaidChart = async () => {
 			ele.onclick = null;
 		}
 	} catch (e) {
-		//
+		// eslint-disable-next-line no-console
+		console.log(e);
+	}
+};
+const mermaidDrawnedMarkClass = 'mermaid-chart-drawned';
+const drawnMermaidChart = async (ele: HTMLElement) => {
+	const code = ele.innerText;
+
+	try {
+		const { svg } = await mermaid.render(random(), code);
+
+		ele.innerHTML = svg;
+	} catch (e) {
+		// eslint-disable-next-line no-console
+		console.log(e);
 	}
 };
 const prettifyMarkdown = async (markdown: string, element: HTMLElement | string) => {
@@ -490,8 +505,23 @@ const renderMarkdown = async (markdown: string) => {
 	const diff = dd.diff(element, container);
 
 	if (diff.length > 0) {
+		// for (let s = 0; s < diff.length;) {
+		// 	const data = diff[s] as unknown as {
+		// 		action: string
+		// 		name: string
+		// 		oldValue: string
+		// 		newValue: string
+		// 	};
+
+		// 	if (data.action === 'modifyAttribute' && data.name === 'class' && data.oldValue.replace(data.newValue, '').trim() === mermaidDrawnedMarkClass) {
+		// 		diff.splice(s, 1);
+		// 		continue;
+		// 	}
+		// 	s++;
+		// }
 		dd.apply(element, diff);
 	}
+	element.querySelectorAll(`.language-mermaid:not(.${mermaidDrawnedMarkClass})`).forEach((a) => drawnMermaidChart(a as HTMLElement));
 };
 const showAnswer = async () => {
 	stopWritingAnswer.value = false;
@@ -505,12 +535,12 @@ const showAnswer = async () => {
 			}
 			markdownCache = '';
 			aiIsWritingAnswer.value = false;
-			const element = document.getElementById(`ai_chat_content_${currentChatContent.value.length - 1}`);
+			// const element = document.getElementById(`ai_chat_content_${currentChatContent.value.length - 1}`);
 
-			if (!element) {
-				return;
-			}
-			await prettifyMarkdown(currentChatContent.value[currentChatContent.value.length - 1].content, element);
+			// if (!element) {
+			// 	return;
+			// }
+			// await prettifyMarkdown(currentChatContent.value[currentChatContent.value.length - 1].content, element);
 			return;
 		}
 		const num = Math.floor(Math.random() * -1 + 5);
@@ -521,21 +551,23 @@ const showAnswer = async () => {
 		elementScrollToBottom('chatView');
 
 		await new Promise((resolve) => {
-			setTimeout(resolve, 40);
+			setTimeout(resolve, 30);
 		});
 	}
 };
 
 ws.onmessage = (result) => {
-	if (result.data === '&&&end&&&') {
+	const content = result.data;
+
+	if (content === '&&&end&&&') {
 		aiIsAnswering.value = false;
 		localDB.updateById('chat-content', parseInt(currentChatId.value), { chat: currentChatContent.value });
-	} else if (result.data === '&&&switch-chat-success&&&') {
+	} else if (content === '&&&switch-chat-success&&&') {
 		chatSwitching.value = false;
 	} else {
 		waitingAnswer.value = false;
-		responseCache += result.data;
-		currentChatContent.value[currentChatContent.value.length - 1].content += result.data;
+		responseCache += content;
+		currentChatContent.value[currentChatContent.value.length - 1].content += content;
 
 		if (!aiIsWritingAnswer.value) {
 			showAnswer();

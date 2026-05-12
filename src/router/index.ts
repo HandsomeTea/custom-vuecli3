@@ -114,6 +114,14 @@ const routes: Array<RouteRecordRaw> = [{
 			meta: { title: '视频', group: 'AI', page: 'ai-video' },
 			component: () => import(/* webpackChunkName: 'ai' */ '../views/ai/video.vue')
 		}, {
+			path: '/ui-tree',
+			meta: { title: '树', group: '自定义组件', page: 'ui-tree' },
+			component: () => import(/* webpackChunkName: 'custom-ui' */ '../views/custom-ui/tree.vue')
+		}, {
+			path: '/ui-calendar',
+			meta: { title: '日历', group: '自定义组件', page: 'ui-calendar' },
+			component: () => import(/* webpackChunkName: 'custom-ui' */ '../views/custom-ui/calendar.vue')
+		}, {
 			path: '/other/menu3-test',
 			// 不宜设置redirect，这种子菜单有权限控制，固定的redirect可能会跳转到没有权限的三级菜单页面
 			// redirect: '/other/menu3/test1',
@@ -136,6 +144,14 @@ const routes: Array<RouteRecordRaw> = [{
 			path: '/other/card',
 			meta: { title: '卡片', group: '其它', page: 'card' },
 			component: () => import(/* webpackChunkName: 'card' */ '../views/other/card.vue')
+		}, {
+			path: '/other/file',
+			meta: { title: '文件上传', group: '其它', page: 'file' },
+			component: () => import(/* webpackChunkName: 'card' */ '../views/other/file.vue')
+		}, {
+			path: '/other/other',
+			meta: { title: '其它', group: '其它', page: 'other' },
+			component: () => import(/* webpackChunkName: 'card' */ '../views/other/other.vue')
 		}
 	]
 }];

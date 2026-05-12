@@ -100,6 +100,7 @@
 
 							<div class="clear-both" />
 						</div>
+
 						<div v-if="chat.type === 'user'" class="chat_content mb-[14px]">
 							<img
 								class="float-right w-[40px] h-[40px] rounded-[6px]"
@@ -115,11 +116,30 @@
 										{{ userChat.data }}
 									</p>
 
-									<img
-										v-if="userChat.type === 'image'"
-										:class="['float-end w-[100%] h-[auto] rounded-[6px]', { 'mt-[6px]': s > 0 && chat.content[s - 1].data.toString().length > 0 }]"
-										:src="getImageUrl(userChat.data)"
-									>
+									<div v-if="userChat.type === 'image'" :class="['relative float-end w-[100%] h-[auto] rounded-[6px]', { 'mt-[6px]': s > 0 && chat.content[s - 1].data.toString().length > 0 }]">
+										<img :src="getImageUrl(userChat.data)" class="w-full rounded-[6px]">
+
+										<span
+											style="box-shadow: rgba(100, 100, 111, 0.4) 0px 1px 7px 0px;"
+											class="absolute !w-[22px] !h-[22px] text-center rounded-[50%] top-[10px] right-[10px] cursor-pointer bg-white"
+										>
+											<!-- <a-tooltip
+												v-if="!applyFileList.find(a => a.id === userChat.data)"
+												content="引入"
+											>
+												<icon-subscribe
+													class="text-[16px]"
+													@click="triggerApplyStoragedFile(userChat.data as number)"
+												/>
+											</a-tooltip> -->
+
+											<a-tooltip content="取消引入">
+												<icon-subscribed
+													class="text-[16px] !text-[#165DFF]"
+												/>
+											</a-tooltip>
+										</span>
+									</div>
 								</template>
 								<div class="clear-both" />
 							</div>
@@ -158,13 +178,13 @@
 					<div class="clear-both" />
 				</div>
 
-				<a-tooltip v-if="applyImageList.length > 0" content="点击图片删除引入">
+				<a-tooltip v-if="applyFileList.length > 0" content="点击图片删除引入">
 					<div
 						class="absolute max-w-[calc(100%-100px)] max-h-[246px] overflow-auto bottom-[126px] left-[50px] bg-white bg-opacity-60 rounded-[6px]"
 						style="box-shadow: rgba(100, 100, 111, 0.4) 0px 7px 29px 0px;"
 					>
 						<img
-							v-for="(image, i) in applyImageList"
+							v-for="(image, i) in applyFileList"
 							:key="i"
 							style="box-shadow: rgba(100, 100, 111, 0.3) 0px 7px 29px 0px;"
 							:src="image.url"
@@ -253,7 +273,7 @@
 		</a-modal>
 
 		<a-modal
-			v-model:visible="applyImageData.show"
+			v-model:visible="applyFileData.show"
 			title-align="start"
 			width="620px"
 			:align-center="false"
@@ -264,14 +284,14 @@
 			</template>
 
 			<a-input-group class="w-full">
-				<a-select v-model:model-value="applyImageData.type" class="!w-[200px]">
+				<a-select v-model:model-value="applyFileData.type" class="!w-[200px]">
 					<a-option v-for="ai of ['url', 'upload']" :key="ai" :value="ai">
 						{{ ai === 'url' ? '当前页面中的图片链接' : '本地上传' }}
 					</a-option>
 				</a-select>
-				<a-tooltip v-if="applyImageData.type === 'url'" content="在当前页面中的图片上右键，选择“复制图片地址”，然后粘贴到这里就可以了。">
+				<a-tooltip v-if="applyFileData.type === 'url'" content="在当前页面中的图片上右键，选择“复制图片地址”，然后粘贴到这里就可以了。">
 					<a-input
-						v-model:model-value="applyImageData.link"
+						v-model:model-value="applyFileData.link"
 						allow-clear
 						class="!w-[380px]"
 						placeholder="请输入当前页面中的图片链接"
@@ -280,8 +300,8 @@
 			</a-input-group>
 
 			<a-upload
-				v-if="applyImageData.type === 'upload'"
-				:default-file-list="uploadApplyImages"
+				v-if="applyFileData.type === 'upload'"
+				:default-file-list="uploadApplyFiles"
 				:show-remove-button="false"
 				:show-preview-button="false"
 				:show-file-list="false"
@@ -292,14 +312,14 @@
 			/>
 
 			<img
-				v-if="applyImageData.objUrl"
-				:src="applyImageData.objUrl"
+				v-if="applyFileData.objUrl"
+				:src="applyFileData.objUrl"
 				class="max-w-[560px] max-h-[400px] mx-auto mt-[30px]"
 			>
 
 			<template #footer>
 				<a-button
-					:disabled="!applyImageData.base64"
+					:disabled="!applyFileData.base64"
 					type="primary"
 					size="small"
 					@click="useImageToChat()"
@@ -346,7 +366,7 @@ const editChatInputData = ref<{ show: boolean, id: string, name: string }>({
 	id: '',
 	name: ''
 });
-const applyImageData = ref<{ show: boolean, type: 'url' | 'upload', link: string, objUrl: string, base64: string, data: Array<number> }>({
+const applyFileData = ref<{ show: boolean, type: 'url' | 'upload', link: string, objUrl: string, base64: string, data: Array<number> }>({
 	show: false,
 	type: 'url',
 	link: '',
@@ -354,24 +374,24 @@ const applyImageData = ref<{ show: boolean, type: 'url' | 'upload', link: string
 	base64: '',
 	data: []
 });
-const uploadApplyImages = ref<Array<FileItem>>([]);
+const uploadApplyFiles = ref<Array<FileItem>>([]);
 
-const applyImageList = ref<Array<{ url: string, base64: string, data: Array<number> }>>([]);
+const applyFileList = ref<Array<{ url: string, base64: string, data: Array<number> }>>([]);
 
-watch(() => applyImageData.value.type, async () => {
-	applyImageData.value.link = '';
-	applyImageData.value.objUrl = '';
-	applyImageData.value.base64 = '';
-	applyImageData.value.data = [];
-	if (applyImageData.value.type === 'url') {
-		uploadApplyImages.value = [];
+watch(() => applyFileData.value.type, async () => {
+	applyFileData.value.link = '';
+	applyFileData.value.objUrl = '';
+	applyFileData.value.base64 = '';
+	applyFileData.value.data = [];
+	if (applyFileData.value.type === 'url') {
+		uploadApplyFiles.value = [];
 	}
 });
-watch(() => applyImageData.value.link, async () => {
-	if (!applyImageData.value.link) {
+watch(() => applyFileData.value.link, async () => {
+	if (!applyFileData.value.link) {
 		return;
 	}
-	const res = await fetch(applyImageData.value.link, { mode: 'no-cors' });
+	const res = await fetch(applyFileData.value.link, { mode: 'no-cors' });
 
 	if (!res.ok) {
 		return Tips.error('图片加载失败');
@@ -380,17 +400,17 @@ watch(() => applyImageData.value.link, async () => {
 	const arrayBuffer = await blob.arrayBuffer();
 	const uint8Array = new Uint8Array(arrayBuffer);
 
-	applyImageData.value.data = Array.from(uint8Array);
-	applyImageData.value.base64 = await new Promise<string>((resolve) => {
+	applyFileData.value.data = Array.from(uint8Array);
+	applyFileData.value.base64 = await new Promise<string>((resolve) => {
 		const reader = new FileReader();
 
 		reader.readAsDataURL(blob);
 		reader.onload = () => resolve((reader.result as string).split(',')[1]);
 	});
-	applyImageData.value.objUrl = URL.createObjectURL(blob);
+	applyFileData.value.objUrl = URL.createObjectURL(blob);
 });
 
-const ws = new WebSocket('/ws/ai/image');
+const ws = new WebSocket('ws://10.155.176.160:3422/ws/ai/image');
 
 ws.onopen = () => {
 	ready.value = true;
@@ -428,7 +448,7 @@ onBeforeUnmount(() => {
 let parser: smd.Parser | null = null;
 
 const askAi = () => {
-	if (!ready.value || !currentChatId.value || chatSwitching.value || waitingAnswer.value || !prompt.value && applyImageList.value.length === 0 || aiIsAnswering.value || aiIsWritingAnswer.value) {
+	if (!ready.value || !currentChatId.value || chatSwitching.value || waitingAnswer.value || !prompt.value && applyFileList.value.length === 0 || aiIsAnswering.value || aiIsWritingAnswer.value) {
 		return;
 	}
 	currentChatContent.value.push({
@@ -447,7 +467,7 @@ const askAi = () => {
 						content: [
 							{ text: prompt.value },
 							...(() => {
-								const result = applyImageList.value.map(a => {
+								const result = applyFileList.value.map(a => {
 									return {
 										inlineData: {
 											mimeType: 'image/png',
@@ -456,11 +476,11 @@ const askAi = () => {
 									};
 								});
 
-								currentChatContent.value[currentChatContent.value.length - 1].content.push(...applyImageList.value.map(s => ({
+								currentChatContent.value[currentChatContent.value.length - 1].content.push(...applyFileList.value.map(s => ({
 									type: 'image' as 'text' | 'image',
 									data: s.data
 								})));
-								applyImageList.value = [];
+								applyFileList.value = [];
 								return result;
 							})()
 						]
@@ -665,14 +685,14 @@ const setApplyImageByUploadFile = (option: RequestOption): UploadRequest => {
 		const blob = new Blob([arrayBuffer], { type: fileItem.file?.type });
 		const uint8Array = new Uint8Array(arrayBuffer);
 
-		applyImageData.value.data = Array.from(uint8Array);
-		applyImageData.value.base64 = await new Promise<string>((resolve) => {
+		applyFileData.value.data = Array.from(uint8Array);
+		applyFileData.value.base64 = await new Promise<string>((resolve) => {
 			const reader = new FileReader();
 
 			reader.readAsDataURL(blob);
 			reader.onload = () => resolve((reader.result as string).split(',')[1]);
 		});
-		applyImageData.value.objUrl = URL.createObjectURL(blob);
+		applyFileData.value.objUrl = URL.createObjectURL(blob);
 	})();
 
 	onSuccess();
@@ -779,26 +799,26 @@ const changeChatName = async () => {
 	await localDB.updateById('image-chat', parseInt(editChatInputData.value.id), { name: editChatInputData.value.name });
 };
 const showApplyImageView = () => {
-	applyImageData.value.show = true;
-	applyImageData.value.type = 'url';
-	applyImageData.value.link = '';
-	applyImageData.value.objUrl = '';
-	applyImageData.value.base64 = '';
+	applyFileData.value.show = true;
+	applyFileData.value.type = 'url';
+	applyFileData.value.link = '';
+	applyFileData.value.objUrl = '';
+	applyFileData.value.base64 = '';
 };
 const useImageToChat = async () => {
-	if (!applyImageData.value.base64) {
-		applyImageData.value.show = false;
+	if (!applyFileData.value.base64) {
+		applyFileData.value.show = false;
 		return;
 	}
-	applyImageList.value.push({
-		url: applyImageData.value.objUrl,
-		base64: applyImageData.value.base64,
-		data: applyImageData.value.data
+	applyFileList.value.push({
+		url: applyFileData.value.objUrl,
+		base64: applyFileData.value.base64,
+		data: applyFileData.value.data
 	});
-	applyImageData.value.show = false;
+	applyFileData.value.show = false;
 };
 const deleteApplyImage = (index: number) => {
-	applyImageList.value.splice(index, 1);
+	applyFileList.value.splice(index, 1);
 };
 
 </script>
